@@ -24,12 +24,12 @@
 					"name": "AdaBoost"
 				}]
 			}, {
-				"name": "Deep Learning",
-				"size": 743
+				"name": "Deep Learning"
 			}, {
-				"name": "Naive Bayes",
-				"size": 743
-			}]
+				"name": "Naive Bayes"
+			}, {
+                "name": "K-Neighbors"
+            }]
 		}, {
 			"name": "Regression",
 			"children": [{
@@ -85,5 +85,26 @@
 		}, {
 			"name": "Elastic Net"
 		}]
+	}, {
+		"name": "Dimensionality Reduction",
+		"children": [{
+			"name": "PCA"
+		}, {
+			"name": "PLSR"
+		}, {
+			"name": "Projection Poursuit"
+		}, {
+			"name": "PCR"
+		}, {
+            "name": "MDA"
+        }, {
+            "name": "QDA"
+        }, {
+            "name": "RDA"
+        }, {
+            "name": "FDA"
+        }, {
+            "name": "LDA"
+        }]
 	}]
 }

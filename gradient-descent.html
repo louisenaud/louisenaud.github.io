@@ -85,14 +85,14 @@
 
     <!-- Page Header -->
     <!-- Set your background image for this header on the line below. -->
-    <header class="intro-header" style="background-image: url('img/post-bg.jpg')">
+    <header class="intro-header" style="background-image: url('img/paraboloid_large.png')">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <div class="post-heading">
                         <h1>Gradient Descent Algorithms</h1>
                         <h2 class="subheading">Description, Explanation, Illustration.</h2>
-                        <span class="meta">Posted by <a href="#">Louise</a> on April 24, 2017</span>
+                        <span class="meta">Posted by <a href="#">Louise</a> on April 15, 2017</span>
                     </div>
                 </div>
             </div>
@@ -143,6 +143,11 @@ print("The local minimum occurs at %f" % x_new)
                             <li>Iterative means each step is supposed to make an improvement.</li>
                         </ul>
                     </p>
+
+                    <h2 class="section-heading">Batch Gradient Descent</h2>
+                    As we need to calculate the gradients for the whole dataset to perform just one update, batch gradient descent can be very slow and is intractable for datasets that don't fit in memory. Batch gradient descent also doesn't allow us to update our model online, i.e. with new examples on-the-fly.
+
+                    In code, batch gradient descent looks something like this:
 
 
                     <h2 class="section-heading">Stochastic Gradient Descent</h2>
