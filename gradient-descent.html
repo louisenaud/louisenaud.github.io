@@ -92,7 +92,7 @@
                     <div class="post-heading">
                         <h1>Gradient Descent Algorithms</h1>
                         <h2 class="subheading">Description, Explanation, Illustration.</h2>
-                        <span class="meta">Posted by <a href="#">Louise</a> on April 15, 2017</span>
+                        <span class="meta">Posted by <a href="#">Louise</a> on April 25, 2017</span>
                     </div>
                 </div>
             </div>
@@ -112,9 +112,9 @@
                                         &   & \theta \longmapsto            & J(\theta)
                     \end{align*} $$
 
-                    Where \( \theta \) is the vector of the model's <b> parameters</b>.
+                        Where \( \theta \) is the vector of the model's <b> parameters</b>, \( d\) is the dimension of the input space, and \( n \) the dimension of the objective function output space, usually 1.</p>
                     
-                    This minimizer is found by updating the parameters \( \theta \) in the opposite direction of the <b> gradient </b> at \( \theta \), i.e. \( \nabla J(\theta)\), controlled by a <b>learning rate</b> \( \eta \) that gives the size of the steps during the descent.</p>
+                    <p> This minimizer is found by updating the parameters \( \theta \) in the opposite direction of the <b> gradient </b> at \( \theta \), i.e. \( \nabla J(\theta)\), controlled by a <b>learning rate</b> \( \eta \) that gives the size of the steps during the descent.</p>
                     <p> Here is a little animation to illustrate the principle. </p>
                     
                     <PRE>
@@ -144,6 +144,7 @@ print("The local minimum occurs at %f" % x_new)
                         </ul>
                     </p>
 
+<!--
                     <h2 class="section-heading">Batch Gradient Descent</h2>
                     As we need to calculate the gradients for the whole dataset to perform just one update, batch gradient descent can be very slow and is intractable for datasets that don't fit in memory. Batch gradient descent also doesn't allow us to update our model online, i.e. with new examples on-the-fly.
 
@@ -178,6 +179,7 @@ print("The local minimum occurs at %f" % x_new)
                     <p> Here is a labeled equation: $$x+1\over\sqrt{1-x^2}\label{ref1}$$ with a reference to ref1: \ref{ref1}, and another numbered one with no label: $$x+1\over\sqrt{1-x^2}$$ This one uses \nonumber: $$x+1\over\sqrt{1-x^2}\nonumber$$.</p>
 
                     <h2 class="section-heading">SAGA : Stochastic Average Gradient Ascent</h2>
+-->
 
                 </div>
             </div>
