@@ -104,7 +104,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                    For this first post, I am hoping to complete some excellent blog posts from <a href="http://sebastianruder.com/optimizing-gradient-descent/"> Sebastian Ruder</a> and <a href="http://tillbergmann.com/blog/python-gradient-descent.html/"> Till Bergman</a> on gradient descent, since it is the most common algorithm for optimization problems, especially in Machine Learning. 
+                    For this first post, I am hoping to complete some excellent blog posts from <a href="http://sebastianruder.com/optimizing-gradient-descent/"> Sebastian Ruder</a> and <a href="http://tillbergmann.com/blog/python-gradient-descent.html/"> Till Bergman</a> on gradient descent, since it is the most common algorithm for optimization problems, especially in Machine Learning. I will be more focused on a convex optimization point of view though.
              
                     <p> We'll go through the generic Gradient Descent algorithm, and then explain and illustrate possible optimizations, in order to speed-up the convergence, especially in the scope of very big data sets. </p>
                     
@@ -114,9 +114,24 @@
 
                         Where \( \theta \) is the vector of the model's <b> parameters</b>, \( d\) is the dimension of the input space, and \( n \) the dimension of the objective function output space, usually 1.</p>
                     
-                    <p> This minimizer is found by updating the parameters \( \theta \) in the opposite direction of the <b> gradient </b> at \( \theta \), i.e. \( \nabla J(\theta)\), controlled by a <b>learning rate</b> \( \eta \) that gives the size of the steps during the descent.</p>
-                    <p> Here is a little animation to illustrate the principle. </p>
+                    <p> This minimizer is found by updating the parameters \( \theta \) in the opposite direction of the <b> gradient </b> at \( \theta \), i.e. \( \nabla J(\theta)\), controlled by a <b>learning rate</b> \( \eta \) that gives the size of the steps during the descent. \( t \) will be the step number in the following paragraphs. </p>
+                    <!--<p> Here is a little animation to illustrate the principle. </p>-->
                     
+                    <p> Gradient descent is a first-order iterative optimization algorithm. 
+                        <ul>
+                            <li>First order means that the first derivative of the function to be minimized is involved.</li>
+                            <li>Iterative means each step is supposed to make an improvement.</li>
+                        </ul>
+                    </p>
+
+                    <h2 class="section-heading">Batch Gradient Descent</h2>
+                    The batch gradient descent updates the parameter vector \( \theta \) like this:
+
+                    $$ \begin{align*} \theta_t = \theta_{t-1} - \eta_t \nabla J(\theta_{t-1})
+                    \end{align*} $$
+
+
+                    In Python code, batch gradient descent looks something like this:
                     <PRE>
 import numpy as np
 # From calculation, it is expected that the local minimum occurs at x=9/4
@@ -135,22 +150,26 @@ while abs(x_new - x_old) > precision:
     x_new += -gamma * df(x_old)
 
 print("The local minimum occurs at %f" % x_new)
-                    </PRE> 
-                    
-                    <p> Gradient descent is a first-order iterative optimization algorithm. 
-                        <ul>
-                            <li>First order means that the first derivative of the function to be minimized is involved.</li>
-                            <li>Iterative means each step is supposed to make an improvement.</li>
-                        </ul>
-                    </p>
+                    </PRE>
 
-<!--
-                    <h2 class="section-heading">Batch Gradient Descent</h2>
-                    As we need to calculate the gradients for the whole dataset to perform just one update, batch gradient descent can be very slow and is intractable for datasets that don't fit in memory. Batch gradient descent also doesn't allow us to update our model online, i.e. with new examples on-the-fly.
-
-                    In code, batch gradient descent looks something like this:
+                    In a Machine Learning context, and using this method, we need to calculate the gradients for the entire dataset to perform each update; this is a big limitation for very large datasets (defined for \( n \), number of observations very large and \(d\), dimension of the observations, very large). This algorithm is also not suitable for online updates. The convergence rate is in \( \mathcal{O} (1 / t)\) for convex functions, and the iteration complexity is linear in \( n\).
 
 
+                    <h2 class="section-heading">Stochastic Gradient Descent (SGD)</h2>
+                    Stochastic provides a solution for the aforementioned problem by only computing the gradient on one data point in the data set, sampled with replacement. Here is what the update looks like:
+
+                    $$ \begin{align*}
+                    \theta_t = \theta_{t-1} - \eta_t \nabla J_{i(t)} (\theta_{t-1} ; x^{i(t)}, y^{i(t)})
+                    \end{align*} $$
+                    The convergence rate is in \( \mathcal{O} (\kappa / t)\) and the iteration complexity is independent of n.
+
+                    The ideal case for large datasets would be to have a convergence rate in \( \mathcal{O} (1 / t)\) and an iteration complexity independent of \( n\).
+
+                    <h2 class="section-heading">Stochastic Average Gradient (SAG)</h2>
+                    The Stochastic Average Gradient (SAG) is one proposition in order to accelerate the SGD
+
+
+ <!--
                     <h2 class="section-heading">Stochastic Gradient Descent</h2>
 
                     <p>There can be no thought of finishing for ‘aiming for the stars.’ Both figuratively and literally, it is a task to occupy the generations. And no matter how much progress one makes, there is always the thrill of just beginning.</p>
