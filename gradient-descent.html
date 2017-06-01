@@ -131,7 +131,7 @@
                     \end{align*} $$
 
 
-                    In Python code, batch gradient descent looks something like this:
+<!--                    In Python code, batch gradient descent looks something like this:
                     <PRE>
 import numpy as np
 # From calculation, it is expected that the local minimum occurs at x=9/4
@@ -150,7 +150,7 @@ while abs(x_new - x_old) > precision:
     x_new += -gamma * df(x_old)
 
 print("The local minimum occurs at %f" % x_new)
-                    </PRE>
+                    </PRE> -->
 
                     In a Machine Learning context, and using this method, we need to calculate the gradients for the entire dataset to perform each update; this is a big limitation for very large datasets (defined for \( n \), number of observations very large and \(d\), dimension of the observations, very large). This algorithm is also not suitable for online updates. The convergence rate is in \( \mathcal{O} (1 / t)\) for convex functions, and the iteration complexity is linear in \( n\).
 
