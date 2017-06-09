@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Louise Naud">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "all"} } });
+    </script>
+    <script type="text/javascript" src="../MathJax-master/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+    <title>Simple Regression in Keras</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="css/clean-blog.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="vendor/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript" async<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html>
+            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+    </script>
+</head>
+
+
+
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                Menu <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="index.html">ML Food for the Soul</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li>
+                    <a href="about.html">About</a>
+                </li>
+                <li>
+                    <a href="blog-tickets-list.html">Posts</a>
+                </li>
+                <li>
+                    <a href="contact.html">Contact</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Page Header -->
+<!-- Set your background image for this header on the line below. -->
+<header class="intro-header" style="background-image: url('img/neural-net1.png')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Simple Regression with Keras, Tensorflow and Tensorboard</h1>
+                    <h2 class="subheading">Simple example to wander in Keras.</h2>
+                    <span class="meta">Posted by <a href="#">Louise</a> on June 8, 2017</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+                <p> In this post, I will explain how to perform a simple regression with Keras - Tensorflow backend.
+                I will use the data from <ahref="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data/"> Kaggle</a>.
+                There are plenty of very good kernels existing for this dataset, and I will use the preprocessing steps
+                from:
+                <a
+                        href="https://www.kaggle.com/apapiu/regularized-linear-models/notebook/notebook"> here</a>.
+                    There are also very good introductions to Keras, but I found this one very straightforward :
+                    <a
+                            href="//machinelearningmastery.com/regression-tutorial-keras-deep-learning-library-python/"> Machine Learning Magistery</a>. </p>
+
+                <h2 class="section-heading">Installing Tensorflow and Keras</h2>
+                <p>
+                Being on a Linux OS, I chose to install Tensorflow from sources. These are the command that I used
+                for Ubuntu 16.04, with GPU support and SSEx support.</p>
+<pre class="prettyprint">
+    <code class="language-bash">
+sudo apt-get install python-numpy python-dev python-pip python-wheel
+sudo apt-get install libcupti-dev
+git clone https://github.com/tensorflow/tensorflow
+cd tensorflow
+./configure
+bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
+bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+sudo pip install /tmp/tensorflow_pkg/tensorflow-1.1.0-py2-none-any.whl # use completion to get the right .whl file
+    </code>
+</pre>
+                <p> Now is a good time to test if the installation worked, by typing python in a new command window,
+                and typing import tensorflow to check if everything worked!</p>
+
+                <p> Now let's move on to the Keras installation. Simple as that: </p>
+<PRE>
+sudo pip install keras
+</PRE>
+                <p>The Tensorflow backend should be the one by default.</p>
+
+                <h2 class="section-heading">Getting and formatting the data</h2>
+                <p> You can download the data from
+                    <ahref="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data/"> Kaggle</a>.
+                </p>
+                <p> Now, we have the Python packages, we have the data. let's get started:</p>
+                <pre class="prettyprint">
+                    <code class="language-python">
+# Data preprocessing; from https://www.kaggle.com/apapiu/regularized-linear-models/notebook/notebook
+
+# loading data
+train = pd.read_csv("/path/to/your/datasets/train.csv")
+test = pd.read_csv("/path/to/your/datasets/test.csv")
+dataset = train.values
+
+all_data = pd.concat((train.loc[:, 'MSSubClass':'SaleCondition'],
+                      test.loc[:, 'MSSubClass':'SaleCondition']))
+
+# log transform the target:
+train["SalePrice"] = np.log1p(train["SalePrice"])
+
+#log transform skewed numeric features:
+numeric_feats = all_data.dtypes[all_data.dtypes != "object"].index
+
+skewed_feats = train[numeric_feats].apply(lambda x: skew(x.dropna())) #compute skewness
+skewed_feats = skewed_feats[skewed_feats > 0.75]
+skewed_feats = skewed_feats.index
+
+all_data[skewed_feats] = np.log1p(all_data[skewed_feats])
+
+all_data = pd.get_dummies(all_data)
+#filling NA's with the mean of the column:
+all_data = all_data.fillna(all_data.mean())
+
+#creating matrices for sklearn:
+X_train = all_data[:train.shape[0]]
+X_test = all_data[train.shape[0]:]
+y = train.SalePrice
+#y_test = test.SalePrice
+
+# Scale the data:
+X_train_sc = StandardScaler().fit_transform(X_train)
+X_tr, X_val, y_tr, y_val = train_test_split(X_train_sc, y, random_state=10)
+                    </code>
+                </pre>
+
+                <p> We know have data in a numpy array, usable by Keras!</p>
+
+                <h2 class="section-heading">Defining Simple Neural Nets</h2>
+                <p> We are now going to define three simple neural nets in order to process the data</p>
+                <pre class="prettyprint">
+                    <code class="language-python">
+def simple_model():
+    """
+    Simple one Layer Network to estimate the sale price of the kaggle regression dataset.
+    This model was tested in the very good Kaggle Kernel: https://www.kaggle.com/apapiu/regularized-linear-models/notebook/notebook
+    :return: keras model
+    """
+    # Create model
+    model = Sequential()
+    model.add(Dense(1, input_dim=X_train.shape[1], W_regularizer=l1(0.001)))
+    # Compile model
+    model.compile(loss="mse", optimizer="adam")
+    return model
+
+def larger_model():
+    """
+    Creates a larger model with 5 layers. The width of the layers are: k -> k -> k -> 6 -> 1.
+    :return: Keras model.
+    """
+    # create model
+    model = Sequential()
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu'))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu'))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu'))
+    model.add(Dense(6, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(1, kernel_initializer='normal'))
+    # Compile model
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    return model
+
+def wider_model():
+    """
+    Creates a Keras model that is wider than the dimension of the feature space.
+    The layers width are like this:
+    k -> 2*k -> k -> k -> 1.
+    :return: Keras model.
+    """
+    # create model
+    model = Sequential()
+    model.add(Dense(2*X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu'))
+    model.add(Dense(X_train.shape[1], input_dim=2*X_train.shape[1], kernel_initializer='normal', activation='relu'))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu'))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu'))
+    model.add(Dense(1, kernel_initializer='normal'))
+    # Compile model
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    return model
+                    </code>
+                </pre>
+
+                <h2 class="section-heading">Training, Visualizing and Evaluating the Networks</h2>
+
+<pre class="prettyprint">
+    <code class="language-python">
+# First model
+model = simple_model()
+hist = model.fit(X_tr, y_tr, validation_data=(X_val, y_val))
+scores = model.evaluate(X_val, y_val, verbose=0)
+print "Score = ", scores
+
+# Second model
+model_2 = larger_model()
+# Create tensorflow call back to view the tensorboard associated with this model.
+tbCallBack = keras.callbacks.TensorBoard(log_dir='Graph', histogram_freq=0,
+          write_graph=True, write_images=True)
+tbCallBack.set_model(model_2)
+# Training the model
+hist2 = model_2.fit(X_tr, y_tr, validation_data=(X_val, y_val), callbacks=[tbCallBack])
+scores = model_2.evaluate(X_val, y_val, verbose=0)
+print scores
+
+# Third model
+model_3 = wider_model()
+hist3 = model_3.fit(X_tr, y_tr, validation_data=(X_val, y_val))
+scores = model_3.evaluate(X_val, y_val, verbose=0)
+print scores
+
+# Custom model
+model_4 = custom_model()
+hist4 = model_4.fit(X_tr, y_tr, validation_data=(X_val, y_val))
+scores = model_4.evaluate(X_val, y_val, verbose=0)
+print scores
+
+# Print MSE for each model
+mse = mean_squared_error(model.predict(X_val)[:, 0], y_val)
+print "Model 1 : ", mse
+mse = mean_squared_error(model_2.predict(X_val)[:, 0], y_val)
+print "Model 2 : ", mse
+mse = mean_squared_error(model_3.predict(X_val)[:, 0], y_val)
+print "Model 3 : ", mse
+mse = mean_squared_error(model_4.predict(X_val)[:, 0], y_val)
+print "Model 4 : ", mse
+
+# Plot Results
+plt.figure()
+x = range(0, len(X_val))
+plt.plot(x, model.predict(X_val)[:, 0], label="Model 1")
+plt.plot(x, model_2.predict(X_val)[:, 0], label="Model 2")
+plt.plot(x, model_3.predict(X_val)[:, 0], label="Model 3")
+plt.plot(x, model_4.predict(X_val)[:, 0], label="Model 4")
+plt.xlabel("Houses")
+plt.ylabel("Real and Predicted Prices")
+plt.plot(x, y_val, label="GT")
+plt.title("Keras Models")
+plt.legend()
+plt.show()
+    </code>
+</pre>
+                <p> To visualize your loss in Tensorboard, all you have to do now is:</p>
+<pre class="prettyprint">
+    <code class="language-bash">
+tensorboard --logdir /absolute/path/to/your/log/directory/Graph
+    </code>
+</pre>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<hr>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                </ul>
+                <p class="copyright text-muted">Copyright &copy; Louise Naud 2017</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="vendor/bootstrap/js/bootstrap.js"></script>
+
+<!-- Contact Form JavaScript -->
+<script src="js/jqBootstrapValidation.js"></script>
+<script src="js/contact_me.js"></script>
+
+<!-- Theme JavaScript -->
+<script src="js/clean-blog.js"></script>
+
+</body>
+
+</html>
