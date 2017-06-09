@@ -16,7 +16,7 @@
         MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "all"} } });
     </script>
     <script type="text/javascript" src="../MathJax-master/MathJax.js?config=TeX-AMS_HTML"></script>
-    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
 
     <title>Simple Regression in Keras</title>
 
@@ -40,16 +40,7 @@
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
     </script>
-    <script type="text/javascript" async<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+    <script type="text/javascript" async
             src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
     </script>
 </head>
@@ -98,7 +89,7 @@
 <header class="intro-header" style="background-image: url('img/neural-net1.png')">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
                 <div class="post-heading">
                     <h1>Simple Regression with Keras, Tensorflow and Tensorboard</h1>
                     <h2 class="subheading">Simple example to wander in Keras.</h2>
@@ -113,14 +104,14 @@
 <article>
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
 
                 <p> In this post, I will explain how to perform a simple regression with Keras - Tensorflow backend.
                 I will use the data from <ahref="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data/"> Kaggle</a>.
                 There are plenty of very good kernels existing for this dataset, and I will use the preprocessing steps
                 from:
                 <a
-                        href="https://www.kaggle.com/apapiu/regularized-linear-models/notebook/notebook"> here</a>.
+                        href="https://www.kaggle.com/apapiu/regularized-linear-models/notebook"> here</a>.
                     There are also very good introductions to Keras, but I found this one very straightforward :
                     <a
                             href="//machinelearningmastery.com/regression-tutorial-keras-deep-learning-library-python/"> Machine Learning Mastery</a>. </p>
@@ -145,9 +136,11 @@ sudo pip install /tmp/tensorflow_pkg/tensorflow-1.1.0-py2-none-any.whl # use com
                 and typing import tensorflow to check if everything worked!</p>
 
                 <p> Now let's move on to the Keras installation. Simple as that: </p>
-<PRE>
+                <pre class="prettyprint">
+                    <code class="language-bash">
 sudo pip install keras
-</PRE>
+</code>
+</pre>
                 <p>The Tensorflow backend should be the one by default.</p>
 
                 <h2 class="section-heading">Getting and formatting the data</h2>
@@ -313,6 +306,7 @@ plt.show()
 tensorboard --logdir /absolute/path/to/your/log/directory/Graph
     </code>
 </pre>
+                <p>You can get the code from this post at <a href="https://github.com/louisenaud/kaggle-regression"> this Github page</a>. </p>
 
             </div>
         </div>
@@ -328,7 +322,7 @@ tensorboard --logdir /absolute/path/to/your/log/directory/Graph
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <ul class="list-inline text-center">
                     <li>
-                        <a href="#">
+                        <a href="https://twitter.com/naud_louise">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-circle fa-stack-2x"></i>
                                     <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
@@ -336,7 +330,7 @@ tensorboard --logdir /absolute/path/to/your/log/directory/Graph
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="https://www.facebook.com/louise.naud1">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-circle fa-stack-2x"></i>
                                     <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
@@ -344,7 +338,7 @@ tensorboard --logdir /absolute/path/to/your/log/directory/Graph
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="https://github.com/louisenaud">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-circle fa-stack-2x"></i>
                                     <i class="fa fa-github fa-stack-1x fa-inverse"></i>
