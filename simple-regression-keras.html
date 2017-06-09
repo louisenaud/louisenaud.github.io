@@ -123,7 +123,7 @@
                         href="https://www.kaggle.com/apapiu/regularized-linear-models/notebook/notebook"> here</a>.
                     There are also very good introductions to Keras, but I found this one very straightforward :
                     <a
-                            href="//machinelearningmastery.com/regression-tutorial-keras-deep-learning-library-python/"> Machine Learning Magistery</a>. </p>
+                            href="//machinelearningmastery.com/regression-tutorial-keras-deep-learning-library-python/"> Machine Learning Mastery</a>. </p>
 
                 <h2 class="section-heading">Installing Tensorflow and Keras</h2>
                 <p>
@@ -187,7 +187,6 @@ all_data = all_data.fillna(all_data.mean())
 X_train = all_data[:train.shape[0]]
 X_test = all_data[train.shape[0]:]
 y = train.SalePrice
-#y_test = test.SalePrice
 
 # Scale the data:
 X_train_sc = StandardScaler().fit_transform(X_train)

@@ -16,6 +16,8 @@
         MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "all"} } });
     </script>
     <script type="text/javascript" src="../MathJax-master/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
 
     <title>Gradient Descent</title>
 
@@ -104,9 +106,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                    For this first post, I am hoping to complete some excellent blog posts from <a href="http://sebastianruder.com/optimizing-gradient-descent/"> Sebastian Ruder</a> and <a href="http://tillbergmann.com/blog/python-gradient-descent.html/"> Till Bergman</a> on gradient descent, since it is the most common algorithm for optimization problems, especially in Machine Learning. 
-             
-                    <p> We'll go through the generic Gradient Descent algorithm, and then explain and illustrate possible optimizations, in order to speed-up the convergence, especially in the scope of very big data sets. </p>
+                    In this post, we are going to go through the basics algorithms of Reinforcement Learning, namely:
+                    <ul>
+                        <li>Value Iteration</li>
+                        <li>Policy Iteration</li>
+                        <li>Q-Learning</li>
+                    </ul>
+
                     
                     <p> Let us first set some vocabulary and notations. Gradient descent is a method to find the minimizer of an <b>objective function </b>, usually noted: $$ \begin{align*} J & : & \mathbb{R}^d \longrightarrow  & \mathbb{R}^n \\
                                         &   & \theta \longmapsto            & J(\theta)
