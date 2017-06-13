@@ -311,14 +311,18 @@ def regularized_model():
 
                 <p>The Mean Squared Errors (MSE) and \( R^2 \) score on the validation set for each network give us a
                     good idea on how well each network performs :</p>
-                <pre>Model 1 MSE:  157.642418203
-Model 2 MSE:  0.45207531213
-Model 3 MSE:  0.727215002901
-Model 4 MSE:  0.242687999482
-Model 1 R^2:  -18.3945460105
-Model 2 R^2:  0.232034628877
-Model 3 R^2:  0.170981182408
-Model 4 R^2:  0.0963016233005</pre>
+                <pre>Model 1 MSE:  156.8337014
+Model 2 MSE:  0.447272525725
+Model 3 MSE:  0.602414087793
+Model 4 MSE:  0.108447734133
+Model 1 R^2:  -18.5689555865
+Model 2 R^2:  0.0916395170566
+Model 3 R^2:  0.215758728629
+Model 4 R^2:  0.336460848879</pre>
+                <p>The MSE and \( R^2 \) score tell us that the Model 4 performs the best for the validation dataset.
+                This also tells us, even though we don't have some test data to check, that the Models 2 and 3 most
+                likely did some overfitting, and that the Regularization used in the Model 4 helped in dealing with
+                this phenomenon. </p>
                 <a href="#">
                     <img class="img-responsive" src="img/results_regression_kaggle.png" alt="">
                 </a>
