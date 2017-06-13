@@ -243,6 +243,7 @@ def wider_model():
                 </pre>
 
                 <h2 class="section-heading">Training, Visualizing and Evaluating the Networks</h2>
+                We are now going to create the networks, train them and visualize the loss functions in Tensorboard.
 
 <pre class="prettyprint">
     <code class="language-python">
@@ -274,38 +275,66 @@ model_4 = custom_model()
 hist4 = model_4.fit(X_tr, y_tr, validation_data=(X_val, y_val))
 scores = model_4.evaluate(X_val, y_val, verbose=0)
 print scores
-
-# Print MSE for each model
-mse = mean_squared_error(model.predict(X_val)[:, 0], y_val)
-print "Model 1 : ", mse
-mse = mean_squared_error(model_2.predict(X_val)[:, 0], y_val)
-print "Model 2 : ", mse
-mse = mean_squared_error(model_3.predict(X_val)[:, 0], y_val)
-print "Model 3 : ", mse
-mse = mean_squared_error(model_4.predict(X_val)[:, 0], y_val)
-print "Model 4 : ", mse
-
-# Plot Results
-plt.figure()
-x = range(0, len(X_val))
-plt.plot(x, model.predict(X_val)[:, 0], label="Model 1")
-plt.plot(x, model_2.predict(X_val)[:, 0], label="Model 2")
-plt.plot(x, model_3.predict(X_val)[:, 0], label="Model 3")
-plt.plot(x, model_4.predict(X_val)[:, 0], label="Model 4")
-plt.xlabel("Houses")
-plt.ylabel("Real and Predicted Prices")
-plt.plot(x, y_val, label="GT")
-plt.title("Keras Models")
-plt.legend()
-plt.show()
     </code>
 </pre>
+                <p> The first network is really just one layer, so there is very little chance that is can perform
+                    well on this regression dataset. The second one has five layers, and performs quite well on this
+                    dataset. given the mean squared error, and the final values of the training and validation
+                    losses. The third model is wider than the second one, with the same number of layers, so the
+                    training loss is decreasing faster at first, but at the end of the epochs, it is slightly higher
+                    than the previous model loss. We are encountering some overfitting.
+                </p>
+                <p>I used one more model, with four layers, but I added some regularizarion on the loss in the dense
+                layers to prevent overfitting from happening. The model looks like this:</p>
+
+                <pre class="prettyprint">
+    <code class="language-python">
+def regularized_model():
+    """
+    Creates a Keras model with L1 regularization to prevent overfitting.
+    :return: Keras model.
+    """
+    # create model
+    model = Sequential()
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu',
+                    W_regularizer=l1(0.1)))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu',
+                    W_regularizer=l1(0.1)))
+    model.add(Dense(X_train.shape[1], input_dim=X_train.shape[1], kernel_initializer='normal', activation='relu',
+                    W_regularizer=l1(0.1)))
+    model.add(Dense(1, kernel_initializer='normal'))
+    # Compile model
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    return model
+    </code>
+                </pre>
+
+                <p>The Mean Squared Errors (MSE) and \( R^2 \) score on the validation set for each network give us a
+                    good idea on how well each network performs :</p>
+                <pre>Model 1 MSE:  157.642418203
+Model 2 MSE:  0.45207531213
+Model 3 MSE:  0.727215002901
+Model 4 MSE:  0.242687999482
+Model 1 R^2:  -18.3945460105
+Model 2 R^2:  0.232034628877
+Model 3 R^2:  0.170981182408
+Model 4 R^2:  0.0963016233005</pre>
+                <a href="#">
+                    <img class="img-responsive" src="img/results_regression_kaggle.png" alt="">
+                </a>
                 <p> To visualize your loss in Tensorboard, all you have to do now is:</p>
 <pre class="prettyprint">
     <code class="language-bash">
 tensorboard --logdir /absolute/path/to/your/log/directory/Graph
     </code>
 </pre>
+                <p>On the "scalars" tab, you should be able to visualize the losses like this:</p>
+                <a href="#">
+                    <img class="img-responsive" src="img/tensorboard-view.png" alt="">
+                </a>
+                <p>This tool may come in very handy when using a more complex network on a large data set; it allows
+                to check if the network has actually converged or if some overfitting has occurred (if the test
+                    loss curve had increased a lot before the validation loss curve increased for instance).</p>
                 <p>You can get the code from this post at <a href="https://github.com/louisenaud/kaggle-regression"> this Github page</a>. </p>
 
             </div>

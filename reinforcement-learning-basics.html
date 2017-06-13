@@ -16,10 +16,10 @@
         MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "all"} } });
     </script>
     <script type="text/javascript" src="../MathJax-master/MathJax.js?config=TeX-AMS_HTML"></script>
-    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
 
 
-    <title>Gradient Descent</title>
+    <title>Reinforcement Learning</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -106,12 +106,25 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <p>Reinforcement Learning is a very rich and active research area in Machine Learning; it is defined
+                    in the very excellent book <a
+                                href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981"> Reinforcement Learning: An Introduction (Adaptive Computation and Machine Learning) </a>.as "computational approach to learning from interaction".</p>
                     In this post, we are going to go through the basics algorithms of Reinforcement Learning, namely:
                     <ul>
                         <li>Value Iteration</li>
                         <li>Policy Iteration</li>
                         <li>Q-Learning</li>
                     </ul>
+
+                    <h2 class="section-heading">The Learning Scenario</h2>
+                    <p>There are two entities in this scenario: the <i>agent</i> and the <i>environment</i>. Both
+                    entities interact through <i>actions</i>, <i>states</i> and <i>rewards</i>. The agent performs an
+                        action, which has an influence on the environment, and he recieves two types of information:
+                        his current state in the environment and a reward corresponding to his action in the given
+                        state he was in, and the defined goal. The ultimate objective of the agent is to optimize his sequence of action, the <i>policy</i>.</p>
+                    <a href="#">
+                        <img class="img-responsive" src="img/reinforcement-learning-1.png" alt="">
+                    </a>
 
                     
                     <p> Let us first set some vocabulary and notations. Gradient descent is a method to find the minimizer of an <b>objective function </b>, usually noted: $$ \begin{align*} J & : & \mathbb{R}^d \longrightarrow  & \mathbb{R}^n \\
