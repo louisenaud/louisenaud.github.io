@@ -44,6 +44,24 @@
     <script type="text/javascript" async
         src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
     </script>
+    <!-- KateX for math formulas in pseudo code -->
+    <link rel="stylesheet" href="katex/katex.css">
+    <script src="katex/katex.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+    <!-- widgets for pseudo code -->
+    <link rel="stylesheet" href="pseudocode/static/pseudocode.css">
+    <script src="pseudocode/pseudocode.js"></script>
+
+    <script type="text/javascript">
+        var code = document.getElementById("hello-world-code").textContent;
+        var parentEl = document.body;
+        var options = {
+            lineNumber: true
+    };
+    pseudocode.render(code, parentEl, options);
+    </script>
+
 </head>
 
 
@@ -126,7 +144,14 @@
                         <img class="img-responsive" src="img/reinforcement-learning-1.png" alt="">
                     </a>
 
-                    
+
+                    <h2 class="section-heading">Value Iteration</h2>
+                    <pre id="hello-world-code" style="display:hidden;">
+\begin{algorithmc}
+\PRINT \texttt{'hello world'}
+\end{algorithmc}
+</pre>
+
                     <p> Let us first set some vocabulary and notations. Gradient descent is a method to find the minimizer of an <b>objective function </b>, usually noted: $$ \begin{align*} J & : & \mathbb{R}^d \longrightarrow  & \mathbb{R}^n \\
                                         &   & \theta \longmapsto            & J(\theta)
                     \end{align*} $$
@@ -190,6 +215,62 @@ print("The local minimum occurs at %f" % x_new)
                     <p>Placeholder text by <a href="http://spaceipsum.com/">Space Ipsum</a>. Photographs by <a href="https://www.flickr.com/photos/nasacommons/">NASA on The Commons</a>.</p>
                     
                     <p> Here is a labeled equation: $$x+1\over\sqrt{1-x^2}\label{ref1}$$ with a reference to ref1: \ref{ref1}, and another numbered one with no label: $$x+1\over\sqrt{1-x^2}$$ This one uses \nonumber: $$x+1\over\sqrt{1-x^2}\nonumber$$.</p>
+
+                    <!-- Blog Comments -->
+
+                    <!-- Comments Form -->
+                    <div class="well">
+                        <h4>Leave a Comment:</h4>
+                        <form role="form">
+                            <div class="form-group">
+                                <textarea class="form-control" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+
+                    <hr>
+
+                    <!-- Posted Comments -->
+
+                    <!--&lt;!&ndash; Comment &ndash;&gt;
+                    <div class="media">
+                        <a class="pull-left" href="#">
+                            <img class="media-object" src="http://placehold.it/64x64" alt="">
+                        </a>
+                        <div class="media-body">
+                            <h4 class="media-heading">Start Bootstrap
+                                <small>August 25, 2014 at 9:30 PM</small>
+                            </h4>
+                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                        </div>
+                    </div>
+
+                    &lt;!&ndash; Comment &ndash;&gt;
+                    <div class="media">
+                        <a class="pull-left" href="#">
+                            <img class="media-object" src="http://placehold.it/64x64" alt="">
+                        </a>
+                        <div class="media-body">
+                            <h4 class="media-heading">Start Bootstrap
+                                <small>August 25, 2014 at 9:30 PM</small>
+                            </h4>
+                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                            &lt;!&ndash; Nested Comment &ndash;&gt;
+                            <div class="media">
+                                <a class="pull-left" href="#">
+                                    <img class="media-object" src="http://placehold.it/64x64" alt="">
+                                </a>
+                                <div class="media-body">
+                                    <h4 class="media-heading">Nested Start Bootstrap
+                                        <small>August 25, 2014 at 9:30 PM</small>
+                                    </h4>
+                                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                                </div>
+                            </div>-->
+                            <!-- End Nested Comment -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
