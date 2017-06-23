@@ -11,11 +11,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "all"} } });
-    </script>
-    <script type="text/javascript" src="../MathJax-master/MathJax.js?config=TeX-AMS_HTML"></script>
+    <!-- For code display: Code Prettify -->
     <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
 
 
@@ -38,30 +34,45 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-    </script>
+
     <script type="text/javascript" async
         src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
     </script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <!-- Configuration for Mathjax and AlgoType-->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            extensions: ["tex2jax.js", "color.js"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+                processEscapes: true
+            },
+            "HTML-CSS": { availableFonts: ["TeX"] },
+            TeX: {
+                Macros: {
+                            And:     "\\\\mathbf{and}",
+                            Or:      "\\\\mathbf{or}",
+                            Not:     "\\\\mathbf{not}",
+                            Is:      "\\\\mathbf{is}",
+                            In:      "\\\\mathbf{in}",
+                            Mapped:  "\\\\mathbf{mapped}",
+                            Nil:     "\\\\mathbf{nil}"
+                }
+            }
+        });
+    </script>
     <!-- KateX for math formulas in pseudo code -->
     <link rel="stylesheet" href="katex/katex.css">
-    <script src="katex/katex.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
-    <!-- widgets for pseudo code -->
+    <!-- Stylesheet for pseudo code -->
     <link rel="stylesheet" href="pseudocode/static/pseudocode.css">
-    <script src="pseudocode/pseudocode.js"></script>
-
-    <script type="text/javascript">
-        var code = document.getElementById("hello-world-code").textContent;
-        var parentEl = document.body;
-        var options = {
-            lineNumber: true
-    };
-    pseudocode.render(code, parentEl, options);
+    <link rel="stylesheet" href="Algotype.js/public_html/algotype_my_config.css">
+    <script type="text/javascript" async
+            src="Algotype.js/public_html/algotype.js">
     </script>
-
 </head>
 
 
@@ -110,9 +121,9 @@
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <div class="post-heading">
-                        <h1>Fundamental Algorithms in Reinforcement Learning</h1>
-                        <h2 class="subheading">Or learning a sequence of actions.</h2>
-                        <span class="meta">Posted by <a href="#">Louise</a> on June 24, 2017</span>
+                        <h1>Fundamental Algorithms in Reinforcement Learning - I</h1>
+                        <h2 class="subheading">Or learning a sequence of actions - when you know your environment.</h2>
+                        <span class="meta">Posted by <a href="#">Louise</a> on June 23, 2017</span>
                     </div>
                 </div>
             </div>
@@ -124,14 +135,15 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                    <p>Reinforcement Learning is a very rich and active research area in Machine Learning; it is defined
-                    in the very excellent book <a
-                                href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981"> Reinforcement Learning: An Introduction (Adaptive Computation and Machine Learning) </a>.as "computational approach to learning from interaction".</p>
-                    In this post, we are going to go through the basics algorithms of Reinforcement Learning, namely:
+                    <p>Reinforcement Learning is a very rich and active research area in Machine Learning; it is
+                        defined in the very excellent book <a
+                                href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981"> Reinforcement Learning: An Introduction </a> as "computational approach to learning from interaction".</p>
+                    In this post, we are going to go through the basics algorithms of Reinforcement Learning when the
+                    environment is known, namely:
                     <ul>
                         <li>Value Iteration</li>
                         <li>Policy Iteration</li>
-                        <li>Q-Learning</li>
+                        <li>Dynamic Programming</li>
                     </ul>
 
                     <h2 class="section-heading">The Learning Scenario</h2>
@@ -144,93 +156,174 @@
                         <img class="img-responsive" src="img/reinforcement-learning-1.png" alt="">
                     </a>
 
+                    <h2 class="section-heading">Useful Definitions</h2>
+                    <p>Let's suppose we have a set of <i>Decision Epochs</i>, which is most likely discrete in
+                    our case; it will be noted \( {0, 1, ..., T} \).   \( T \), the <i>Horizon</i>, might be finite
+                        of infinite.</p>
+                    <h3 class="subheading">Markov Decision Process</h3>
+                    <p>A Reinforcement Learning task that satisfies the Markov Property is called a <i>Markov
+                        Decision Process</i> (MDP). It is defined by:</p>
+                    <ul>
+                        <li>A set of States \( \mathcal{S} \)</li>
+                        <li>A set of Actions \( \mathcal{A} \)</li>
+                        <li>A transition Probability \( P(s_{t+1} = s' \vert s_t = s, a_t = a) \) : the probability
+                            that the agent will be in state \( s' \) at \( t+1 \) when in state \( s \) at time \( t \)
+                            and
+                            performing action \( a \)</li>
+                        <li>\( R^{a}_{(s, s')} \) is the expected immediate reward received after transitioning from
+                            state
+                            \( s \) to state \( s' \), due to action \( a \)</li>
+                        <li>\( \gamma \) the discount factor; it determines the value at time \( t \) of the future
+                            rewards from \( t+1 \) to \( T \)</li>
+                    </ul>
+                    <h3 class="subheading">Policy</h3>
+                    <p>A <i>policy</i> in this context is a map from states to probability distributions over
+                    actions
+                    \( \pi : S \rightarrow P(A=a \vert \mathcal{S}) \).</p>
 
-                    <h2 class="section-heading">Value Iteration</h2>
-                    <pre id="hello-world-code" style="display:hidden;">
-\begin{algorithmc}
-\PRINT \texttt{'hello world'}
-\end{algorithmc}
-</pre>
+                    <h3 class="subheading">Return</h3>
+                    <ul>
+                        <li>The <i>Return</i> is defined as: \( R_t = \sum _{k=0}^{N-1}r_{t+k+1}\), </li>
+                        <li>The <i>Discounted Return</i> is defined as: \( R_t = \sum _{k=0}^{T-1}\gamma^{k} r_{t+k+1}\)
+                            ,</li>
+                    </ul>
 
-                    <p> Let us first set some vocabulary and notations. Gradient descent is a method to find the minimizer of an <b>objective function </b>, usually noted: $$ \begin{align*} J & : & \mathbb{R}^d \longrightarrow  & \mathbb{R}^n \\
-                                        &   & \theta \longmapsto            & J(\theta)
-                    \end{align*} $$
+                    <h3 class="subheading">Value Function</h3>
+                    <p>The <i>Value Function</i> gives an estimate of "how good" - in terms of expected return-
+                    it is for the agent to be in a given state, or to perform a given action in a given state.</p>
+                    <ul>
+                        <li>The <i>Value Function</i> for a given policy \( \pi \) is defined as:  \( \forall s, V^{\pi
+                            }(s) = \mathbb{E}[R_t \vert s_t=s] \). It is the expected return when starting in state
+                            \(s\) and following \(pi\) thereafter.</li>
+                        <li>We can also define the <i>Action Value Function</i> for policy \( \pi \) as: \( Q^{\pi}(s,
+                            a) =
+                            \mathbb{E}_{\pi} [R_t \vert s_t = s, a_t = a]\)</li>
+                        <li>The <i>Optimal Value Function </i> is defined as: \( \forall s \in
+                            \mathcal{S}, V^{*}(s)=\max \limits _{\pi
+                            }V^{\pi }(s) \),</li>
+                        <li>The <i>Optimal Action-Value Function</i> is defined as: \( \forall (s,a) \in
+                            \mathcal{S} \times \mathcal{A}, Q^{*}(s, a )=\max \limits _{\pi
+                            }Q^{\pi }(s, a) \).</li>
+                    </ul>
 
-                    Where \( \theta \) is the vector of the model's <b> parameters</b>.
-                    
-                    This minimizer is found by updating the parameters \( \theta \) in the opposite direction of the <b> gradient </b> at \( \theta \), i.e. \( \nabla J(\theta)\), controlled by a <b>learning rate</b> \( \eta \) that gives the size of the steps during the descent.</p>
-                    <p> Here is a little animation to illustrate the principle. </p>
-                    
-                    <PRE>
-import numpy as np
-# From calculation, it is expected that the local minimum occurs at x=9/4
-
-x_old = 0 # The value does not matter as long as abs(x_new - x_old) > precision
-x_new = 6 # The algorithm starts at x=6
-gamma = 0.01 # step size
-precision = 0.00001
-
-def df(x):
-    y = 4 * x**3 - 9 * x**2
-    return y
-
-while abs(x_new - x_old) > precision:
-    x_old = x_new
-    x_new += -gamma * df(x_old)
-
-print("The local minimum occurs at %f" % x_new)
-                    </PRE> 
-                    
-                    <p> Gradient descent is a first-order iterative optimization algorithm. 
-                        <ul>
-                            <li>First order means that the first derivative of the function to be minimized is involved.</li>
-                            <li>Iterative means each step is supposed to make an improvement.</li>
-                        </ul>
+                    <p>Now is probably a good time to mention this property, which will be essential in our
+                        peregrinations: $$ \begin{align*} \forall s \in \mathcal{S}, V^{*}(s) = \max \limits_{a \in
+                        \mathcal{A}
+                        \sum_{s' \in
+                        \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V^{*}(s')]
+                        \end{align*} $$
+                        This equation is called the Bellman's optimality equation. This can be proven using the
+                        recursive relation in the definition of the Value Function and Return.
                     </p>
+                    <p>A policy is optimal if it has maximal value \( \forall s \in \mathcal{S}\). We can write this
+                    as: $$ \begin{align*} \forall s \in \mathcal{S}, \pi^{*}(s) = \arg\max \limits_{a \in \mathcal{A}}
+                        Q^{*} (s,a) $$</p>
 
 
-                    <h2 class="section-heading">Stochastic Gradient Descent</h2>
+                    <h2 class="section-heading">Policy Iteration</h2>
+                    <p>The goal of a reinforcement problem is to find the best course of actions. "Best" means in terms
+                    of return, and the course of action is the policy in our context. Computing the value function
+                    helps us finding better policies. In this blog post, we are interested in problems where we know
+                    the environment, which means that the transition probabilities and expected rewards are know for
+                    each pair of states, and each action. The most straightforward algorithm to come up with a policy
+                        is the policy iteration.</p>
 
-                    <p>There can be no thought of finishing for ‘aiming for the stars.’ Both figuratively and literally, it is a task to occupy the generations. And no matter how much progress one makes, there is always the thrill of just beginning.</p>
+                    <p>The idea here is to alternate a policy evaluation with a policy improvement. This iteratively
+                    refines the optimal policy. The proof of convergence is fairly straightforward through the
+                        Bellman Operator, which we won't define in this post, but you can find the proof <a
+                                href="http://chercheurs.lille.inria.fr/~ghavamza/RL-EC-Lille/Lecture4-b.pdf"> here
+                        </a>.</p>
 
-                    <p>There can be no thought of finishing for ‘aiming for the stars.’ Both figuratively and literally, it is a task to occupy the generations. And no matter how much progress one makes, there is always the thrill of just beginning.</p>
 
-                    <blockquote>The dreams of yesterday are the hopes of today and the reality of tomorrow. Science has not yet mastered prophecy. We predict too much for the next year and yet far too little for the next ten.</blockquote>
+                    <p>Here is the pseudo code of the Policy Iteration:</p>
 
-                    <p>Spaceflights cannot be stopped. This is not the work of any one man or even a group of men. It is a historical process which mankind is carrying out in accordance with the natural laws of human development.</p>
+                    <p>
+                        <alg-algorithm header="Policy-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r)$"
+                                comment="Policy Iteration Algorithm">
+                            <alg-step comment="Arbitrary Initial Policy">$\pi \leftarrow \pi_0$</alg-step>
+                            <alg-step>$\pi' \leftarrow \varnothing$</alg-step>
+                            <alg-while condition="$\pi \neq \pi' $">
+                                <alg-step comment="Policy Evaluation">$V \leftarrow V_{\pi}$</alg-step>
+                                <alg-step comment="Update Current Policy">$ \pi' \leftarrow \pi$</alg-step>
+                                <alg-step comment="Greedy Policy Improvement">$ \pi \leftarrow \arg \max_{\pi}
+                                    R_{\pi} + \gamma P_{\pi} V $</alg-step>
+                            </alg-while>
+                            <alg-return comment="Return Estimated Optimal Policy">$ \pi$</alg-return>
+                        </alg-algorithm>
+                    </p>
+                    <h2 class="section-heading">Value Iteration</h2>
+                    <p>The main issue with Policy Iteration is that it involves multiple sweepings of the state
+                        space \( \mathcal{S} \), which may be problematic with very large state spaces. The idea here is
+                        to truncate the Policy Evaluation after one sweep. This basically means using the Bellman's
+                        optimality equation as an update rule: $$ \begin{align*} \forall s \in \mathcal{S},
+                        V_{k+1}(s) = \max \limits_{a}
+                        \sum_{s' \in
+                        \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V_{k}(s')]
+                        \end{align*} $$
+                        </p>
+                    <p>This algorithms converges in more steps than the Policy Iteration, but has a lower complexity
+                        .</p>
 
-                    <h2 class="section-heading">Reaching for the Stars</h2>
 
-                    <p>As we got further and further away, it [the Earth] diminished in size. Finally it shrank to the size of a marble, the most beautiful you can imagine. That beautiful, warm, living object looked so fragile, so delicate, that if you touched it with a finger it would crumble and fall apart. Seeing this has to change a man.</p>
+                    <h2 class="section-heading">Linear Programming</h2>
 
-                    <a href="#">
-                        <img class="img-responsive" src="img/post-sample-image.jpg" alt="">
-                    </a>
-                    <span class="caption text-muted">To go places and do things that have never been done before – that’s what living is all about.</span>
+                    <p>For these of you who are familiar (and into) Optimization, the Bellman equation defines
+                        an Linear Programming optimization problem (linear objective function and linear
+                        constraints).</p>
+                    $$
+                    \begin{align*}
+                    & \underset{V}{\text{minimize}}
+                    & & \sum_{s\in \mathcal{S}} \alpha (s) V(s)\\
+                    & \text{subject to}
+                    & & \forall s \in \mathcal{S}, \forall a \in \mathcal{A}, V(s) \geq R_{(s,s')}^a + \gamma
+                    \sum_{s' \in \mathcal{S}} P_{(s,s')}^a V(s')
+                    \end{align*}
 
-                    <p>Space, the final frontier. These are the voyages of the Starship Enterprise. Its five-year mission: to explore strange new worlds, to seek out new life and new civilizations, to boldly go where no man has gone before.</p>
+                    $$
+                    <p> \( \alpha \) can be interpreted as a probability to be in state \( s \). The number of rows
+                        (constraints) of
+                        this problem is \( \vert S \vert \vert A \vert \), and the number of columns (variables) \(
+                        \vert S \vert
+                        \). The algorithms solving LPs usually have a complexity depending on the number of rows of
+                        the problem, so we can use the dual formulation of this problem. </p>
 
-                    <p>As I stand out here in the wonders of the unknown at Hadley, I sort of realize there’s a fundamental truth to our nature, Man must explore, and this is exploration at its greatest.</p>
+                    $$
+                    \begin{align*}
+                    & \underset{\lambda}{\text{maximize}}
+                    & & \sum_{s\in \mathcal{S}, a \in \mathcal{A}}  \lambda (s, a) R(s, a)\\
+                    & \text{subject to}
+                    & & \forall s' \in \mathcal{S},  \sum_{a \in \mathcal{A}}  \lambda (s', a)  = \alpha (s') + \gamma
+                    \sum_{s \in \mathcal{S}, a \in \mathcal{A}} P_{(s,s')}^a \lambda (s, a) \\
+                    & & & \forall s \in \mathcal{S}, \forall a \in \mathcal{A}, \lambda (s, a) \geq 0
+                    \end{align*}
+                    $$
 
-                    <p>Placeholder text by <a href="http://spaceipsum.com/">Space Ipsum</a>. Photographs by <a href="https://www.flickr.com/photos/nasacommons/">NASA on The Commons</a>.</p>
-                    
-                    <p> Here is a labeled equation: $$x+1\over\sqrt{1-x^2}\label{ref1}$$ with a reference to ref1: \ref{ref1}, and another numbered one with no label: $$x+1\over\sqrt{1-x^2}$$ This one uses \nonumber: $$x+1\over\sqrt{1-x^2}\nonumber$$.</p>
-
+                    <p>The first constrains ensures that we are maximizing the return, and the second constraint
+                        makes sure that \( \lambda \) is a discounted sum of probabilities. The number of rows
+                        (constraints) of this problem is now \( \vert S \vert \), and the number of columns
+                        (variables) \( \vert S \vert \vert A \vert \), which is much more favorable here.</p>
                     <!-- Blog Comments -->
 
+                    <!-- begin wwww.htmlcommentbox.com -->
+                    <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                    <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                    <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                    <!-- end www.htmlcommentbox.com -->
+
                     <!-- Comments Form -->
-                    <div class="well">
+                    <!--<div class="well">
                         <h4>Leave a Comment:</h4>
                         <form role="form">
                             <div class="form-group">
                                 <textarea class="form-control" rows="3"></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <a href="louise.naud@gmail.com" class="button">Submit</a>
+                            &lt;!&ndash; <button type="submit" class="btn btn-primary">Submit</button>&ndash;&gt;
                         </form>
                     </div>
 
                     <hr>
-
+-->
                     <!-- Posted Comments -->
 
                     <!--&lt;!&ndash; Comment &ndash;&gt;
@@ -327,6 +420,29 @@ print("The local minimum occurs at %f" % x_new)
 
     <!-- Theme JavaScript -->
     <script src="js/clean-blog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+    <script src="/pseudocode/pseudocode.js"></script>
+    <script>
+        var blocks = document.getElementsByClassName("pseudocode");
+        for(var blockId = 0; blockId < blocks.length; blockId++) {
+            var block = blocks[blockId];
+
+            var code = block.textContent;
+            var options = {
+                lineNumber: true
+            };
+
+            var outputEl = document.createElement('div');
+            outputEl.className += " pseudocode-out";
+            block.parentNode.insertBefore(outputEl, block.nextSibling);
+
+            pseudocode.render(code, outputEl, options);
+        }
+
+        while( blocks[0]) {
+            blocks[0].parentNode.removeChild(blocks[0]);
+        }
+    </script>
 
 </body>
 
