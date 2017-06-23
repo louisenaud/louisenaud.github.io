@@ -69,9 +69,9 @@
     <link rel="stylesheet" href="katex/katex.css">
     <!-- Stylesheet for pseudo code -->
     <link rel="stylesheet" href="pseudocode/static/pseudocode.css">
-    <link rel="stylesheet" href="Algotype.js/public_html/algotype_my_config.css">
+    <link rel="stylesheet" href="Algotype.js/algotype_my_config.css">
     <script type="text/javascript" async
-            src="Algotype.js/public_html/algotype.js">
+            src="Algotype.js/algotype.js">
     </script>
 </head>
 
@@ -208,7 +208,7 @@
 
                     <p>Now is probably a good time to mention this property, which will be essential in our
                         peregrinations: $$ \begin{align*} \forall s \in \mathcal{S}, V^{*}(s) = \max \limits_{a \in
-                        \mathcal{A}
+                        \mathcal{A}}
                         \sum_{s' \in
                         \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V^{*}(s')]
                         \end{align*} $$
@@ -216,8 +216,8 @@
                         recursive relation in the definition of the Value Function and Return.
                     </p>
                     <p>A policy is optimal if it has maximal value \( \forall s \in \mathcal{S}\). We can write this
-                    as: $$ \begin{align*} \forall s \in \mathcal{S}, \pi^{*}(s) = \arg\max \limits_{a \in \mathcal{A}}
-                        Q^{*} (s,a) $$</p>
+                    as: $$ \begin{align*} \forall s \in \mathcal{S}, \pi^{*}(s) = \arg \max \limits_{a \in \mathcal{A}}
+                        Q^{*} (s,a) \end{align*}$$</p>
 
 
                     <h2 class="section-heading">Policy Iteration</h2>
@@ -248,6 +248,21 @@
                                 <alg-step comment="Greedy Policy Improvement">$ \pi \leftarrow \arg \max_{\pi}
                                     R_{\pi} + \gamma P_{\pi} V $</alg-step>
                             </alg-while>
+                            <alg-return comment="Return Estimated Optimal Policy">$ \pi$</alg-return>
+                        </alg-algorithm>
+                    </p>
+
+                    <p>
+                        <alg-algorithm header="Policy-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta)$"
+                                       comment="Policy Iteration Algorithm">
+                            <alg-step comment="Arbitrary Initial Policy">$\pi \leftarrow \pi_0$</alg-step>
+                            <alg-step>$\pi' \leftarrow \varnothing$</alg-step>
+                            <alg-repeat-until condition="$\delta > \theta > 0$"
+                                              comment="Policy Evaluation">
+                                <alg-step>$\Delta \leftarrow 0$ </alg-step>
+                                <alg-step>$V(s) \leftarrow \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>
+                                <alg-step>$\Delta \leftarrow \max (\Delta, \vert v - V(s) \vert) $</alg-step>
+                            </alg-repeat-until>
                             <alg-return comment="Return Estimated Optimal Policy">$ \pi$</alg-return>
                         </alg-algorithm>
                     </p>
