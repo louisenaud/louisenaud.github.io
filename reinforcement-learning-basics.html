@@ -135,19 +135,26 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                    <p>Reinforcement Learning is a very rich and active research area in Machine Learning; it is
+                    <p>Reinforcement Learning (RL) is a very rich and active research area in Machine Learning; it is
                         defined in the very excellent book <a
-                                href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981"> Reinforcement Learning: An Introduction </a> as "computational approach to learning from interaction".</p>
-                    In this post, we are going to go through the basics algorithms of Reinforcement Learning when the
-                    environment is known, namely:
+                                href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981"> Reinforcement Learning: An Introduction </a> as "computational approach to learning from interaction". It is a technique of choice to learn a sequence of actions for a given task.</p>
+
+                    <p>Hence, RL has many application like playing Atari or Go, Inventory management or even algorithmic
+                        trading; so it can definitely come in handy to know the basics! </p>
+                    <p>In this post, we are going to go through the basic algorithms of Reinforcement Learning when the
+                        environment is known, namely:</p>
                     <ul>
-                        <li>Value Iteration</li>
                         <li>Policy Iteration</li>
-                        <li>Dynamic Programming</li>
+                        <li>Value Iteration</li>
+                        <li>Linear Programming</li>
                     </ul>
+                    <p> The two first algorithms are within the Dynamic Programming scope ( i.e. solving a complicated
+                    problem by breaking it down into simpler sub-problems in a recursive manner), and the last algorithm is a
+                        more direct approach to solve this specific reinforcement learning.</p>
 
                     <h2 class="section-heading">The Learning Scenario</h2>
-                    <p>There are two entities in this scenario: the <i>agent</i> and the <i>environment</i>. Both
+                    <p>Let's first go briefly through the learning scenario in RL. There
+                        are two entities in this scenario: the <i>agent</i> and the <i>environment</i>. Both
                     entities interact through <i>actions</i>, <i>states</i> and <i>rewards</i>. The agent performs an
                         action, which has an influence on the environment, and he recieves two types of information:
                         his current state in the environment and a reward corresponding to his action in the given
@@ -156,26 +163,40 @@
                         <img class="img-responsive" src="img/reinforcement-learning-1.png" alt="">
                     </a>
 
+                    <p>The difference with Supervised Learning is that the agent does not receive a labeled dataset
+                        in a passive manner, but it gathers information by interacting with the environment.</p>
+
+                    <p>In the next section, we are going to define useful terms for apprehending tasks of RL. Then
+                        we will see different approaches to get an optimal sequence of actions when the environment
+                        is known and observable. </p>
+
                     <h2 class="section-heading">Useful Definitions</h2>
                     <p>Let's suppose we have a set of <i>Decision Epochs</i>, which is most likely discrete in
                     our case; it will be noted \( {0, 1, ..., T} \).   \( T \), the <i>Horizon</i>, might be finite
                         of infinite.</p>
+
                     <h3 class="subheading">Markov Decision Process</h3>
-                    <p>A Reinforcement Learning task that satisfies the Markov Property is called a <i>Markov
-                        Decision Process</i> (MDP). It is defined by:</p>
+                    <p>The environment can be modelled through a <i>Markov Decision Process</i>. It is defined by:</p>
                     <ul>
-                        <li>A set of States \( \mathcal{S} \)</li>
-                        <li>A set of Actions \( \mathcal{A} \)</li>
-                        <li>A transition Probability \( P(s_{t+1} = s' \vert s_t = s, a_t = a) \) : the probability
-                            that the agent will be in state \( s' \) at \( t+1 \) when in state \( s \) at time \( t \)
-                            and
-                            performing action \( a \)</li>
+                        <li>A countable set of States \( \mathcal{S} \)</li>
+                        <li>A countable set of Actions \( \mathcal{A} \)</li>
+                        <li>A transition Probability function:
+                            $$ \begin{align*} P & : & \mathcal{S} \times \mathcal{A} \times \mathcal{S} \longrightarrow
+                            & [0 ,1] \\
+                            &   & (s', a, s) \longmapsto            & P(s_{t+1} = s' \vert s_t = s, a_t = a)
+                            \end{align*} $$
+                            the probability that the agent will be in state \( s' \) at \( t+1 \) when in state \( s
+                            \) at time \( t \) and performing action \( a \). We will note the probability of this
+                            outcome \( P_{(s, s')}^a\).</li>
                         <li>\( R^{a}_{(s, s')} \) is the expected immediate reward received after transitioning from
-                            state
-                            \( s \) to state \( s' \), due to action \( a \)</li>
+                            state \( s \) to state \( s' \), due to action \( a \)</li>
                         <li>\( \gamma \) the discount factor; it determines the value at time \( t \) of the future
                             rewards from \( t+1 \) to \( T \)</li>
                     </ul>
+                    <p>The future states and rewards are independent of the past, given the present. Let's precise that
+                        in our case, the states are fully observable.</p>
+
+
                     <h3 class="subheading">Policy</h3>
                     <p>A <i>policy</i> in this context is a map from states to probability distributions over
                     actions
@@ -228,9 +249,19 @@
                     each pair of states, and each action. The most straightforward algorithm to come up with a policy
                         is the policy iteration.</p>
 
-                    <p>The idea here is to alternate a policy evaluation with a policy improvement. This iteratively
-                    refines the optimal policy. The proof of convergence is fairly straightforward through the
-                        Bellman Operator, which we won't define in this post, but you can find the proof <a
+                    <p>The idea here is to alternate a policy evaluation with a policy improvement. The policy
+                        evaluation consist of evaluating the value function under a given policy \( \pi \):
+                        $$ \begin{align*} \forall s \in \mathcal{S}, V^{\pi}(s) = \sum_{s' \in \mathcal{S}}  P_{(s,
+                        s')}^{\pi(s)} [R_{(s, s')}^{\pi(s)} + \gamma V(s')]
+                        \end{align*}$$
+                        The policy improvement consist of:
+                        $$ \begin{align*} \forall s \in \mathcal{S}, \pi(s) = \arg \max \limits_{a} \sum_{s' \in
+                        \mathcal{S}}  P_{(s, s')}^{a} [R_{(s, s')}^{a} + \gamma V(s')]
+                        \end{align*}$$
+                        Alternating these two steps iteratively refines the optimal policy. The proof of convergence
+                        relies on proving that the optimal value is a fixed point in the Bellman equation. This is
+                        fairly straightforward to prove through the Bellman Operator and Banach Fixed Point Theorem,
+                        which we won't detail in this post, but you can take a look <a
                                 href="http://chercheurs.lille.inria.fr/~ghavamza/RL-EC-Lille/Lecture4-b.pdf"> here
                         </a>.</p>
 
@@ -238,26 +269,12 @@
                     <p>Here is the pseudo code of the Policy Iteration:</p>
 
                     <p>
-                        <alg-algorithm header="Policy-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r)$"
-                                comment="Policy Iteration Algorithm">
-                            <alg-step comment="Arbitrary Initial Policy">$\pi \leftarrow \pi_0$</alg-step>
-                            <alg-step>$\pi' \leftarrow \varnothing$</alg-step>
-                            <alg-while condition="$\pi \neq \pi' $">
-                                <alg-step comment="Policy Evaluation">$V \leftarrow V_{\pi}$</alg-step>
-                                <alg-step comment="Update Current Policy">$ \pi' \leftarrow \pi$</alg-step>
-                                <alg-step comment="Greedy Policy Improvement">$ \pi \leftarrow \arg \max_{\pi}
-                                    R_{\pi} + \gamma P_{\pi} V $</alg-step>
-                            </alg-while>
-                            <alg-return comment="Return Estimated Optimal Policy">$ \pi$</alg-return>
-                        </alg-algorithm>
-                    </p>
-
-                    <p>
-                        <alg-algorithm header="Policy-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta)$"
+                        <alg-algorithm
+                                header="Policy-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma)$"
                                        comment="Policy Iteration Algorithm">
                             <alg-step comment="Arbitrary Initial Policy">$\pi \leftarrow \pi_0$</alg-step>
                             <alg-step>$\pi' \leftarrow \varnothing$</alg-step>
-                            <alg-repeat-until condition="$\delta > \theta > 0$"
+                            <alg-repeat-until condition="$\delta > \theta $"
                                               comment="Policy Evaluation">
                                 <alg-step>$\Delta \leftarrow 0$ </alg-step>
                                 <alg-step>$V(s) \leftarrow \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>
@@ -266,18 +283,51 @@
                             <alg-return comment="Return Estimated Optimal Policy">$ \pi$</alg-return>
                         </alg-algorithm>
                     </p>
+                    <p>The policy iteration algorithm generates a sequences of policies with non-decreasing
+                        performance, which means that the value at iteration \( k+1 \) cannot be smaller than the
+                        value function at iteration \(k\).</p>
+
+
                     <h2 class="section-heading">Value Iteration</h2>
                     <p>The main issue with Policy Iteration is that it involves multiple sweepings of the state
-                        space \( \mathcal{S} \), which may be problematic with very large state spaces. The idea here is
-                        to truncate the Policy Evaluation after one sweep. This basically means using the Bellman's
-                        optimality equation as an update rule: $$ \begin{align*} \forall s \in \mathcal{S},
-                        V_{k+1}(s) = \max \limits_{a}
-                        \sum_{s' \in
-                        \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V_{k}(s')]
+                        space \( \mathcal{S} \), which may be problematic with very large state spaces. The idea in
+                        Value Iteration (VI) is to truncate the Policy Evaluation after one sweep. This basically
+                        means using the Bellman's optimality equation as an update rule: $$ \begin{align*} \forall s
+                        \in \mathcal{S}, V_{k+1}(s) = \max \limits_{a} \sum_{s' \in \mathcal{S}} P_{(s,s')}^a
+                        [R_{(s,s')}^a + \gamma V_{k}(s')]
                         \end{align*} $$
+                        It can be proven that the Bellman equation admits a fixed point in \( V\), and this tells us
+                        that at every iteration, the value gets closer to its optimal value. Hence, at each
+                        iteration, the algorithms returns a greedy policy.
                         </p>
-                    <p>This algorithms converges in more steps than the Policy Iteration, but has a lower complexity
-                        .</p>
+
+                    <p>Here is the pseudo code for the VI algorithm: </p>
+
+                    <p>
+                        <alg-algorithm header="Value-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma)$"
+                                comment="Value Iteration Algorithm">
+                            <alg-step comment="Arbitrary Initial Value">$V \leftarrow 0$</alg-step>
+                            <alg-repeat-until condition="$ \Delta < \theta $">
+                                <alg-step>$\Delta \leftarrow 0$ </alg-step>
+                                <alg-foreach condition="$s \in \mathcal{S}$">
+                                    <alg-step>$v \leftarrow V(s)$ </alg-step>
+                                    <alg-step>$V(s) \leftarrow \max \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,
+                                        s')}^a + \gamma V(s')]$
+                                    </alg-step>
+                                    <alg-step>$\Delta \leftarrow \max(\vert v - V(s)\vert)$ </alg-step>
+                                </alg-foreach>
+
+                            </alg-repeat-until>
+                            <alg-step comment="Output a deterministic policy">$\pi(s) \leftarrow \arg\max
+                                \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,
+                                s')}^a + \gamma V(s')]$</alg-step>
+                            <alg-return comment="Return Greedy Policy">$ \pi$</alg-return>
+                        </alg-algorithm>
+                    </p>
+
+                    <p>This algorithms converges in polynomial time, monotonically. This algorithm is robust to
+                        uncertainty.
+                    </p>
 
 
                     <h2 class="section-heading">Linear Programming</h2>
@@ -293,7 +343,6 @@
                     & & \forall s \in \mathcal{S}, \forall a \in \mathcal{A}, V(s) \geq R_{(s,s')}^a + \gamma
                     \sum_{s' \in \mathcal{S}} P_{(s,s')}^a V(s')
                     \end{align*}
-
                     $$
                     <p> \( \alpha \) can be interpreted as a probability to be in state \( s \). The number of rows
                         (constraints) of
@@ -317,6 +366,56 @@
                         makes sure that \( \lambda \) is a discounted sum of probabilities. The number of rows
                         (constraints) of this problem is now \( \vert S \vert \), and the number of columns
                         (variables) \( \vert S \vert \vert A \vert \), which is much more favorable here.</p>
+
+
+                    <h2 class="section-heading">Conclusion</h2>
+                    <!-- TODO: Rephrase following paragraph -->
+                    <p>The two DP methods we presented here operate in sweeps through the state set, performing a full
+                        backup operation on each state. Each backup updates the value of one state based on the value of
+                        all possible successor states and their probability of occurring. Full backups are very
+                        closely related to Bellman equations: they are little more than these equations turned into
+                        assignment statements. When the backups no longer result in any changes in value,
+                        convergence has occurred to values that satisfy the corresponding Bellman equation.</p>
+
+                    <p>Here is a -non-exhaustive- table to sum it up. The \( \epsilon \) refers to an \( \epsilon \)
+                    approximation of \( V^{\pi}\), and \( r_{max} \geq \left \| r \right \|_{\infty}\).</p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Policy Iteration</th>
+                            <th>Value Iteration</th>
+                            <th>Linear Programming</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Complexity</td>
+                            <td>\( \mathcal{O} (\vert \mathcal{S} \vert ^3)\)</td>
+                            <td>\( \mathcal{O} (\vert \mathcal{A}\vert \vert \mathcal{S} \vert ^2)\)</td>
+                            <td>Depends on the algorithms used to maximize the dual problem</td>
+                        </tr>
+                        <tr>
+                            <td>Convergence rate</td>
+                            <td>See “Improved and Generalized Upper Bounds on the Complexity of
+                                Policy Iteration” by B. Scherrer</td>
+                            <td>\( \frac{log (\frac{r_{max}}{\epsilon} )}{log(\frac{1}{\gamma})} \)</td>
+                            <td>Depends on the algorithms used to maximize the dual problem</td>
+                        </tr>
+                        <tr>
+                            <td>Pro</td>
+                            <td>Converges in a finite number of iterations</td>
+                            <td>Computationally efficient</td>
+                            <td>Worst case convergence guarantees are better than DP counterparts</td>
+                        </tr>
+                        <tr>
+                            <td>Cons</td>
+                            <td>Each iteration requires a full policy estimate</td>
+                            <td>Convergence is only asymptotic</td>
+                            <td>Impractical for a very small number of states</td>
+                        </tr>
+                        </tbody>
+                    </table>
                     <!-- Blog Comments -->
 
                     <!-- begin wwww.htmlcommentbox.com -->
