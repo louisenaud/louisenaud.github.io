@@ -66,9 +66,12 @@
         });
     </script>
     <!-- KateX for math formulas in pseudo code -->
-    <link rel="stylesheet" href="katex/katex.css">
+    <link rel="stylesheet" href="katex/katex.min.css">
+    <script src="katex/katex.min.js"></script>
     <!-- Stylesheet for pseudo code -->
-    <link rel="stylesheet" href="pseudocode/static/pseudocode.css">
+    <link rel="stylesheet" href="pseudocode/pseudocode.min.css">
+    <script src="pseudocode/pseudocode.min.js"></script>
+    <!-- Library for Pseudo Code -->
     <link rel="stylesheet" href="Algotype.js/algotype_my_config.css">
     <script type="text/javascript" async
             src="Algotype.js/algotype.js">
@@ -276,39 +279,76 @@
                         Iteration (this may not display well on navigators that are not Chrome - trying to find an
                         alternative, but for now this will do):</p>
 
-                    <p>
-                        <alg-algorithm
-                                header="Policy-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma)$"
-                                       comment="Policy Iteration Algorithm">
-                            <alg-step comment="Arbitrary Initial Policy">$\pi \leftarrow \pi_0$</alg-step>
-                            <alg-repeat-until condition="$\delta > \theta $"
-                                              comment="Policy Evaluation">
-                                <alg-step>$\Delta \leftarrow 0$ </alg-step>
-                                <alg-foreach condition="$s \in \mathcal{S}$">
-                                    <alg-step>$v \leftarrow V(s)$ </alg-step>
-                                    <alg-step>$V(s) \leftarrow \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>
-                                    <alg-step>$\Delta \leftarrow \max (\Delta, \vert v - V(s) \vert) $</alg-step>
-                                </alg-foreach>
-                            </alg-repeat-until>
-                                <alg-step comment="Policy Improvement">policy_stable $\leftarrow$ true</alg-step>
-                                <alg-foreach condition="$s \in \mathcal{S}$">
-                                    <alg-step>$b \leftarrow \pi (s)$</alg-step>
-                                    <alg-step>$\pi (s) \leftarrow \arg \max \limits_{a} \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>
-                                    <alg-if condition="$b \neq \pi(s)$"
-                                            comment="Check convergence">
-                                            <alg-step>policy_stable $\leftarrow$ False </alg-step>
-                                    </alg-if>
-                                </alg-foreach>
-                                <alg-if condition="policy_stable">
-                                    <alg-step>stop</alg-step>
-                                </alg-if>
-                                <alg-else>
-                                    <alg-step>Go to Policy Evaluation</alg-step>
-                                </alg-else>
+                    <!--<p>-->
+                        <!--<alg-algorithm-->
+                                <!--header="Policy-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma)$"-->
+                                       <!--comment="Policy Iteration Algorithm">-->
+                            <!--<alg-step comment="Arbitrary Initial Policy">$\pi \leftarrow \pi_0$</alg-step>-->
+                            <!--<alg-repeat-until condition="$\delta > \theta $"-->
+                                              <!--comment="Policy Evaluation">-->
+                                <!--<alg-step>$\Delta \leftarrow 0$ </alg-step>-->
+                                <!--<alg-foreach condition="$s \in \mathcal{S}$">-->
+                                    <!--<alg-step>$v \leftarrow V(s)$ </alg-step>-->
+                                    <!--<alg-step>$V(s) \leftarrow \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>-->
+                                    <!--<alg-step>$\Delta \leftarrow \max (\Delta, \vert v - V(s) \vert) $</alg-step>-->
+                                <!--</alg-foreach>-->
+                            <!--</alg-repeat-until>-->
+                                <!--<alg-step comment="Policy Improvement">policy_stable $\leftarrow$ true</alg-step>-->
+                                <!--<alg-foreach condition="$s \in \mathcal{S}$">-->
+                                    <!--<alg-step>$b \leftarrow \pi (s)$</alg-step>-->
+                                    <!--<alg-step>$\pi (s) \leftarrow \arg \max \limits_{a} \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>-->
+                                    <!--<alg-if condition="$b \neq \pi(s)$"-->
+                                            <!--comment="Check convergence">-->
+                                            <!--<alg-step>policy_stable $\leftarrow$ False </alg-step>-->
+                                    <!--</alg-if>-->
+                                <!--</alg-foreach>-->
+                                <!--<alg-if condition="policy_stable">-->
+                                    <!--<alg-step>stop</alg-step>-->
+                                <!--</alg-if>-->
+                                <!--<alg-else>-->
+                                    <!--<alg-step>Go to Policy Evaluation</alg-step>-->
+                                <!--</alg-else>-->
 
-                            <alg-return comment="Return Estimated Optimal Policy">$ \pi$</alg-return>
-                        </alg-algorithm>
-                    </p>
+                            <!--<alg-return comment="Return Estimated Optimal Policy">$ \pi$</alg-return>-->
+                        <!--</alg-algorithm>-->
+                    <!--</p>-->
+                    <pre class="pseudocode">
+\begin{algorithm}
+\caption{Policy Iteration}
+\begin{algorithmic}
+\PROCEDURE{Policy-Iteration}{$\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma$}
+    \STATE $\pi \leftarrow \pi_0$
+    \STATE $\Delta \leftarrow 0$
+    \WHILE{$ \Delta < \theta $}
+        \COMMENT {Policy Evaluation}
+        \STATE {$\Delta \leftarrow 0$}
+        \FOR{$s \in \mathcal{S}$}
+            \STATE {$v \leftarrow V(s)$}
+            \STATE {$V(s) \leftarrow \max \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,
+                        s')}^a + \gamma V(s')]$}
+            \STATE {$\Delta \leftarrow \max(\vert v - V(s)\vert)$}
+        \ENDFOR
+    \ENDWHILE
+    \STATE {policyStable $\leftarrow$ \TRUE}
+    \COMMENT {Policy Improvement}
+    \FOR{$s \in \mathcal{S}$}
+        \STATE {$b \leftarrow \pi (s)$}
+        \STATE {$\pi(s) \leftarrow \arg\max
+                    \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,s')}^a + \gamma V(s')]$}
+        \IF{$b \neq \pi(s)$}
+            \STATE policyStable $\leftarrow$ \FALSE
+        \ENDIF
+    \ENDFOR
+    \IF{policyStable}
+        \COMMENT {If algorithm has converged}
+        \STATE stop
+    \ELSE
+        \STATE Go to Policy Evaluation
+    \ENDIF
+    \RETURN $\pi$
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</pre>
                     <p>This pseudocode is from <a
                             href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981">Reinforcement Learning: An Introduction</a>. The policy iteration algorithm generates a sequences of policies with
                         non-decreasing performance, which means that the value at iteration \( k+1 \) cannot be
@@ -418,9 +458,6 @@ Policy:
  [ 0.  0.  1.  0.]
  [ 0.  1.  0.  0.]
  [ 1.  0.  0.  0.]]
-Value Function:
-[ 0.81957595  0.81883379  0.81833898  0.81809158  0.81982353  0.
-  0.52693948  0.          0.82031804  0.82105942  0.76263784  0.
                     </pre>
 
 
@@ -439,8 +476,33 @@ Value Function:
                         </p>
 
                     <p>Here is the pseudo code for the VI algorithm: </p>
+                    <pre class="pseudocode">
+\begin{algorithm}
+\caption{Value Iteration}
+\begin{algorithmic}
+\PROCEDURE{Value-Iteration}{$\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma$}
+    \STATE $V \leftarrow 0$
+    \STATE $\Delta \leftarrow 0$
+    \WHILE{$ \Delta < \theta $}
+        \STATE {$\Delta \leftarrow 0$}
+        \FOR{$s \in \mathcal{S}$}
+            \STATE {$v \leftarrow V(s)$}
+            \STATE {$V(s) \leftarrow \max \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,
+                        s')}^a + \gamma V(s')]$}
+            \STATE {$\Delta \leftarrow \max(\vert v - V(s)\vert)$}
+        \ENDFOR
+    \ENDWHILE
+    \FOR{$s \in \mathcal{S}$}
+        \STATE {$\pi(s) \leftarrow \arg\max
+                    \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,s')}^a + \gamma V(s')]$}
+    \ENDFOR
+    \RETURN $\pi$
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</pre>
 
-                    <p>
+
+                    <!--<p>
                         <alg-algorithm header="Value-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma)$"
                                 comment="Value Iteration Algorithm">
                             <alg-step comment="Arbitrary Initial Value">$V \leftarrow 0$</alg-step>
@@ -461,11 +523,13 @@ Value Function:
                             </alg-foreach>
                             <alg-return comment="Return Greedy Policy">$ \pi$</alg-return>
                         </alg-algorithm>
-                    </p>
+                    </p> -->
 
                     <p>This algorithm converges in polynomial time, monotonically and is robust to
                         uncertainty.
                     </p>
+
+
                     <p>
                     For these who are
                     interested in proofs, the proof of convergence relies on proving that the optimal value
@@ -551,10 +615,6 @@ Policy:
  [ 0.  0.  1.  0.]
  [ 0.  1.  0.  0.]
  [ 1.  0.  0.  0.]]
-Value Function:
-[ 0.54202474  0.49880161  0.47069385  0.45684973  0.55844991  0.
-  0.35834728  0.          0.59179788  0.64307921  0.61520702  0.          0.
-  0.74172001  0.86283722  0.        ]
                     </pre>
 
                     <p>We can see that both algorithms converge towards the same policy. The Policy Iteration takes
@@ -786,8 +846,7 @@ Value Function:
 
     <!-- Theme JavaScript -->
     <script src="js/clean-blog.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
-    <script src="/pseudocode/pseudocode.js"></script>
+
     <script>
         var blocks = document.getElementsByClassName("pseudocode");
         for(var blockId = 0; blockId < blocks.length; blockId++) {
