@@ -317,13 +317,13 @@
                         using its Monotonicity property.</p>
 
                     <p>In order to get a more pragmatic idea on how to implement this, and how the two algorithms
-                        differ, here is the Python code (for pedagogic purposes). Let's first install the OpenAI Gym
+                        differ, let's have a look how this algorithm is implemented in practice. There is some very
+                        readable code available <a href="https://github.com/dennybritz/reinforcement-learning">here
+                            </a>, but here is my take on the Python code. Let's first install the OpenAI Gym
                         in Python by simply doing:</p>
-                    <pre class="prettyprint">
-    <code class="language-bash">
+                    <pre class="prettyprint"><code class="language-bash">
 sudo pip install gym
-    </code>
-                    </pre>
+    </code></pre>
 
                     <p>Then we are going to use the Frozen Lake environment in the OpenAI Gym; it is a pretty simple
                         environment, with a small state set and a small action set.</p>
@@ -610,6 +610,15 @@ Value Function:
                     to bootstrapping. This is actually very interesting, since many other techniques in RL use
                         bootstrapping, even when the environment is unknown.</p>
 
+                    <p>Both of these methods require to store and update the Value Function at each iteration, but
+                        this can be improved by using Asynchronous DP; for instance, Asynchronous Value Iteration
+                        will update the Value for one state at each iteration, prioritizing some states for back-up.
+                        This method takes fewer state updates to converge than the previous two methods.
+                    </p>
+
+                    <p>Finally, the Linear Programming approach is more direct, but can become rapidly intractable
+                        for larger states sets.</p>
+
                     <p>Here is a -non-exhaustive- table to sum it up. The \( \epsilon \) refers to an \( \epsilon \)
                     approximation of \( V^{\pi}\), and \( r_{max} \geq \left \| r \right \|_{\infty}\).</p>
                     <table class="table">
@@ -652,7 +661,7 @@ Value Function:
                             <td>Cons</td>
                             <td>Each iteration requires a full policy estimate</td>
                             <td>Convergence is only asymptotic</td>
-                            <td>Impractical for a very small number of states</td>
+                            <td>Impractical for a very large number of states</td>
                         </tr>
                         </tbody>
                     </table>
