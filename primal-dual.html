@@ -11,13 +11,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- For code display: Code Prettify -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
 
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "all"} } });
-    </script>
-    <script type="text/javascript" src="../MathJax-master/MathJax.js?config=TeX-AMS_HTML"></script>
 
-    <title>Gradient Descent</title>
+    <title>Primal Dual</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -26,7 +24,7 @@
     <link href="css/clean-blog.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="vendor/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
@@ -36,11 +34,47 @@
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <script type="text/javascript" async
+            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+    </script>
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
     </script>
+    <!-- Configuration for Mathjax and AlgoType-->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            extensions: ["tex2jax.js", "color.js"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+                processEscapes: true
+            },
+            "HTML-CSS": { availableFonts: ["TeX"] },
+            TeX: {
+                Macros: {
+                            And:     "\\\\mathbf{and}",
+                            Or:      "\\\\mathbf{or}",
+                            Not:     "\\\\mathbf{not}",
+                            Is:      "\\\\mathbf{is}",
+                            In:      "\\\\mathbf{in}",
+                            Mapped:  "\\\\mathbf{mapped}",
+                            Nil:     "\\\\mathbf{nil}"
+                }
+            }
+        });
+    </script>
+    <!-- KateX for math formulas in pseudo code -->
+    <link rel="stylesheet" href="katex/katex.min.css">
+    <script src="katex/katex.min.js"></script>
+    <!-- Stylesheet for pseudo code -->
+    <link rel="stylesheet" href="pseudocode/pseudocode.min.css">
+    <script src="pseudocode/pseudocode.min.js"></script>
+    <!-- Library for Pseudo Code -->
+    <link rel="stylesheet" href="Algotype.js/algotype_my_config.css">
     <script type="text/javascript" async
-            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+            src="Algotype.js/algotype.js">
     </script>
 </head>
 
@@ -85,14 +119,15 @@
 
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
-<header class="intro-header" style="background-image: url('img/post-bg.jpg')">
+<header class="intro-header" style="background-image: url('img/RL.png')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="post-heading">
-                    <h1>Primal Dual optimization methods</h1>
-                    <h2 class="subheading">Problems look mighty small from 150 miles up</h2>
-                    <span class="meta">Posted by <a href="#">Louise</a> on April 24, 2017</span>
+                    <h1>First Order Primal Dual Techniques</h1>
+                    <h2 class="subheading">A versatile framework for a wide variety of convex optimization problems
+                        .</h2>
+                    <span class="meta">Posted by <a href="#">Louise</a> on July 4, 2017</span>
                 </div>
             </div>
         </div>
@@ -104,82 +139,51 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                For this first post, I want to explain the primal dual methods for non covex optimization. There a very good blog post from <a href="http://sebastianruder.com/optimizing-gradient-descent/"> Gabriel Peyre</a> on these methods, which can come very handy when optimizing a non-convex problem.
+                <p>In this post, we are going to discuss a very powerful -mathematically as well as pragmatically-
+                    optimization framework; the <i>First Order Primal Dual Convex Optimization Technique</i>.
+                    This involves a few definitions that may not look friendly at first, but the framework is in
+                    fact relatively understandable. The framework has been -successfully- applied to image denoizing
+                and image inpainting, and is really worthy of spending some time to comprehend it. </p>
 
-                <ul>
-                    <li> Example of problem </li>
-                    <li> Norm Geometry </li>
-                    <li> Proximal Operator</li>
-                    <li> Primal Dual Algorithm </li>
-                </ul>
+                <p>We will remind a couple of definitions that are useful in this framework, but you can find many
+                    more details, definitions, theorems and proofs in "Convex Analysis" by Hiriart-Urruty and
+                    Lemarchal, "Convex Optimization" by Boyd and Vandenberghe or "Optimization. Applications in image processing." by Nikolova.</p>
 
-                <p> We'll go through the generic Gradient Descent algorithm, and then explain and illustrate possible optimizations, in order to speed-up the convergence, especially in the scope of very big data sets. </p>
+                <h2 class="section-heading">Soooo.... Why is this useful, again?</h2>
+                Let's say you need to denoise an image for instance. You can write this as the following optimization
+                problem:
+                $$
+                \begin{align*}
+                & \underset{x}{\text{minimize}}
+                & & \left \vert \left \nabla x \right \vert \right + \frac{\lambda}{2} \left \vert \left x -f \right \vert \right^2
+                \end{align*}
 
-                <p> Let us first set some vocabulary and notations. Gradient descent is a method to find the minimizer of an <b>objective function </b>, usually noted: $$ \begin{align*} J & : & \mathbb{R}^d \longrightarrow  & \mathbb{R}^n \\
-                    &   & \theta \longmapsto            & J(\theta)
-                    \end{align*} $$
+                <h2 class="section-heading">Useful definitions</h2>
 
-                    Where \( \theta \) is the vector of the model's <b> parameters</b>.
+                <h2 class="section-heading">The Moreau Envelope</h2>
 
-                    This minimizer is found by updating the parameters \( \theta \) in the opposite direction of the <b> gradient </b> at \( \theta \), i.e. \( \nabla J(\theta)\), controlled by a <b>learning rate</b> \( \eta \) that gives the size of the steps during the descent.</p>
-                <p> Here is a little animation to illustrate the principle. </p>
+                <h2 class="section-heading">The Fenchel Conjuguate</h2>
 
-                    <PRE>
-import numpy as np
-# From calculation, it is expected that the local minimum occurs at x=9/4
-
-x_old = 0 # The value does not matter as long as abs(x_new - x_old) > precision
-x_new = 6 # The algorithm starts at x=6
-gamma = 0.01 # step size
-precision = 0.00001
-
-def df(x):
-    y = 4 * x**3 - 9 * x**2
-    return y
-
-while abs(x_new - x_old) > precision:
-    x_old = x_new
-    x_new += -gamma * df(x_old)
-
-print("The local minimum occurs at %f" % x_new)
-                    </PRE>
-
-                <p> Gradient descent is a first-order iterative optimization algorithm.
-                <ul>
-                    <li>First order means that the first derivative of the function to be minimized is involved.</li>
-                    <li>Iterative means each step is supposed to make an improvement.</li>
-                </ul>
-                </p>
+                <h2 class="section-heading">Primal Dual algorithm</h2>
 
 
-                <h2 class="section-heading">Stochastic Gradient Descent</h2>
 
-                <p>There can be no thought of finishing for ‘aiming for the stars.’ Both figuratively and literally, it is a task to occupy the generations. And no matter how much progress one makes, there is always the thrill of just beginning.</p>
 
-                <p>There can be no thought of finishing for ‘aiming for the stars.’ Both figuratively and literally, it is a task to occupy the generations. And no matter how much progress one makes, there is always the thrill of just beginning.</p>
+                <p>You can leave comments down here, or contact me through the contact form of this blog if you
+                    have questions or remarks on this post!</p>
+                <!-- Blog Comments -->
 
-                <blockquote>The dreams of yesterday are the hopes of today and the reality of tomorrow. Science has not yet mastered prophecy. We predict too much for the next year and yet far too little for the next ten.</blockquote>
+                <!-- begin wwww.htmlcommentbox.com -->
+                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                <!-- end www.htmlcommentbox.com -->
 
-                <p>Spaceflights cannot be stopped. This is not the work of any one man or even a group of men. It is a historical process which mankind is carrying out in accordance with the natural laws of human development.</p>
 
-                <h2 class="section-heading">Reaching for the Stars</h2>
-
-                <p>As we got further and further away, it [the Earth] diminished in size. Finally it shrank to the size of a marble, the most beautiful you can imagine. That beautiful, warm, living object looked so fragile, so delicate, that if you touched it with a finger it would crumble and fall apart. Seeing this has to change a man.</p>
-
-                <a href="#">
-                    <img class="img-responsive" src="img/post-sample-image.jpg" alt="">
-                </a>
-                <span class="caption text-muted">To go places and do things that have never been done before – that’s what living is all about.</span>
-
-                <p>Space, the final frontier. These are the voyages of the Starship Enterprise. Its five-year mission: to explore strange new worlds, to seek out new life and new civilizations, to boldly go where no man has gone before.</p>
-
-                <p>As I stand out here in the wonders of the unknown at Hadley, I sort of realize there’s a fundamental truth to our nature, Man must explore, and this is exploration at its greatest.</p>
-
-                <p>Placeholder text by <a href="http://spaceipsum.com/">Space Ipsum</a>. Photographs by <a href="https://www.flickr.com/photos/nasacommons/">NASA on The Commons</a>.</p>
-
-                <p> Here is a labeled equation: $$x+1\over\sqrt{1-x^2}\label{ref1}$$ with a reference to ref1: \ref{ref1}, and another numbered one with no label: $$x+1\over\sqrt{1-x^2}$$ This one uses \nonumber: $$x+1\over\sqrt{1-x^2}\nonumber$$.</p>
             </div>
         </div>
+    </div>
+    </div>
     </div>
 </article>
 
@@ -216,7 +220,7 @@ print("The local minimum occurs at %f" % x_new)
                         </a>
                     </li>
                 </ul>
-                <p class="copyright text-muted">Copyright &copy; Louise Naud 2017</p>
+                <p class="copyright text-muted">Copyright &copy; Your Website 2016</p>
             </div>
         </div>
     </div>
@@ -226,14 +230,47 @@ print("The local minimum occurs at %f" % x_new)
 <script src="vendor/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="vendor/bootstrap/js/bootstrap.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 
 <!-- Contact Form JavaScript -->
 <script src="js/jqBootstrapValidation.js"></script>
 <script src="js/contact_me.js"></script>
 
 <!-- Theme JavaScript -->
-<script src="js/clean-blog.js"></script>
+<script src="js/clean-blog.min.js"></script>
+
+<script>
+    var blocks = document.getElementsByClassName("pseudocode");
+    for(var blockId = 0; blockId < blocks.length; blockId++) {
+        var block = blocks[blockId];
+
+        var code = block.textContent;
+        var options = {
+            lineNumber: true
+        };
+
+        var outputEl = document.createElement('div');
+        outputEl.className += " pseudocode-out";
+        block.parentNode.insertBefore(outputEl, block.nextSibling);
+
+        pseudocode.render(code, outputEl, options);
+    }
+
+    while( blocks[0]) {
+        blocks[0].parentNode.removeChild(blocks[0]);
+    }
+</script>
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-52868500-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
 
 </body>
 
