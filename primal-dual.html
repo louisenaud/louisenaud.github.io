@@ -146,8 +146,11 @@
                 and image inpainting, and is really worthy of spending some time to comprehend it. </p>
 
                 <p>We will remind a couple of definitions that are useful in this framework, but you can find many
-                    more details, definitions, theorems and proofs in "Convex Analysis" by Hiriart-Urruty and
-                    Lemarchal, "Convex Optimization" by Boyd and Vandenberghe or "Optimization. Applications in image processing." by Nikolova.</p>
+                    more details, definitions, theorems and proofs in <a hreh="http://www.springer.com/us/book/9783540422051">"Convex Analysis"</a> by
+                    Hiriart-Urruty and Lemarchal, <a
+                            href="https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf">"Convex Optimization"</a> by Boyd and Vandenberghe or <a
+                            href="http://iie.fing.edu.uy/~pmuse/docs/course_Mila/Optim-MVD12.pdf">"Optimization. Applications in
+                        image processing."</a> by Nikolova (the latter two are available freely in pdf format).</p>
 
                 <h2 class="section-heading">Soooo.... Why is this useful, again?</h2>
                 Let's say you need to denoise an image for instance. You can write this as the following optimization
@@ -155,8 +158,9 @@
                 $$
                 \begin{align*}
                 & \underset{x}{\text{minimize}}
-                & & \left \vert \left \nabla x \right \vert \right + \frac{\lambda}{2} \left \vert \left x -f \right \vert \right^2
+                & & \left\| \nabla x\right\| + \frac{\lambda}{2} \left\| x -f \right\|^2
                 \end{align*}
+                $$
 
                 <h2 class="section-heading">Useful definitions</h2>
 
