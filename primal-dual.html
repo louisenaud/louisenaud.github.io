@@ -165,6 +165,13 @@
                 <h2 class="section-heading">Useful definitions</h2>
 
                 <h2 class="section-heading">The Moreau Envelope</h2>
+                Given a proper lsc convex function \( F : \mathcal{X} \leftarrow \mathbb{R} \), the Moreau envelope constructs a smoothed version of function \(F\) where the degree of smoothing is controlled by a parameter \(\tau\). The Moreau envelope is defined as the unique solution of the optimization problem:
+                $$
+                \begin{align}
+                \mathcal{M}_{F, \tau} (\tilde{x}) = \min \limits_{x \in \mathcal{X}} F(x) + \frac{1}{2 \tau} \left\| x - \tilde{x} \right\|_2^2
+                \end{align}
+                $$
+                We note that this problem is smooth and it admits a unique minimizer due to the added smoothing l2 norm term.
 
                 <h2 class="section-heading">The Fenchel Conjuguate</h2>
 
