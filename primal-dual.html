@@ -153,7 +153,8 @@
                         image processing."</a> by Nikolova (the latter two are available freely in pdf format).</p>
 
                 <h2 class="section-heading">Soooo.... Why is this useful, again?</h2>
-                Let's say you need to denoise an image for instance. You can write this as the following optimization
+                <p>Let's say you need to denoise an image for instance. You can write this as the following
+                optimization
                 problem:
                 $$
                 \begin{align*}
@@ -161,17 +162,37 @@
                 & & \left\| \nabla x\right\| + \frac{\lambda}{2} \left\| x -f \right\|^2
                 \end{align*}
                 $$
+                </p>
 
                 <h2 class="section-heading">Useful definitions</h2>
 
                 <h2 class="section-heading">The Moreau Envelope</h2>
+                <p>In our image denoising or inpainting context, the function to optimize may not be smooth, and this
+                complicates the task of minimizing/optimizing the objective function. In order to alleviate this
+                difficulty, a brilliant idea has been introduced in "Proximité et dualité dans un espace hilbertien".
                 Given a proper lsc convex function \( F : \mathcal{X} \leftarrow \mathbb{R} \), the Moreau envelope constructs a smoothed version of function \(F\) where the degree of smoothing is controlled by a parameter \(\tau\). The Moreau envelope is defined as the unique solution of the optimization problem:
                 $$
                 \begin{align}
                 \mathcal{M}_{F, \tau} (\tilde{x}) = \min \limits_{x \in \mathcal{X}} F(x) + \frac{1}{2 \tau} \left\| x - \tilde{x} \right\|_2^2
                 \end{align}
-                $$
-                We note that this problem is smooth and it admits a unique minimizer due to the added smoothing l2 norm term.
+                    $$</p>
+                <p>We note that this problem is smooth and it admits a unique minimizer due to the added smoothing
+                    \(\mathcal{l}_2\) norm term.</p>
+                <p>This being said, just because a problem is strictly convex doesn't mean it is easy to solve. So
+                basically, if \( F \) is hard to optimize, the Moreau envelope is likely difficult to compute.
+                    Nonetheless, there exist some functions whose Moreau envelope computation yields a closed form.</p>
+
+                <p>We can associate to this function the following operator:
+                    $$
+                    \begin{align}
+                    prox_{F, \tau} (\tilde{x}) = \arg \min \limits_{x \in \mathcal{X}} F(x) + \frac{1}{2 \tau} \left\|
+                    x - \tilde{x} \right\|_2^2
+                    \end{align}
+                    $$
+                    that returns the unique minimizer of the Moreau envelope. This operator is called the <i>proximal
+                        operator.
+                    </i>
+                </p>
 
                 <h2 class="section-heading">The Fenchel Conjuguate</h2>
 
