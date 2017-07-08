@@ -152,6 +152,20 @@
                             href="http://iie.fing.edu.uy/~pmuse/docs/course_Mila/Optim-MVD12.pdf">"Optimization. Applications in
                         image processing."</a> by Nikolova (the latter two are available freely in pdf format).</p>
 
+                <p>We are going to consider here a general problem of the form:
+                $$
+                    \begin{align}
+                    & \underset{x}{\text{minimize}} & & \sum_{i \in \Omega} M_i(x_i) + R(Lx)
+                    \end{align}
+                    $$
+                    with:
+                    <ul>
+                <li>\(M_i\) a lower semi continuous function </li>
+                <li>\(R\) a lower semi continuous function</li>
+                <li>\(L\) a continuous linear operator</li>
+            </ul>
+                </p>
+
                 <h2 class="section-heading">Soooo.... Why is this useful, again?</h2>
                 <p>Let's say you need to denoise an image for instance. You can write this as the following
                 optimization
@@ -194,10 +208,112 @@
                     </i>
                 </p>
 
-                <h2 class="section-heading">The Fenchel Conjuguate</h2>
+                <p>Not additive.</p>
+
+                <h2 class="section-heading">The Fenchel Transform</h2>
+                <p>Another difficulty of this optimization problem is the coupling of variables \(x_i\) due to the
+                    linear operator \(L\) and the function \(R\). Combined to the eventual non smoothness of \(R\), this
+                    imposes to optimize all variables \(x_i\) jointly.
+                    One solution would be to smooth the objective function \(R\) to make corners disappear. However, this
+                    changes the objective function which might not be desirable. Using the Moreau envelope is
+                    unfortunately generally computationally very intensive because, as seen in Section 2.3.1, the
+                    proximal operator is not an additive function. The first order primal dual technique relies
+                    on the Fenchel transformation to decouple the variables. This transformation comes with the cost
+                    of adding new variables, named dual variables, to our current optimization problem. The Fenchel
+                    transform augments to a <i>saddle point optimization problem</i>, that is to say, a convex
+                    minimization problem for the primal and a concave maximization problem for the dual variables.</p>
+
+                <p>The <i>Fenchel Transform</i>, also called <i>convex conjugate</i> of a function \(R\) is defined
+                    as follows:
+                    $$
+                    \begin{align}
+                    R^{*}(y) = \sup \limits_{x} \langle x, y \rangle - R(x)
+                    \end{align}
+                    $$
+                    This transformation encodes the convex hull of the function \(R\) epigraph as a set of
+                    hyperplanes. It is worth noting that the Fenchel transform always yields a convex function.
+                </p>
+                <!-- TODO(louise): illustrations!! -->
+                <p>Applying this transform twice to the function \(R\) yields the bi-convex conjugate \( R^{**} \):
+                    $$
+                    \begin{align}
+                    R^{**}(y) = \sup \limits_{y} \langle x, y \rangle - R*(y)
+                    \end{align}
+                    $$
+                    So if \(R\) is a convex function, \( R^{**} = R \) and we have:
+                    $$
+                    \begin{align}
+                    R(x) = \sup \limits_{y} \langle x, y \rangle - R*(y)
+                    \end{align}
+                    $$
+                    And this gives an efficient approach to decouple the variable \(x\) in our context!!
+                </p>
 
                 <h2 class="section-heading">Primal Dual algorithm</h2>
+                <p>So now let's see how to combine the last two ideas in our optimization problem.
+                First, we introduce the Moreau envelope for the \( (M_i)_{i} \) :
+                $$ \begin{align}
+                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{\tau} \left\| x_i -
+                    \tilde{x}_i \right\|^2_2 + R(Lx)
+                    \end{align}
+                $$
+                Then we apply the Fenchel Transform to \(R\):
+                $$
+                \begin{align}
+                \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{2\tau} \left\| x_i -
+                \tilde{x}_i \right\|^2_2 + \langle y , Lx \rangle - R^{*}(y)
+                \end{align}
+                $$
+                    So now, all the \(x_i\) are decoupled. Their minimization is achieved by computing a proximal
+                    operator. But \(R^{*}\) is not assured to be smooth, so we are going to use the Moreau envelope
+                    again on \(R^{*}\):
+                    $$
+                    \begin{align}
+                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{2\tau} \left\| x_i -
+                    \tilde{x}_i \right\|^2_2 + \langle y , Lx \rangle - R^{*}(y) - \frac{1}{2
+                    \sigma} \left\| y - \tilde{y} \right\|^2_2
+                    \end{align}
+                    $$
+                    And now, we can transform this problem into an iterative one by doing:
+                    $$
+                    \begin{align}
+                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i^{(n)}) + \frac{1}{2\tau} \left\| x_i^{(n)} -
+                    x_i^{(n-1)} \right\|^2_2 + \langle y^{(n)} , Lx^{(n)} \rangle - R^{*}(y^{(n)}) - \frac{1}{2
+                    \sigma} \left\| y^{(n)} - y^{(n-1)} \right\|^2_2
+                    \end{align}
+                    $$
+                    So now, we have, for all \(n\), a problem that is convex with respect to \(x^{(n)}\) and concave
+                    with respect to \( y^{(n)}\); we have a saddle point problem formulation! And we know that the
+                    two series converge to a fixed saddle point.
 
+                </p>
+
+                <p>Now that we finally have a problem that is iteratively optimizable, let's see the pseudo code of
+                    the Primal Dual Algorithm:
+                <pre class="pseudocode">
+\begin{algorithm}
+\caption{First Order Primal Dual Algorithm}
+\begin{algorithmic}
+\PROCEDURE{primal-dual}{$M_i, R, L, data$}
+    \STATE Compute $R^{*}$
+    \STATE Initialize Primal variable $x^0 \leftarrow 0$
+    \STATE Initialize Dual variable $y^0 \leftarrow 0$
+    \STATE $\tilde{x} \leftarrow 0$
+    \WHILE{Stopping Criteria is not met}
+        \STATE {Optimize dual variable $y^{(n+1)} \leftarrow prox_{\sigma (\langle y, L\tilde{x} \rangle - R^{*}
+                (y^{(n)}))} (y^{(n)})$}
+        \STATE {Optimize the primal variable $x^{(n+1)} \leftarrow prox_{\tau(\sum_i M_i(x_i) + \langle
+                L^{T}y^{(n)}, x \rangle) (x^{(n)})}$}
+        \STATE {Smooth Variable $\tilde{x} \leftarrow x^{(n+1)} + \theta (x^{(n+1)} - x^{(n)})$}
+    \ENDWHILE
+
+    \RETURN $x^{(n)}$
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</pre>
+                </p>
+
+                <h2 class="section-heading">A real life example</h2>
 
 
 
