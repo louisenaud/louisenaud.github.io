@@ -119,7 +119,7 @@
 
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
-<header class="intro-header" style="background-image: url('img/RL.png')">
+<header class="intro-header" style="background-image: url('img/saddle.png')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -167,7 +167,8 @@
                 </p>
 
                 <h2 class="section-heading">Soooo.... Why is this useful, again?</h2>
-                <p>Let's say you need to denoise an image for instance. You can write this as the following
+                <p>Let's say you need to denoise an image for instance. In the Total Variation context, you can write
+                    image denoising as the following
                 optimization
                 problem:
                 $$
@@ -177,13 +178,38 @@
                 \end{align*}
                 $$
                 </p>
+                <p>The Total variation framework also allows for a nice formulation of the motion estimation problem
+                    . </p>
+
+                <p>It can also be used for inpainting:</p>
 
                 <h2 class="section-heading">Useful definitions</h2>
+                <p>Let's first define a couple of concept that we will use afterwards. A function \(f\) on a normed
+                    real vector space \(V\) is <i>proper</i> if \(f: V \rightarrow ]-\infty ,
+                    \infty] \) and if it is not identically equal to \(+\infty \).</p>
+                <p>A function \(f\) on a normed real vector space \(V\) is <i>coercive</i> if \(\lim_{\left\|u \right\|
+                    \rightarrow + \infty} f(u) = + \infty\). </p>
+                <p>Most of the functions we will consider here will be <i>lower semi-continuous</i>. This means that
+                    a function \(f\) on a real topological space \(\mathcal{X}\), \(f: V \rightarrow ]-\infty ,
+                    \infty] \) is lower semi-continuous (l.s.c.) if \( \forall \lambda \in \mathbb{R}\), the set \(
+                    {u \in V: f(u) \leq \lambda}\) is closed in V. </p>
+                <p>This property is quite important, as we will see in the following theorem: Let \(U\) be non-empty
+                    and closed, and \( f : \mathbb{R}^n \rightarrow \mathbb{R}\) be l.s.c.and proper. If \(U\) is
+                    not bounded, we also suppose that f is coercive. Then: \(\exists \hat{u} \in U s.t. f(\hat{u}) =
+                    inf_{u \in U} f(u)\). </p>
+                <p>This is actually very important; it means that if \(f\) has all the aforementioned properties,
+                    it takes a minimum value on any set \(U\) non-empty and closed.</p>
+
+                <a href="#">
+                    <img class="img-responsive" src="img/lsc.png" alt="">
+                </a>
+                <p>We will suppose here that you are familiar with the concept of convex functions and sets.</p>
 
                 <h2 class="section-heading">The Moreau Envelope</h2>
                 <p>In our image denoising or inpainting context, the function to optimize may not be smooth, and this
                 complicates the task of minimizing/optimizing the objective function. In order to alleviate this
-                difficulty, a brilliant idea has been introduced in "Proximité et dualité dans un espace hilbertien".
+                difficulty, a brilliant idea has been introduced in "Proximité et dualité dans un espace hilbertien"
+                    by Moreau.
                 Given a proper lsc convex function \( F : \mathcal{X} \leftarrow \mathbb{R} \), the Moreau envelope constructs a smoothed version of function \(F\) where the degree of smoothing is controlled by a parameter \(\tau\). The Moreau envelope is defined as the unique solution of the optimization problem:
                 $$
                 \begin{align}
