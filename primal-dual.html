@@ -127,7 +127,7 @@
                     <h1>First Order Primal Dual Techniques</h1>
                     <h2 class="subheading">A versatile framework for a wide variety of convex optimization problems
                         .</h2>
-                    <span class="meta">Posted by <a href="#">Louise</a> on July 4, 2017</span>
+                    <span class="meta">Posted by <a href="#">Louise</a> on July 14, 2017</span>
                 </div>
             </div>
         </div>
@@ -168,20 +168,68 @@
 
                 <h2 class="section-heading">Soooo.... Why is this useful, again?</h2>
                 <p>Let's say you need to denoise an image for instance. In the Total Variation context, you can write
-                    image denoising as the following
-                optimization
-                problem:
+                    image denoising as the following optimization problem:
                 $$
                 \begin{align*}
                 & \underset{x}{\text{minimize}}
-                & & \left\| \nabla x\right\| + \frac{\lambda}{2} \left\| x -f \right\|^2
+                & & \left\| \nabla x\right\|_{1} + \frac{\lambda}{2} \left\| x - f \right\|^2
                 \end{align*}
                 $$
+                    where:
+                    <ul>
+                <li>\(x \in X\) is the sought solution,</li>
+                <li>\(f \in X\) is the noisy input image,</li>
+                <li>\(\lambda \in \mathbb{R} \) is a parameter to define the trade of between regularization and data
+                    fitting,</li>
+                <li>\(\left\| \nabla x \right\|_{1}\) represents the discretized version of the isotropic total
+                    variation of the function \(x\).</li>
+            </ul>
+                \(\nabla\) is a linear operator, \(\left\|.\right\|_{2}\) is l.s.c. (proof through Hahn-Banach Theorem)
+                and \(\left\|.\right\|_{1}\) is l.s.c. (implication of the <a
+                    href="https://en.wikipedia.org/wiki/Fatou%27s_lemma">Fatou's lemma</a>), so this problem fits
+                into the aforementioned problem!
+            </a>
                 </p>
                 <p>The Total variation framework also allows for a nice formulation of the motion estimation problem
-                    . </p>
+                    $$\begin{align}
+                    \min \limits_{x\in \mathcal{X}, v \in \mathcal{Y}} \left\| \nabla u \right\|_{1} + \left\| \nabla
+                    v \right\|_{1} + \lambda \left\| \rho (u, v) \right\|_{1}
+                    \end{align}$$
+                    where:
+                <ul>
+                    <li>\((u, v)\) are the apparent motion vectors,</li>
+                    <li>\(\left\| \nabla u \right\|_{1} + \left\| \nabla
+                        v \right\|_{1}\) is the total variation of the apparent motion field,</li>
+                    <li>\(\left\| \rho (u, v) \right\|_{1}\) is the linearization of the assumption that the
+                        intensities of the pixels stay constant over time,</li>
+                    <li>\(\lambda \in \mathbb{R} \) is a parameter to define the trade of between regularization and data
+                        fitting,</li>
+                    <li>\(\left\| \nabla u \right\|_{1}\) represents the discretized version of the isotropic total
+                        variation of the function \(x\).</li>
+                </ul>
 
-                <p>It can also be used for inpainting:</p>
+                </p>
+
+                <p>It can also be used for inpainting:
+                    $$\begin{align}
+                    \min \limits_{x\in \mathcal{X}} \left\| \Phi u \right\|_{1} + \frac{\lambda}{2} \left\| u-g
+                    \right\|_{2}^2
+                    \end{align}$$
+
+                <ul>
+                    <li>\(u\) is the sought solution,</li>
+                    <li>\(g \in X\) is the noisy input image</li>
+                    <li>\(\Phi\) is a linear operator, which can be \(\nabla\) or the Fast Discrete Curvelet
+                        Transform for instance,</li>
+                    <li>\(\left\| \Phi u \right\|_{1}\) is the total variation of the apparent motion field,</li>
+                    <li>\(\left\| \rho (u, v) \right\|_{1}\) is the linearization of the assumption that the
+                        intensities of the pixels stay constant over time,</li>
+                    <li>\(\lambda \in \mathbb{R} \) is a parameter to define the trade of between regularization and data
+                        fitting.</li>
+                </ul>
+                </p>
+
+                <p></p>
 
                 <h2 class="section-heading">Useful definitions</h2>
                 <p>Let's first define a couple of concept that we will use afterwards. A function \(f\) on a normed
