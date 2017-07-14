@@ -172,7 +172,7 @@
                 $$
                 \begin{align*}
                 & \underset{x}{\text{minimize}}
-                & & \left\| \nabla x\right\|_{1} + \frac{\lambda}{2} \left\| x - f \right\|^2
+                & & \left\| \nabla x\right\|_{1} + \frac{\lambda}{2} \left\| x - f \right\|^2_2
                 \end{align*}
                 $$
                     where:
@@ -184,56 +184,63 @@
                 <li>\(\left\| \nabla x \right\|_{1}\) represents the discretized version of the isotropic total
                     variation of the function \(x\).</li>
             </ul>
-                \(\nabla\) is a linear operator, \(\left\|.\right\|_{2}\) is l.s.c. (proof through Hahn-Banach Theorem)
-                and \(\left\|.\right\|_{1}\) is l.s.c. (implication of the <a
+                The first term is the Total Variation term that serves as a regulation to discourage the solution
+                from having oscillations, but still allows for discontinuities. The second term forces the solution
+                to be closed to the observed image. Then, \(\nabla\) is a linear operator, \(\left\|.\right\|_{2}\) is
+                l.s.c. (proof through Hahn-Banach Theorem) and \(\left\|.\right\|_{1}\) is l.s.c. (implication of the <a
                     href="https://en.wikipedia.org/wiki/Fatou%27s_lemma">Fatou's lemma</a>), so this problem fits
                 into the aforementioned problem!
-            </a>
+
                 </p>
-                <p>The Total variation framework also allows for a nice formulation of the motion estimation problem
+                <p>The Total Variation (TV) framework also allows for a nice formulation of the motion estimation
+                    problem:
                     $$\begin{align}
                     \min \limits_{x\in \mathcal{X}, v \in \mathcal{Y}} \left\| \nabla u \right\|_{1} + \left\| \nabla
                     v \right\|_{1} + \lambda \left\| \rho (u, v) \right\|_{1}
                     \end{align}$$
-                    where:
+                    where:</p>
                 <ul>
                     <li>\((u, v)\) are the apparent motion vectors,</li>
                     <li>\(\left\| \nabla u \right\|_{1} + \left\| \nabla
                         v \right\|_{1}\) is the total variation of the apparent motion field,</li>
-                    <li>\(\left\| \rho (u, v) \right\|_{1}\) is the linearization of the assumption that the
-                        intensities of the pixels stay constant over time,</li>
+                    <li>\(\left\| \rho (u, v) \right\|_{1} = I_{t} + (\nabla I)^T (v - v_0) + \beta u \) is the
+                        linearization of the assumption that the intensities of the pixels stay constant over time,
+                        known as the Optical Flow Constraint, plus a term that takes into account a drift in the
+                        value of pixels over time,</li>
                     <li>\(\lambda \in \mathbb{R} \) is a parameter to define the trade of between regularization and data
                         fitting,</li>
                     <li>\(\left\| \nabla u \right\|_{1}\) represents the discretized version of the isotropic total
                         variation of the function \(u\).</li>
                 </ul>
+                <p></p>
 
-                </p>
 
-                <p>It can also be used for inpainting:
+                <p>This same TV framework can also be used for inpainting:
                     $$\begin{align}
                     \min \limits_{x\in \mathcal{X}} \left\| \Phi u \right\|_{1} + \frac{\lambda}{2} \left\| u-g
                     \right\|_{2}^2
                     \end{align}$$
+                where:
+                </p>
 
                 <ul>
                     <li>\(u\) is the sought solution,</li>
-                    <li>\(g \in X\) is the noisy input image</li>
+                    <li>\(g \in X\) is the noisy input image, </li>
                     <li>\(\Phi\) is a linear operator, which can be \(\nabla\) or the Fast Discrete Curvelet
                         Transform for instance,</li>
-                    <li>\(\left\| \Phi u \right\|_{1}\) is the total variation of the apparent motion field,</li>
-                    <li>\(\left\| \rho (u, v) \right\|_{1}\) is the linearization of the assumption that the
-                        intensities of the pixels stay constant over time,</li>
+                    <li>\(\left\| \Phi u \right\|_{1}\) is,</li>
+                    <li>\(\left\| u-g \right\|_{2}^2\) is the linearization of the assumption that the intensities of
+                        the pixels stay constant over time,</li>
                     <li>\(\lambda \in \mathbb{R} \) is a parameter to define the trade of between regularization and data
                         fitting.</li>
                 </ul>
-                </p>
+                <p>The aim of the inpainting model is to find a sparse representation of the image \(u\) in the domain
+                    of \(\Phi\). This is achieved through minimizing the L1 norm.</p>
 
-                <p></p>
 
                 <h2 class="section-heading">Useful definitions</h2>
-                <p>Let's first define a couple of concept that we will use afterwards. A function \(f\) on a normed
-                    real vector space \(V\) is <i>proper</i> if \(f: V \rightarrow ]-\infty ,
+                <p>Let's first define a couple of concepts that will be useful to us. A function
+                    \(f\)on a normed real vector space \(V\) is <i>proper</i> if \(f: V \rightarrow ]-\infty ,
                     \infty] \) and if it is not identically equal to \(+\infty \).</p>
                 <p>A function \(f\) on a normed real vector space \(V\) is <i>coercive</i> if \(\lim_{\left\|u \right\|
                     \rightarrow + \infty} f(u) = + \infty\). </p>
@@ -282,11 +289,15 @@
                     </i>
                 </p>
 
-                <p>Here is a figure to illustrate what the Moreau envelope is on a non-smooth function:</p>
+                <p>Here is a figure to illustrate what the Moreau envelope is on a non-smooth function, with \(\tau=1\)
+                    :</p>
                 <a href="#">
                     <img class="img-responsive" src="img/moreau1.png" alt="">
                 </a>
-                <p>Here is figure to illustrate the influence of the \(\tau\) parameter: </p>
+                <p>Here is figure to illustrate the influence of the \(\tau\) parameter. We draw the function \(F\)
+                    and the functions \(x \mapsto F(x) + \frac{1}{2\tau} \left\| x - \tilde{x} \right\|_2^2 \), with
+                    \(\tilde{x}\) fixed at 0.5, with various \(\tau\) values:
+                </p>
                 <a href="#">
                     <img class="img-responsive" src="img/moreau2.png" alt="">
                 </a>
@@ -397,7 +408,7 @@
                 </p>
 
                 <h2 class="section-heading">A real life example</h2>
-
+                
 
 
                 <p>You can leave comments down here, or contact me through the contact form of this blog if you
