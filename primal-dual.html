@@ -142,7 +142,7 @@
                 <p>In this post, we are going to discuss a very powerful -mathematically as well as pragmatically-
                     optimization framework; the <i>First Order Primal Dual Convex Optimization Technique</i>.
                     This involves a few definitions that may not look friendly at first, but the framework is in
-                    fact relatively understandable. The framework has been -successfully- applied to image denoizing
+                    fact relatively understandable. The framework has successfully been applied to image denoizing
                 and image inpainting, and is really worthy of spending some time to comprehend it. </p>
 
                 <p>We will remind a couple of definitions that are useful in this framework, but you can find many
@@ -205,7 +205,7 @@
                     <li>\(\lambda \in \mathbb{R} \) is a parameter to define the trade of between regularization and data
                         fitting,</li>
                     <li>\(\left\| \nabla u \right\|_{1}\) represents the discretized version of the isotropic total
-                        variation of the function \(x\).</li>
+                        variation of the function \(u\).</li>
                 </ul>
 
                 </p>
@@ -282,7 +282,16 @@
                     </i>
                 </p>
 
-                <p>Not additive.</p>
+                <p>Here is a figure to illustrate what the Moreau envelope is on a non-smooth function:</p>
+                <a href="#">
+                    <img class="img-responsive" src="img/moreau1.png" alt="">
+                </a>
+                <p>Here is figure to illustrate the influence of the \(\tau\) parameter: </p>
+                <a href="#">
+                    <img class="img-responsive" src="img/moreau2.png" alt="">
+                </a>
+
+                <p>Here are some properties of the Moreau's Envelope.</p>
 
                 <h2 class="section-heading">The Fenchel Transform</h2>
                 <p>Another difficulty of this optimization problem is the coupling of variables \(x_i\) due to the
