@@ -507,59 +507,104 @@ def proximal_linf_ball(p, r=1.0):
                 <p>And the main loop of the algorithm becomes:</p>
 
                 <pre class="prettyprint"><code class="language-python">
-img_ref = np.array(face(True))  # Reference image
-img_obs = skimage.util.random_noise(img_ref, mode='gaussian')  # noisy image
+import numpy as np
+import matplotlib.pyplot as plt
+import skimage
+from scipy.misc import face
 
-norm_l = 7.0
-max_it = 3000
-theta = 1.0
-tau = 0.01
-sigma = 1.0 / (norm_l * tau)
-lambda_rof = 7.0
+from norm import norm1, norm2
+from differential_operators import backward_divergence, forward_gradient
+from proximal_operators import proximal_linf_ball
 
-x = img_obs
-x_tilde = x
-h, w = img_ref.shape
-y = np.zeros((h, w, 2))
 
-p_nrg = primal_energy_rof(x, img_obs, lambda_TVL1)
-print "Primal Energy = ", p_nrg
-d_nrg = dual_energy_rof(y, img_obs)
-print "Dual Energy = ", d_nrg
+def dual_energy_rof(y, im_obs):
+    """
+    Computes the dual energy of ROF problem.
+    :param y:
+    :param im_obs: numpy array, observed image
+    :return: float, dual energy
+    """
+    nrg = -0.5 * (im_obs - backward_divergence(y))**2
+    nrg = nrg.sum()
+    return nrg
 
-# Solve ROF
-primal = np.zeros((max_it,))
-dual = np.zeros((max_it,))
-gap = np.zeros((max_it,))
-primal[0] = p_nrg
-dual[0] = d_nrg
-y = forward_gradient(x)
-for it in range(max_it):
-    # Dual update
-    y = y + sigma * forward_gradient(x_tilde)
-    y = proximal_linf_ball(y, 1.0)
-    # Primal update
-    x_old = x
-    x = (x + tau * backward_divergence(y) + lambda_rof * tau * img_obs) / (1.0 + lambda_rof * tau)
-    # Smoothing
-    x_tilde = x + theta * (x - x_old)
 
-    # Compute energies
-    primal[it] = primal_energy_rof(x_tilde, img_obs, sigma)
-    dual[it] = dual_energy_rof(y, img_obs)
-    gap[it] = primal[it] - dual[it]
+def primal_energy_rof(x, img_obs, clambda):
+    """
+    Computes the primal energy of the ROF problem.
+    :param x:
+    :param img_obs:
+    :param clambda:
+    :return:
+    """
+    energy_reg = norm1(forward_gradient(x)).sum()
+    energy_data_term = 0.5*clambda * norm2(x - img_obs).sum()
+    return energy_reg + energy_data_term
 
-plt.figure()
-plt.plot(np.asarray(range(max_it)), primal, label="Primal Energy")
-plt.legend()
+if __name__ == '__main__':
+    img_ref = np.array(face(True))  # Reference image
+    img_obs = skimage.util.random_noise(img_ref, mode='gaussian')  # noisy image
+    # Parameters
+    norm_l = 7.0
+    max_it = 3000
+    theta = 1.0
+    tau = 0.01
+    sigma = 1.0 / (norm_l * tau)
+    lambda_rof = 7.0
+    # Variables
+    x = img_obs
+    x_tilde = x
+    h, w = img_ref.shape
+    y = np.zeros((h, w, 2))
 
-plt.figure()
-plt.plot(np.asarray(range(max_it)), dual, label="Dual Energy")
-plt.legend()
+    p_nrg = primal_energy_rof(x, img_obs, lambda_rof)
+    print "Primal Energy = ", p_nrg
+    d_nrg = dual_energy_rof(y, img_obs)
+    print "Dual Energy = ", d_nrg
 
-plt.figure()
-plt.plot(np.asarray(range(max_it)), gap, label="Gap")
-plt.legend()
+    # Solve ROF
+    primal = np.zeros((max_it,))
+    dual = np.zeros((max_it,))
+    gap = np.zeros((max_it,))
+    primal[0] = p_nrg
+    dual[0] = d_nrg
+    y = forward_gradient(x)
+    for it in range(max_it):
+        # Dual update
+        y = y + sigma * forward_gradient(x_tilde)
+        y = proximal_linf_ball(y, 1.0)
+        # Primal update
+        x_old = x
+        x = (x + tau * backward_divergence(y) + lambda_rof * tau * img_obs) / (1.0 + lambda_rof * tau)
+        # Smoothing
+        x_tilde = x + theta * (x - x_old)
+
+        # Compute energies
+        primal[it] = primal_energy_rof(x_tilde, img_obs, sigma)
+        dual[it] = dual_energy_rof(y, img_obs)
+        gap[it] = primal[it] - dual[it]
+
+    plt.figure()
+    plt.plot(np.asarray(range(max_it)), primal, label="Primal Energy")
+    plt.legend()
+
+    plt.figure()
+    plt.plot(np.asarray(range(max_it)), dual, label="Dual Energy")
+    plt.legend()
+
+    plt.figure()
+    plt.plot(np.asarray(range(max_it)), gap, label="Gap")
+    plt.legend()
+
+    # Plot reference, observed and denoised image
+    f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
+    ax1.imshow(img_ref)
+    ax1.set_title("Reference image")
+    ax2.imshow(img_obs)
+    ax2.set_title("Observed image")
+    ax3.imshow(x)
+    ax3.set_title("Denoised image")
+    plt.show()
                 </code></pre>
 
                 <p>The code is available in its full <a href="https://github.com/louisenaud/primal-dual">here</a>. </p>
