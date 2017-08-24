@@ -410,10 +410,159 @@
 \end{algorithmic}
 \end{algorithm}</pre>
                 </p>
-                <!--
+
                 <h2 class="section-heading">A real life example</h2>
-                -->
-                <p>I will add very soon some Python code for a real-life example. </p>
+
+                <p>In this section, we are going to look at an example of image denoising following the ROF model
+                    (from Rudin, Osher and Fatemi). Let's say we have a noisy image \(c\), and we are going to note
+                    \(x\) the primal variable. The ROF problem for denoising is the following optimization problem:
+                    \[ min_x \frac{\lambda}{2} \left\| x - c \right\|^2_2 + \left\| \nabla x \right\|_1 \].
+                </p>
+
+                <p>In this context, the convex conjugate of the regularization term is: \[F^* (y) = \sup \limits_{x
+                    \in \mathbb{R}^d} {\langle x, y \rangle - \left\|x\right\|} \\
+                    = \sup \limits_{x
+                    \in \mathbb{R}^d} {\sum_{i=1}^d x_i y_i - \|x_i\|}\]
+                    \(y_i\) must be less or equal than 1, otherwise \(F^*\) is not finite. Then we can write:
+
+                    \[\sum_{i=1}^d x_i y_i - \|x_i\| \leq \sum_{i=1}^d x_i - \|x_i\| \leq 0\]
+                    The supremum is then attained for \(0_{\mathbb{R}^d}\). So the convex conjugate of this term
+                    is:
+                    \[F^*(y) = \mathcal{I}_{\left\|.\right\|_{\infty}\leq 1} (y)\]
+                    After a direct calculation of \( (Id + \sigma \partial F^*)^{-1} (\tilde{p})\), the proximal of
+                    this term
+                    is:
+                    \[prox_{\sigma F^*} (\tilde{p}) = \frac{\tilde{p}_{ij}}{max(1, \| \tilde{p}_{ij}\|)}\]
+                </p>
+                <p>Another direct calcultation of \( (Id + \tau \partial G)^{-1} (\tilde{u})\) gives:
+                \[ prox_{\tau G} (\tilde{u}) = \frac{\tilde{u}+\lambda \tau \nabla \tilde{u}}{1 + \lambda \tau}\]</p>
+
+                <p>Let's see now how to implement the differential operators: </p>
+
+                <pre class="prettyprint"><code class="language-python">
+def forward_gradient(im):
+    """
+    Function to compute the forward gradient of the image I.
+    Definition from: http://www.ipol.im/pub/art/2014/103/, p208
+    :param im: numpy array [MxN], input image
+    :return: numpy array [MxNx2], gradient of the input image, the first channel is the horizontal gradient, the second
+    is the vertical gradient.
+    """
+    h, w = im.shape
+    gradient = np.zeros((h, w, 2), im.dtype)  # Allocate gradient array
+    # Horizontal direction
+    gradient[:, :-1, 0] = im[:, 1:] - im[:, :-1]
+    # Vertical direction
+    gradient[:-1, :, 1] = im[1:, :] - im[:-1, :]
+
+    return gradient
+
+
+def backward_divergence(grad):
+    """
+    Function to compute the backward divergence.
+    Definition in : http://www.ipol.im/pub/art/2014/103/, p208
+
+    :param grad: numpy array [NxMx2], array with the same dimensions as the gradient of the image to denoise.
+    :return: numpy array [NxM], backward divergence
+    """
+
+    h, w = grad.shape[:2]
+    div = np.zeros((h, w), grad.dtype)  # Allocate divergence array
+    # Horizontal direction
+    d_h = np.zeros((h, w), grad.dtype)
+    d_h[:, 0] = grad[:, 0, 0]
+    d_h[:, 1:-1] = grad[:, 1:-1, 0] - grad[:, :-2, 0]
+    d_h[:, -1] = -grad[:, -2:-1, 0].flatten()
+
+    # Vertical direction
+    d_v = np.zeros((h, w), grad.dtype)
+    d_v[0, :] = grad[0, :, 1]
+    d_v[1:-1, :] = grad[1:-1, :, 1] - grad[:-2, :, 1]
+    d_v[-1, :] = -grad[-2:-1, :, 1].flatten()
+
+    # Divergence
+    div = d_h + d_v
+    return div
+                </code></pre>
+                <p>It is of critical importance that these two operators are adjoint of each other. We can check
+                    that it is the case by check the value of the following expression: </p>
+
+                <pre class="prettyprint"><code class="language-python">check = abs((y[:] * gx[:]).sum() + (dy[:]*x[:]).sum())</code></pre>
+
+                <p>Then, we are going to implement the dual proximal operator: </p>
+
+                <pre class="prettyprint"><code class="language-python">
+def proximal_linf_ball(p, r=1.0):
+    """
+    Proximal operator for sum(gradient(x)).
+    :param p: numpy array [MxNx2],
+    :param r: float, radius of infinity norm ball.
+    :return: numpy array, same dimensions as p
+    """
+    n_p = np.maximum(1.0, norm2(p) / r)
+    return p / n_p[..., np.newaxis]
+                </code></pre>
+
+                <p>And the main loop of the algorithm becomes:</p>
+
+                <pre class="prettyprint"><code class="language-python">
+img_ref = np.array(face(True))  # Reference image
+img_obs = skimage.util.random_noise(img_ref, mode='gaussian')  # noisy image
+
+norm_l = 7.0
+max_it = 3000
+theta = 1.0
+tau = 0.01
+sigma = 1.0 / (norm_l * tau)
+lambda_rof = 7.0
+
+x = img_obs
+x_tilde = x
+h, w = img_ref.shape
+y = np.zeros((h, w, 2))
+
+p_nrg = primal_energy_rof(x, img_obs, lambda_TVL1)
+print "Primal Energy = ", p_nrg
+d_nrg = dual_energy_rof(y, img_obs)
+print "Dual Energy = ", d_nrg
+
+# Solve ROF
+primal = np.zeros((max_it,))
+dual = np.zeros((max_it,))
+gap = np.zeros((max_it,))
+primal[0] = p_nrg
+dual[0] = d_nrg
+y = forward_gradient(x)
+for it in range(max_it):
+    # Dual update
+    y = y + sigma * forward_gradient(x_tilde)
+    y = proximal_linf_ball(y, 1.0)
+    # Primal update
+    x_old = x
+    x = (x + tau * backward_divergence(y) + lambda_rof * tau * img_obs) / (1.0 + lambda_rof * tau)
+    # Smoothing
+    x_tilde = x + theta * (x - x_old)
+
+    # Compute energies
+    primal[it] = primal_energy_rof(x_tilde, img_obs, sigma)
+    dual[it] = dual_energy_rof(y, img_obs)
+    gap[it] = primal[it] - dual[it]
+
+plt.figure()
+plt.plot(np.asarray(range(max_it)), primal, label="Primal Energy")
+plt.legend()
+
+plt.figure()
+plt.plot(np.asarray(range(max_it)), dual, label="Dual Energy")
+plt.legend()
+
+plt.figure()
+plt.plot(np.asarray(range(max_it)), gap, label="Gap")
+plt.legend()
+                </code></pre>
+
+                <p>The code is available in its full <a href="https://github.com/louisenaud/primal-dual">here</a>. </p>
 
 
 
