@@ -166,6 +166,10 @@
             </ul>
                 </p>
 
+                <p>I strongly suggest this excellent paper from A. Chambolle : <a
+                        href="https://hal.archives-ouvertes.fr/hal-00437581/document">An introduction to Total
+                    Variation for Image Analysis</a>, since it is the paper we are going to base this blog post on.</p>
+
                 <h2 class="section-heading">Soooo.... Why is this useful, again?</h2>
                 <p>Let's say you need to denoise an image for instance. In the Total Variation context, you can write
                     image denoising as the following optimization problem:
@@ -186,7 +190,7 @@
             </ul>
                 The first term is the Total Variation term that serves as a regulation to discourage the solution
                 from having oscillations, but still allows for discontinuities. The second term forces the solution
-                to be closed to the observed image. Then, \(\nabla\) is a linear operator, \(\left\|.\right\|_{2}\) is
+                to be close to the observed image. Then, \(\nabla\) is a linear operator, \(\left\|.\right\|_{2}\) is
                 l.s.c. (proof through Hahn-Banach Theorem) and \(\left\|.\right\|_{1}\) is l.s.c. (implication of the <a
                     href="https://en.wikipedia.org/wiki/Fatou%27s_lemma">Fatou's lemma</a>), so this problem fits
                 into the aforementioned problem!
@@ -292,17 +296,16 @@
                 <p>Here is a figure to illustrate what the Moreau envelope is on a non-smooth function, with \(\tau=1\)
                     :</p>
                 <a href="#">
-                    <img class="img-responsive" src="img/moreau1.png" alt="">
+                    <img class="img-responsive" src="img/moreau1.png" alt="Thanks to Bruno Conejo for the pictures">
                 </a>
                 <p>Here is figure to illustrate the influence of the \(\tau\) parameter. We draw the function \(F\)
                     and the functions \(x \mapsto F(x) + \frac{1}{2\tau} \left\| x - \tilde{x} \right\|_2^2 \), with
                     \(\tilde{x}\) fixed at 0.5, with various \(\tau\) values:
                 </p>
                 <a href="#">
-                    <img class="img-responsive" src="img/moreau2.png" alt="">
+                    <img class="img-responsive" src="img/moreau2.png" alt="Thanks to Bruno Conejo for the pictures">
                 </a>
 
-                <p>Here are some properties of the Moreau's Envelope.</p>
 
                 <h2 class="section-heading">The Fenchel Transform</h2>
                 <p>Another difficulty of this optimization problem is the coupling of variables \(x_i\) due to the
@@ -335,13 +338,13 @@
                 <p>Applying this transform twice to the function \(R\) yields the bi-convex conjugate \( R^{**} \):
                     $$
                     \begin{align}
-                    R^{**}(y) = \sup \limits_{y} \langle x, y \rangle - R*(y)
+                    R^{**}(y) = \sup \limits_{y} \langle x, y \rangle - R^*(y)
                     \end{align}
                     $$
                     So if \(R\) is a convex function, \( R^{**} = R \) and we have:
                     $$
                     \begin{align}
-                    R(x) = \sup \limits_{y} \langle x, y \rangle - R*(y)
+                    R(x) = \sup \limits_{y} \langle x, y \rangle - R^*(y)
                     \end{align}
                     $$
                     And this gives an efficient approach to decouple the variable \(x\) in our context!!
@@ -485,10 +488,14 @@ def backward_divergence(grad):
     div = d_h + d_v
     return div
                 </code></pre>
-                <p>It is of critical importance that these two operators are adjoint of each other. We can check
-                    that it is the case by check the value of the following expression: </p>
+                <p>It is of critical importance that these two operators are adjoint to the sign of each other. We can
+                    check that it is the case by check the value of the following expression is \(0\): </p>
 
                 <pre class="prettyprint"><code class="language-python">check = abs((y[:] * gx[:]).sum() + (dy[:]*x[:]).sum())</code></pre>
+
+                <p>You can find this in the test folder of the <a
+                        href="https://github.com/louisenaud/primal-dual">Github Code
+                </a>.</p>
 
                 <p>Then, we are going to implement the dual proximal operator: </p>
 
