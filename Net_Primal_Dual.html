@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html lang="en">
+
+        <head>
+
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta name="description" content="">
+            <meta name="author" content="Louise Naud">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <!-- For code display: Code Prettify -->
+            <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
+
+
+            <title>Let's have fun with the ROF model</title>
+
+            <!-- Bootstrap Core CSS -->
+            <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+            <!-- Theme CSS -->
+            <link href="css/clean-blog.css" rel="stylesheet">
+
+            <!-- Custom Fonts -->
+            <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+            <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+            <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+            <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+            <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+            <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+            <![endif]-->
+
+            <script type="text/javascript" async
+                    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+            </script>
+            <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+            <!-- Configuration for Mathjax and AlgoType-->
+            <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            extensions: ["tex2jax.js", "color.js"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+                processEscapes: true
+            },
+            "HTML-CSS": { availableFonts: ["TeX"] },
+            TeX: {
+                Macros: {
+                            And:     "\\\\mathbf{and}",
+                            Or:      "\\\\mathbf{or}",
+                            Not:     "\\\\mathbf{not}",
+                            Is:      "\\\\mathbf{is}",
+                            In:      "\\\\mathbf{in}",
+                            Mapped:  "\\\\mathbf{mapped}",
+                            Nil:     "\\\\mathbf{nil}"
+                }
+            }
+        });
+    </script>
+            <!-- KateX for math formulas in pseudo code -->
+            <link rel="stylesheet" href="katex/katex.min.css">
+            <script src="katex/katex.min.js"></script>
+            <!-- Stylesheet for pseudo code -->
+            <link rel="stylesheet" href="pseudocode/pseudocode.min.css">
+            <script src="pseudocode/pseudocode.min.js"></script>
+            <!-- Library for Pseudo Code -->
+            <link rel="stylesheet" href="Algotype.js/algotype_my_config.css">
+            <script type="text/javascript" async
+                    src="Algotype.js/algotype.js">
+            </script>
+        </head>
+
+
+
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                Menu <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="index.html">ML Food for the Soul</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li>
+                    <a href="about.html">About</a>
+                </li>
+                <li>
+                    <a href="blog-tickets-list.html">Posts</a>
+                </li>
+                <li>
+                    <a href="contact.html">Contact</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Page Header -->
+<!-- Set your background image for this header on the line below. -->
+<header class="intro-header" style="background-image: url('img/saddle.png')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Let's have fun with the ROF model</h1>
+                    <h2 class="subheading">How to learn a more generic model.</h2>
+                    <span class="meta">Posted by <a href="contact.html">Louise</a> on October 12, 2017</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>In my previous post, I described a powerfool optimization framework known as the Primal Dual
+                    Framework. The goal of this new post is to have a little bit of fun with the ROF model and the
+                    primal dual framework!
+                </p>
+                <p>While the ROF model is efficient for denoising, its form is hand crafted, and one might wonder if
+                there might be a more optimal formulation for this this of problem. Since the Primal Dual Framework
+                    works for a more general set of problems, i.e.:</p>
+
+                <p>
+                    $$
+                    \begin{align}
+                    & \underset{x}{\text{minimize}} & &  M(x) + R(Lx)
+                    \end{align}
+                    $$
+                    with:
+                <ul>
+                    <li>\(M\) a lower semi continuous function </li>
+                    <li>\(R\) a lower semi continuous function</li>
+                    <li>\(L\) a continuous linear operator</li>
+                </ul>
+                <p>we are going to explore in this post the possibility of learning these functions \(M\), \(R\)and
+                    \(L\) through a neural net with the observed images as input and the ground truth images as
+                    outputs. The layers will be custom layers consisting of the parametrized Primal Dual steps. The
+                    goal will be to optimize these parameters.
+                </p>
+
+                <h2 class="section-heading">A slightly more general formulation of the ROF model</h2>
+                <p>A more general formulation of the ROF model is the following:
+                    $$
+                    \begin{align}
+                    & \underset{x}{\text{minimize}} & &  \frac{1}{2} x^T H x + b^T x + \left\| Lx \right\|_1
+                    \end{align}
+                    $$
+                    with:
+                    <ul>
+                        <li>\(H\) a symmetric invertible matrix of \(\mathcal{M}_n(\mathbb{R}^n\))</li>
+                        <li>\(b\) is a vector in \(\mathbb{R}^n\)</li>
+                        <li>\(L\) is a continuous linear operator</li>
+                    </ul>
+                We are going to note this function to minimize \(P(x; H, b, L)\).
+                </p>
+                <p>Let's now use the following caracterization of a norm : \(\left\| Lx \right\|_1 =
+                    \underset{y \in [-1, 1]^n}{\max}\langle L^T y, x \rangle\) in order to introduce a constraint to
+                    find
+                    the
+                    dual. The problem can now be written:
+                    $$
+                    \begin{align}
+                    & \underset{x}{\text{min}} & &  \frac{1}{2} x^T H x + \langle b + L^T y, x \rangle
+                    \end{align}
+                    $$
+                    A simple gradient computation gives: \(x^* = -H^{-1} (b + L^T y) \). The dual problem is then:
+
+                    $$
+                    \begin{align}
+                    & \underset{y \in [-1, 1]^n}{\text{maximize}} & &  -\frac{1}{2} (b+L^T y )^T H^{-1} (b+L^Ty)
+                    \end{align}
+                    $$
+                    We are going to note this function to maximize \(D(y; H, b, L)\).
+                </p>
+                <p>The dual gap is defined as : \(G(x, y ; H, b, L) = P(x; H, b, L) - D(y; H, b, L)\)</p>
+
+                <h2 class="section-heading">Let's start by learning a simple linear operator</h2>
+                <p>In this first scenario, we are going to optimize the following problem:
+
+                    $$
+                    \begin{align}
+                    & \underset{w}{\text{minimize}} & &  \sum{\left\| x_i^{*} - x_i^{GT} \right\|_2^2 } \\
+                    & ST & & x_i^{*} = \underset{x}{\arg \min P(x; w)}
+                    \end{align}
+                    $$
+                </p>
+
+
+                <h2 class="section-heading">Primal Dual algorithm</h2>
+                <p>So now let's see how to combine the last two ideas in our optimization problem.
+                    First, we introduce the Moreau envelope for the \( (M_i)_{i} \) :
+                    $$ \begin{align}
+                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{\tau} \left\| x_i -
+                    \tilde{x}_i \right\|^2_2 + R(Lx)
+                    \end{align}
+                    $$
+                    Then we apply the Fenchel Transform to \(R\):
+                    $$
+                    \begin{align}
+                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{2\tau} \left\| x_i -
+                    \tilde{x}_i \right\|^2_2 + \langle y , Lx \rangle - R^{*}(y)
+                    \end{align}
+                    $$
+                    So now, all the \(x_i\) are decoupled. Their minimization is achieved by computing a proximal
+                    operator. But \(R^{*}\) is not assured to be smooth, so we are going to use the Moreau envelope
+                    again on \(R^{*}\):
+                    $$
+                    \begin{align}
+                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{2\tau} \left\| x_i -
+                    \tilde{x}_i \right\|^2_2 + \langle y , Lx \rangle - R^{*}(y) - \frac{1}{2
+                    \sigma} \left\| y - \tilde{y} \right\|^2_2
+                    \end{align}
+                    $$
+                    And now, we can transform this problem into an iterative one by doing:
+                    $$
+                    \begin{align}
+                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i^{(n)}) + \frac{1}{2\tau} \left\| x_i^{(n)} -
+                    x_i^{(n-1)} \right\|^2_2 + \langle y^{(n)} , Lx^{(n)} \rangle - R^{*}(y^{(n)}) - \frac{1}{2
+                    \sigma} \left\| y^{(n)} - y^{(n-1)} \right\|^2_2
+                    \end{align}
+                    $$
+                    So now, we have, for all \(n\), a problem that is convex with respect to \(x^{(n)}\) and concave
+                    with respect to \( y^{(n)}\); we have a saddle point problem formulation! And we know that the
+                    two series converge to a fixed saddle point.
+
+                </p>
+
+                <p>Now that we finally have a problem that is iteratively optimizable, let's see the pseudo code of
+                    the Primal Dual Algorithm:
+                <pre class="pseudocode">
+\begin{algorithm}
+\caption{First Order Primal Dual Algorithm}
+\begin{algorithmic}
+\PROCEDURE{primal-dual}{$M_i, R, L, data$}
+    \STATE Compute $R^{*}$
+    \STATE Initialize Primal variable $x^0 \leftarrow 0$
+    \STATE Initialize Dual variable $y^0 \leftarrow 0$
+    \STATE $\tilde{x} \leftarrow 0$
+    \WHILE{Stopping Criteria is not met}
+        \STATE {Optimize dual variable $y^{(n+1)} \leftarrow prox_{\sigma (\langle y, L\tilde{x} \rangle - R^{*}
+                (y^{(n)}))} (y^{(n)})$}
+        \STATE {Optimize the primal variable $x^{(n+1)} \leftarrow prox_{\tau(\sum_i M_i(x_i) + \langle
+                L^{T}y^{(n)}, x \rangle) (x^{(n)})}$}
+        \STATE {Smooth Variable $\tilde{x} \leftarrow x^{(n+1)} + \theta (x^{(n+1)} - x^{(n)})$}
+    \ENDWHILE
+
+    \RETURN $x^{(n)}$
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</pre>
+                </p>
+
+                <h2 class="section-heading">A real life example</h2>
+
+                <p>In this section, we are going to look at an example of image denoising following the ROF model
+                    (from Rudin, Osher and Fatemi). Let's say we have a noisy image \(c\), and we are going to note
+                    \(x\) the primal variable. The ROF problem for denoising is the following optimization problem:
+                    \[ min_x \frac{\lambda}{2} \left\| x - c \right\|^2_2 + \left\| \nabla x \right\|_1 \].
+                </p>
+
+                <p>In this context, the convex conjugate of the regularization term is: \[F^* (y) = \sup \limits_{x
+                    \in \mathbb{R}^d} {\langle x, y \rangle - \left\|x\right\|} \\
+                    = \sup \limits_{x
+                    \in \mathbb{R}^d} {\sum_{i=1}^d x_i y_i - \|x_i\|}\]
+                    \(y_i\) must be less or equal than 1, otherwise \(F^*\) is not finite. Then we can write:
+
+                    \[\sum_{i=1}^d x_i y_i - \|x_i\| \leq \sum_{i=1}^d x_i - \|x_i\| \leq 0\]
+                    The supremum is then attained for \(0_{\mathbb{R}^d}\). So the convex conjugate of this term
+                    is:
+                    \[F^*(y) = \mathcal{I}_{\left\|.\right\|_{\infty}\leq 1} (y)\]
+                    After a direct calculation of \( (Id + \sigma \partial F^*)^{-1} (\tilde{p})\), the proximal of
+                    this term
+                    is:
+                    \[prox_{\sigma F^*} (\tilde{p}) = \frac{\tilde{p}_{ij}}{max(1, \| \tilde{p}_{ij}\|)}\]
+                </p>
+                <p>Another direct calcultation of \( (Id + \tau \partial G)^{-1} (\tilde{u})\) gives:
+                    \[ prox_{\tau G} (\tilde{u}) = \frac{\tilde{u}+\lambda \tau \nabla \tilde{u}}{1 + \lambda \tau}\]</p>
+
+                <p>Let's see now how to implement the differential operators: </p>
+
+                <pre class="prettyprint"><code class="language-python">
+def forward_gradient(im):
+    """
+    Function to compute the forward gradient of the image I.
+    Definition from: http://www.ipol.im/pub/art/2014/103/, p208
+    :param im: numpy array [MxN], input image
+    :return: numpy array [MxNx2], gradient of the input image, the first channel is the horizontal gradient, the second
+    is the vertical gradient.
+    """
+    h, w = im.shape
+    gradient = np.zeros((h, w, 2), im.dtype)  # Allocate gradient array
+    # Horizontal direction
+    gradient[:, :-1, 0] = im[:, 1:] - im[:, :-1]
+    # Vertical direction
+    gradient[:-1, :, 1] = im[1:, :] - im[:-1, :]
+
+    return gradient
+
+
+def backward_divergence(grad):
+    """
+    Function to compute the backward divergence.
+    Definition in : http://www.ipol.im/pub/art/2014/103/, p208
+
+    :param grad: numpy array [NxMx2], array with the same dimensions as the gradient of the image to denoise.
+    :return: numpy array [NxM], backward divergence
+    """
+
+    h, w = grad.shape[:2]
+    div = np.zeros((h, w), grad.dtype)  # Allocate divergence array
+    # Horizontal direction
+    d_h = np.zeros((h, w), grad.dtype)
+    d_h[:, 0] = grad[:, 0, 0]
+    d_h[:, 1:-1] = grad[:, 1:-1, 0] - grad[:, :-2, 0]
+    d_h[:, -1] = -grad[:, -2:-1, 0].flatten()
+
+    # Vertical direction
+    d_v = np.zeros((h, w), grad.dtype)
+    d_v[0, :] = grad[0, :, 1]
+    d_v[1:-1, :] = grad[1:-1, :, 1] - grad[:-2, :, 1]
+    d_v[-1, :] = -grad[-2:-1, :, 1].flatten()
+
+    # Divergence
+    div = d_h + d_v
+    return div
+                </code></pre>
+                <p>It is of critical importance that these two operators are adjoint to the sign of each other. We can
+                    check that it is the case by check the value of the following expression is \(0\): </p>
+
+                <pre class="prettyprint"><code class="language-python">check = abs((y[:] * gx[:]).sum() + (dy[:]*x[:]).sum())</code></pre>
+
+                <p>You can find this in the test folder of the <a
+                        href="https://github.com/louisenaud/primal-dual">Github Code
+                </a>.</p>
+
+                <p>Then, we are going to implement the dual proximal operator: </p>
+
+                <pre class="prettyprint"><code class="language-python">
+def proximal_linf_ball(p, r=1.0):
+    """
+    Proximal operator for sum(gradient(x)).
+    :param p: numpy array [MxNx2],
+    :param r: float, radius of infinity norm ball.
+    :return: numpy array, same dimensions as p
+    """
+    n_p = np.maximum(1.0, norm2(p) / r)
+    return p / n_p[..., np.newaxis]
+                </code></pre>
+
+                <p>And the main loop of the algorithm becomes:</p>
+
+                <pre class="prettyprint"><code class="language-python">
+import numpy as np
+import matplotlib.pyplot as plt
+import skimage
+from scipy.misc import face
+
+from norm import norm1, norm2
+from differential_operators import backward_divergence, forward_gradient
+from proximal_operators import proximal_linf_ball
+
+
+def dual_energy_rof(y, im_obs):
+    """
+    Computes the dual energy of ROF problem.
+    :param y:
+    :param im_obs: numpy array, observed image
+    :return: float, dual energy
+    """
+    nrg = -0.5 * (im_obs - backward_divergence(y))**2
+    nrg = nrg.sum()
+    return nrg
+
+
+def primal_energy_rof(x, img_obs, clambda):
+    """
+    Computes the primal energy of the ROF problem.
+    :param x:
+    :param img_obs:
+    :param clambda:
+    :return:
+    """
+    energy_reg = norm1(forward_gradient(x)).sum()
+    energy_data_term = 0.5*clambda * norm2(x - img_obs).sum()
+    return energy_reg + energy_data_term
+
+if __name__ == '__main__':
+    img_ref = np.array(face(True))  # Reference image
+    img_obs = skimage.util.random_noise(img_ref, mode='gaussian')  # noisy image
+    # Parameters
+    norm_l = 7.0
+    max_it = 3000
+    theta = 1.0
+    tau = 0.01
+    sigma = 1.0 / (norm_l * tau)
+    lambda_rof = 7.0
+    # Variables
+    x = img_obs
+    x_tilde = x
+    h, w = img_ref.shape
+    y = np.zeros((h, w, 2))
+
+    p_nrg = primal_energy_rof(x, img_obs, lambda_rof)
+    print "Primal Energy = ", p_nrg
+    d_nrg = dual_energy_rof(y, img_obs)
+    print "Dual Energy = ", d_nrg
+
+    # Solve ROF
+    primal = np.zeros((max_it,))
+    dual = np.zeros((max_it,))
+    gap = np.zeros((max_it,))
+    primal[0] = p_nrg
+    dual[0] = d_nrg
+    y = forward_gradient(x)
+    for it in range(max_it):
+        # Dual update
+        y = y + sigma * forward_gradient(x_tilde)
+        y = proximal_linf_ball(y, 1.0)
+        # Primal update
+        x_old = x
+        x = (x + tau * backward_divergence(y) + lambda_rof * tau * img_obs) / (1.0 + lambda_rof * tau)
+        # Smoothing
+        x_tilde = x + theta * (x - x_old)
+
+        # Compute energies
+        primal[it] = primal_energy_rof(x_tilde, img_obs, sigma)
+        dual[it] = dual_energy_rof(y, img_obs)
+        gap[it] = primal[it] - dual[it]
+
+    plt.figure()
+    plt.plot(np.asarray(range(max_it)), primal, label="Primal Energy")
+    plt.legend()
+
+    plt.figure()
+    plt.plot(np.asarray(range(max_it)), dual, label="Dual Energy")
+    plt.legend()
+
+    plt.figure()
+    plt.plot(np.asarray(range(max_it)), gap, label="Gap")
+    plt.legend()
+
+    # Plot reference, observed and denoised image
+    f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
+    ax1.imshow(img_ref)
+    ax1.set_title("Reference image")
+    ax2.imshow(img_obs)
+    ax2.set_title("Observed image")
+    ax3.imshow(x)
+    ax3.set_title("Denoised image")
+    plt.show()
+                </code></pre>
+
+                <p>The code is available in its full <a href="https://github.com/louisenaud/primal-dual">here</a>. </p>
+
+
+
+
+                <p>You can leave comments down here, or contact me through the contact form of this blog if you
+                    have questions or remarks on this post!</p>
+                <!-- Blog Comments -->
+
+                <!-- begin wwww.htmlcommentbox.com -->
+                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                <!-- end www.htmlcommentbox.com -->
+
+
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+</article>
+
+<hr>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <li>
+                        <a href="https://twitter.com/naud_louise">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/louise.naud1">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/louisenaud">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                </ul>
+                <p class="copyright text-muted">Copyright &copy; Louise Naud 2017</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Contact Form JavaScript -->
+<script src="js/jqBootstrapValidation.js"></script>
+<script src="js/contact_me.js"></script>
+
+<!-- Theme JavaScript -->
+<script src="js/clean-blog.min.js"></script>
+
+<script>
+    var blocks = document.getElementsByClassName("pseudocode");
+    for(var blockId = 0; blockId < blocks.length; blockId++) {
+        var block = blocks[blockId];
+
+        var code = block.textContent;
+        var options = {
+            lineNumber: true
+        };
+
+        var outputEl = document.createElement('div');
+        outputEl.className += " pseudocode-out";
+        block.parentNode.insertBefore(outputEl, block.nextSibling);
+
+        pseudocode.render(code, outputEl, options);
+    }
+
+    while( blocks[0]) {
+        blocks[0].parentNode.removeChild(blocks[0]);
+    }
+</script>
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-52868500-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+</body>
+
+</html>
+</title>
+</head>
+<body>
+
+</body>
+</html>
