@@ -19,7 +19,7 @@
             <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
 
 
-            <title>Let's have fun with the ROF model</title>
+            <title>Fun with the ROF model</title>
 
             <!-- Bootstrap Core CSS -->
             <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -184,13 +184,13 @@
                 We are going to note this function to minimize \(P(x; H, b, L)\).
                 </p>
                 <p>Let's now use the following caracterization of a norm : \(\left\| Lx \right\|_1 =
-                    \underset{y \in [-1, 1]^n}{\max}\langle L^T y, x \rangle\) in order to introduce a constraint to
-                    find
-                    the
-                    dual. The problem can now be written:
+                    \underset{y \in [-1, 1]^n}{\max}\langle L^T y, x \rangle\) in order to introduce a saddle problem
+                    formulation. The problem can now be written:
                     $$
                     \begin{align}
-                    & \underset{x}{\text{min}} & &  \frac{1}{2} x^T H x + \langle b + L^T y, x \rangle
+                    & \underset{x}{\min} \underset{y \in [-1, 1]^n }{\max}& &  \frac{1}{2} x^T H x + \langle b + L^T
+                    y, x
+                    \rangle
                     \end{align}
                     $$
                     A simple gradient computation gives: \(x^* = -H^{-1} (b + L^T y) \). The dual problem is then:
@@ -202,7 +202,8 @@
                     $$
                     We are going to note this function to maximize \(D(y; H, b, L)\).
                 </p>
-                <p>The dual gap is defined as : \(G(x, y ; H, b, L) = P(x; H, b, L) - D(y; H, b, L)\)</p>
+                <p>The dual gap is defined as : \(G(x, y ; H, b, L) = P(x; H, b, L) - D(y; H, b, L)\). Since this is
+                a saddle point problem, we have that \(G(x^*, y^* ; H, b, L) = G(x^* ; H, b, L) = 0\)</p>
 
                 <h2 class="section-heading">Let's start by learning a simple linear operator</h2>
                 <p>In this first scenario, we are going to optimize the following problem:
