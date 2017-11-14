@@ -138,12 +138,12 @@ MathJax.Hub.Config({
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <p>In my previous post, I described a powerfool optimization framework known as the Primal Dual
+                <p>In my previous post, I described a powerful optimization framework known as the Primal Dual
                     Framework. The goal of this new post is to have a little bit of fun with the ROF model and the
                     primal dual framework!
                 </p>
                 <p>While the ROF model is efficient for denoising, its form is hand crafted, and one might wonder if
-                there might be a more optimal formulation for this this of problem. Since the Primal Dual Framework
+                there might be a more optimal formulation for this problem. Since the Primal Dual Framework
                     works for a more general set of problems, i.e.:</p>
 
                 <p>
@@ -163,8 +163,9 @@ MathJax.Hub.Config({
                     outputs. The layers will be custom layers consisting of the parametrized Primal Dual steps. The
                     goal will be to optimize these parameters.
                 </p>
+                <p>The idea here is a bit similar to the <a href="https://arxiv.org/pdf/1703.00443.pdf">OptNet</a> paper. </p>
 
-                <h2 class="section-heading">A slightly more general formulation of the ROF model</h2>
+                <h2 class="section-heading">A more general formulation of the ROF model</h2>
                 <p>A more general formulation of the ROF model is the following:
                     $$
                     \begin{align}
@@ -172,11 +173,11 @@ MathJax.Hub.Config({
                     \end{align}
                     $$
                     with:
-                    <ul>
-                        <li>\(H\) a symmetric invertible matrix of \(\mathcal{M}_n(\mathbb{R}^n\))</li>
-                        <li>\(b\) is a vector in \(\mathbb{R}^n\)</li>
-                        <li>\(L\) is a continuous linear operator</li>
-                    </ul>
+                <ul>
+                    <li>\(H\) a symmetric invertible matrix of \(\mathcal{M}_n(\mathbb{R}^n\))</li>
+                    <li>\(b\) is a vector in \(\mathbb{R}^n\)</li>
+                    <li>\(L\) is a continuous linear operator</li>
+                </ul>
                 We are going to note this function to minimize \(P(x; H, b, L)\).
                 </p>
                 <p>Let's now use the following caracterization of a norm : \(\left\| Lx \right\|_1 =
@@ -199,10 +200,28 @@ MathJax.Hub.Config({
                     We are going to note this function to maximize \(D(y; H, b, L)\).
                 </p>
                 <p>The dual gap is defined as : \(G(x, y ; H, b, L) = P(x; H, b, L) - D(y; H, b, L)\). Since this is
-                a saddle point problem, we have that \(G(x^*, y^* ; H, b, L) = G(x^* ; H, b, L) = 0\)</p>
+                    a saddle point problem, we have that \(G(x^*, y^* ; H, b, L) = G(x^* ; H, b, L) = 0 \)</p>
 
-                <h2 class="section-heading">Let's start by learning a simple linear operator</h2>
-                <p>In this first scenario, we are going to optimize the following problem:
+                <p>We are going to consider this optimization problem through a computational graph. It looks very similar
+                to the one in the excellent paper <a href="https://arxiv.org/pdf/1606.04474.pdf">Learning to learn by gradient descent
+                                                     by gradient descent</a></p>:
+                <a href="#">
+                    <img class="img-responsive" src="img/computational_graph_PD.png" alt="">
+                </a>
+                <p></p>
+
+                <h2 class="section-heading">Let's go step by step</h2>
+                <p>In the previous general model, if we pose \( H = \lambda I_n \), \( b = -2 img_{obs}\) and
+                    \(L : x; w \mapsto \sum_{(i, j) \in \mathcal{E}} \|x_i -x_j \|_1\), we can get back to the usual ROF model, as formulated in the Chambolle Pock paper:
+                    $$
+                    \begin{align}
+                    & \underset{x}{\text{minimize}} & &   \| x - img_{obs} \|_2^2  + \frac{\lambda}{2} \left\| Lx \right\|_1
+                    \end{align}
+                    $$
+
+
+
+                    In this first scenario, we are going to minimize the Mean Squared Error between the Ground Truth and the primal variable after \( n\) iterations of the primal dual algorithm:
 
                     $$
                     \begin{align}
@@ -210,7 +229,29 @@ MathJax.Hub.Config({
                     & ST & & x_i^{*} = \underset{x}{\arg \min P(x; w)}
                     \end{align}
                     $$
+
+                    Since this model has been studied in the previous blog post, we are going to introduce the linear operator \(L : x \mapsto \sum_{(i, j) \in \mathcal{E}} w_{i,j} \|x_i -x_j \|_1\).
+                    A calculation shows that \(L\) is a linear operator, and that its adjoint \(L^T\) is \(L^T = W \odot div \), \(\odot \) being the Hadamard product here.
+
+                    Here are the noised, denoised and original images. Each function was optimized for 80 steps and the trained optimizers were unrolled for 10 steps
+                    <a href="#">
+                        <img class="img-responsive" src="img/lena_noised.png" alt="">
+                    </a>
+
+                    <a href="#">
+                        <img class="img-responsive" src="img/lena_denoised.png" alt="">
+                    </a>
+
+                    <a href="#">
+                        <img class="img-responsive" src="img/image_Lena512.png" alt="">
+                    </a>
+
                 </p>
+
+
+
+                <h2 class="section-heading">Let's start by learning a simple linear operator</h2>
+
 
 
                 <h2 class="section-heading">Primal Dual algorithm</h2>
