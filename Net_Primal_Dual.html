@@ -249,277 +249,328 @@ MathJax.Hub.Config({
 
                 </p>
 
+                <h2 class="section-heading">Python Code Example with PyTorch</h2>
+                <p> Here is how I organized the code with PyTorch. Every function needed in the Primal Dual Net is coded as a nn.Module submodule:</p>
+
+                <pre class="prettyprint">
+    <code class="language-python">
+from torch.autograd import Variable
+import torch
+import torch.nn as nn
+
+class ForwardWeightedGradient(nn.Module):
+    def __init__(self):
+        super(ForwardWeightedGradient, self).__init__()
+
+    def forward(self, x, w, dtype=torch.cuda.FloatTensor):
+        """
+
+        :param x: PyTorch Variable [1xMxN]
+        :param w: PyTorch Variable [2xMxN]
+        :param dtype: Tensor type
+        :return: PyTorch Variable [2xMxN]
+        """
+        im_size = x.size()
+        gradient = Variable(torch.zeros((2, im_size[1], im_size[2])).type(dtype))  # Allocate gradient array
+        # Horizontal direction
+        gradient[0, :, :-1] = x[0, :, 1:] - x[0, :, :-1]
+        # Vertical direction
+        gradient[1, :-1, :] = x[0, 1:, :] - x[0, :-1, :]
+        gradient = gradient * w
+        return gradient
 
 
-                <h2 class="section-heading">Let's start by learning a simple linear operator</h2>
+class BackwardWeightedDivergence(nn.Module):
+    def __init__(self):
+        super(BackwardWeightedDivergence, self).__init__()
+
+    def forward(self, y, w, dtype=torch.cuda.FloatTensor):
+        """
+
+        :param y: PyTorch Variable, [2xMxN], dual variable
+        :param dtype: tensor type
+        :return: PyTorch Variable, [1xMxN], divergence
+        """
+        im_size = y.size()
+        y_w = w.cuda() * y
+        # Horizontal direction
+        d_h = Variable(torch.zeros((1, im_size[1], im_size[2])).type(dtype))
+        d_h[0, :, 0] = y_w[0, :, 0]
+        d_h[0, :, 1:-1] = y_w[0, :, 1:-1] - y_w[0, :, :-2]
+        d_h[0, :, -1] = -y_w[0, :, -2:-1]
+
+        # Vertical direction
+        d_v = Variable(torch.zeros((1, im_size[1], im_size[2])).type(dtype))
+        d_v[0, 0, :] = y_w[1, 0, :]
+        d_v[0, 1:-1, :] = y_w[1, 1:-1, :] - y_w[1, :-2, :]
+        d_v[0, -1, :] = -y_w[1, -2:-1, :]
+
+        # Divergence
+        div = d_h + d_v
+        return div
 
 
+class PrimalWeightedUpdate(nn.Module):
+    def __init__(self, lambda_rof, tau):
+        super(PrimalWeightedUpdate, self).__init__()
+        self.backward_div = BackwardWeightedDivergence()
+        self.tau = tau
+        self.lambda_rof = lambda_rof
 
-                <h2 class="section-heading">Primal Dual algorithm</h2>
-                <p>So now let's see how to combine the last two ideas in our optimization problem.
-                    First, we introduce the Moreau envelope for the \( (M_i)_{i} \) :
-                    $$ \begin{align}
-                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{\tau} \left\| x_i -
-                    \tilde{x}_i \right\|^2_2 + R(Lx)
-                    \end{align}
-                    $$
-                    Then we apply the Fenchel Transform to \(R\):
-                    $$
-                    \begin{align}
-                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{2\tau} \left\| x_i -
-                    \tilde{x}_i \right\|^2_2 + \langle y , Lx \rangle - R^{*}(y)
-                    \end{align}
-                    $$
-                    So now, all the \(x_i\) are decoupled. Their minimization is achieved by computing a proximal
-                    operator. But \(R^{*}\) is not assured to be smooth, so we are going to use the Moreau envelope
-                    again on \(R^{*}\):
-                    $$
-                    \begin{align}
-                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i) + \frac{1}{2\tau} \left\| x_i -
-                    \tilde{x}_i \right\|^2_2 + \langle y , Lx \rangle - R^{*}(y) - \frac{1}{2
-                    \sigma} \left\| y - \tilde{y} \right\|^2_2
-                    \end{align}
-                    $$
-                    And now, we can transform this problem into an iterative one by doing:
-                    $$
-                    \begin{align}
-                    \arg \inf \limits{x \in \mathcal{X}} \sum_{i} M_i (x_i^{(n)}) + \frac{1}{2\tau} \left\| x_i^{(n)} -
-                    x_i^{(n-1)} \right\|^2_2 + \langle y^{(n)} , Lx^{(n)} \rangle - R^{*}(y^{(n)}) - \frac{1}{2
-                    \sigma} \left\| y^{(n)} - y^{(n-1)} \right\|^2_2
-                    \end{align}
-                    $$
-                    So now, we have, for all \(n\), a problem that is convex with respect to \(x^{(n)}\) and concave
-                    with respect to \( y^{(n)}\); we have a saddle point problem formulation! And we know that the
-                    two series converge to a fixed saddle point.
+    def forward(self, x, y, img_obs, w):
+        """
 
-                </p>
+        :param x: PyTorch Variable [1xMxN]
+        :param y: PyTorch Variable [2xMxN]
+        :param img_obs: PyTorch Variable [1xMxN]
+        :return:Pytorch Variable, [1xMxN]
+        """
+        x = (x + self.tau * self.backward_div.forward(y, w) +
+             self.lambda_rof * self.tau * img_obs) / (1.0 + self.lambda_rof * self.tau)
+        return x
 
-                <p>Now that we finally have a problem that is iteratively optimizable, let's see the pseudo code of
-                    the Primal Dual Algorithm:
-                <pre class="pseudocode">
-\begin{algorithm}
-\caption{First Order Primal Dual Algorithm}
-\begin{algorithmic}
-\PROCEDURE{primal-dual}{$M_i, R, L, data$}
-    \STATE Compute $R^{*}$
-    \STATE Initialize Primal variable $x^0 \leftarrow 0$
-    \STATE Initialize Dual variable $y^0 \leftarrow 0$
-    \STATE $\tilde{x} \leftarrow 0$
-    \WHILE{Stopping Criteria is not met}
-        \STATE {Optimize dual variable $y^{(n+1)} \leftarrow prox_{\sigma (\langle y, L\tilde{x} \rangle - R^{*}
-                (y^{(n)}))} (y^{(n)})$}
-        \STATE {Optimize the primal variable $x^{(n+1)} \leftarrow prox_{\tau(\sum_i M_i(x_i) + \langle
-                L^{T}y^{(n)}, x \rangle) (x^{(n)})}$}
-        \STATE {Smooth Variable $\tilde{x} \leftarrow x^{(n+1)} + \theta (x^{(n+1)} - x^{(n)})$}
-    \ENDWHILE
+class DualWeightedUpdate(nn.Module):
+    def __init__(self, sigma):
+        super(DualWeightedUpdate, self).__init__()
+        self.forward_grad = ForwardWeightedGradient()
+        self.sigma = sigma
 
-    \RETURN $x^{(n)}$
-\ENDPROCEDURE
-\end{algorithmic}
-\end{algorithm}</pre>
-                </p>
+    def forward(self, x_tilde, y, w):
+        """
 
-                <h2 class="section-heading">A real life example</h2>
-
-                <p>In this section, we are going to look at an example of image denoising following the ROF model
-                    (from Rudin, Osher and Fatemi). Let's say we have a noisy image \(c\), and we are going to note
-                    \(x\) the primal variable. The ROF problem for denoising is the following optimization problem:
-                    \[ min_x \frac{\lambda}{2} \left\| x - c \right\|^2_2 + \left\| \nabla x \right\|_1 \].
-                </p>
-
-                <p>In this context, the convex conjugate of the regularization term is: \[F^* (y) = \sup \limits_{x
-                    \in \mathbb{R}^d} {\langle x, y \rangle - \left\|x\right\|} \\
-                    = \sup \limits_{x
-                    \in \mathbb{R}^d} {\sum_{i=1}^d x_i y_i - \|x_i\|}\]
-                    \(y_i\) must be less or equal than 1, otherwise \(F^*\) is not finite. Then we can write:
-
-                    \[\sum_{i=1}^d x_i y_i - \|x_i\| \leq \sum_{i=1}^d x_i - \|x_i\| \leq 0\]
-                    The supremum is then attained for \(0_{\mathbb{R}^d}\). So the convex conjugate of this term
-                    is:
-                    \[F^*(y) = \mathcal{I}_{\left\|.\right\|_{\infty}\leq 1} (y)\]
-                    After a direct calculation of \( (Id + \sigma \partial F^*)^{-1} (\tilde{p})\), the proximal of
-                    this term
-                    is:
-                    \[prox_{\sigma F^*} (\tilde{p}) = \frac{\tilde{p}_{ij}}{max(1, \| \tilde{p}_{ij}\|)}\]
-                </p>
-                <p>Another direct calcultation of \( (Id + \tau \partial G)^{-1} (\tilde{u})\) gives:
-                    \[ prox_{\tau G} (\tilde{u}) = \frac{\tilde{u}+\lambda \tau \nabla \tilde{u}}{1 + \lambda \tau}\]</p>
-
-                <p>Let's see now how to implement the differential operators: </p>
-
-                <pre class="prettyprint"><code class="language-python">
-def forward_gradient(im):
-    """
-    Function to compute the forward gradient of the image I.
-    Definition from: http://www.ipol.im/pub/art/2014/103/, p208
-    :param im: numpy array [MxN], input image
-    :return: numpy array [MxNx2], gradient of the input image, the first channel is the horizontal gradient, the second
-    is the vertical gradient.
-    """
-    h, w = im.shape
-    gradient = np.zeros((h, w, 2), im.dtype)  # Allocate gradient array
-    # Horizontal direction
-    gradient[:, :-1, 0] = im[:, 1:] - im[:, :-1]
-    # Vertical direction
-    gradient[:-1, :, 1] = im[1:, :] - im[:-1, :]
-
-    return gradient
+        :param x_tilde: PyTorch Variable, [1xMxN]
+        :param y: PyTorch Variable, [2xMxN]
+        :param w: PyTorch Variable, [2xMxN]
+        :return: PyTorch Variable, [2xMxN]
+        """
+        y = y + self.sigma * self.forward_grad.forward(x_tilde, w)
+        return y
 
 
-def backward_divergence(grad):
-    """
-    Function to compute the backward divergence.
-    Definition in : http://www.ipol.im/pub/art/2014/103/, p208
+class PrimalRegularization(nn.Module):
+    def __init__(self, theta):
+        super(PrimalRegularization, self).__init__()
+        self.theta = theta
 
-    :param grad: numpy array [NxMx2], array with the same dimensions as the gradient of the image to denoise.
-    :return: numpy array [NxM], backward divergence
-    """
+    def forward(self, x, x_tilde, x_old):
+        """
 
-    h, w = grad.shape[:2]
-    div = np.zeros((h, w), grad.dtype)  # Allocate divergence array
-    # Horizontal direction
-    d_h = np.zeros((h, w), grad.dtype)
-    d_h[:, 0] = grad[:, 0, 0]
-    d_h[:, 1:-1] = grad[:, 1:-1, 0] - grad[:, :-2, 0]
-    d_h[:, -1] = -grad[:, -2:-1, 0].flatten()
+        :param x: PyTorch Variable, [1xMxN]
+        :param x_tilde: PyTorch Variable, [1xMxN]
+        :param x_old: PyTorch Variable, [1xMxN]
+        :return: PyTorch Variable, [1xMxN]
+        """
+        x_tilde = x + self.theta * (x - x_old)
+        return x_tilde
 
-    # Vertical direction
-    d_v = np.zeros((h, w), grad.dtype)
-    d_v[0, :] = grad[0, :, 1]
-    d_v[1:-1, :] = grad[1:-1, :, 1] - grad[:-2, :, 1]
-    d_v[-1, :] = -grad[-2:-1, :, 1].flatten()
 
-    # Divergence
-    div = d_h + d_v
-    return div
-                </code></pre>
-                <p>It is of critical importance that these two operators are adjoint to the sign of each other. We can
-                    check that it is the case by check the value of the following expression is \(0\): </p>
+class PrimalDualNetwork(nn.Module):
+    def __init__(self, w, max_it=10, lambda_rof=4.0, sigma=1. / (7.0 * 0.01), tau=0.01, theta=0.5):
+        """
 
-                <pre class="prettyprint"><code class="language-python">check = abs((y[:] * gx[:]).sum() + (dy[:]*x[:]).sum())</code></pre>
+        :param w: PyTorch Variable, [2xMxN]
+        :param max_it: int
+        :param lambda_rof: float
+        :param sigma: float
+        :param tau: float
+        :param theta: float
+        """
+        super(PrimalDualNetwork, self).__init__()
+        self.max_it = max_it
+        self.dual_update = DualWeightedUpdate(sigma)
+        self.prox_l_inf = ProximalLinfBall()
+        self.primal_update = PrimalWeightedUpdate(lambda_rof, tau)
+        self.primal_reg = PrimalRegularization(theta)
 
-                <p>You can find this in the test folder of the <a
-                        href="https://github.com/louisenaud/primal-dual">Github Code
-                </a>.</p>
+        self.energy_primal = PrimalEnergyROF()
+        self.energy_dual = DualEnergyROF()
+        self.pe = 0.0
+        self.de = 0.0
+        self.w = w
+        self.clambda = lambda_rof
 
-                <p>Then, we are going to implement the dual proximal operator: </p>
+    def forward(self, img_obs):
+        """
+        Forward function for the PrimalDualNet.
+        :param img_obs: PyTorch Variable, [1xMxN]
+        :return: PyTorch Variable, [1xMxN]
+        """
+        x = img_obs.clone().cuda()
+        x_tilde = img_obs.clone().cuda()
+        img_size = img_obs.size()
+        y = Variable(torch.ones((img_size[0] + 1, img_size[1], img_size[2]))).cuda()
 
-                <pre class="prettyprint"><code class="language-python">
-def proximal_linf_ball(p, r=1.0):
-    """
-    Proximal operator for sum(gradient(x)).
-    :param p: numpy array [MxNx2],
-    :param r: float, radius of infinity norm ball.
-    :return: numpy array, same dimensions as p
-    """
-    n_p = np.maximum(1.0, norm2(p) / r)
-    return p / n_p[..., np.newaxis]
-                </code></pre>
+        for it in range(self.max_it):
+            # Dual update
+            y = self.dual_update.forward(x_tilde, y, self.w.cuda())
+            y = self.prox_l_inf.forward(y, 1.0)
+            # Primal update
+            x_old = x
+            x = self.primal_update.forward(x, y, img_obs, self.w.cuda())
+            # Smoothing
+            x_tilde = self.primal_reg.forward(x, x_tilde, x_old)
+            # Compute energies
+            self.pe = self.energy_primal.forward(x, img_obs.cuda(), self.w, self.clambda)
+            self.de = self.energy_dual.forward(y, img_obs, self.w)
 
-                <p>And the main loop of the algorithm becomes:</p>
+        return x_tilde
+    </code>
+</pre>
+<pre class="prettyprint">
 
-                <pre class="prettyprint"><code class="language-python">
+from __future__ import print_function
+
 import numpy as np
+from PIL import Image
 import matplotlib.pyplot as plt
-import skimage
-from scipy.misc import face
 
-from norm import norm1, norm2
-from differential_operators import backward_divergence, forward_gradient
-from proximal_operators import proximal_linf_ball
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+import torchvision.transforms as transforms
 
+import png
+import argparse
 
-def dual_energy_rof(y, im_obs):
-    """
-    Computes the dual energy of ROF problem.
-    :param y:
-    :param im_obs: numpy array, observed image
-    :return: float, dual energy
-    """
-    nrg = -0.5 * (im_obs - backward_divergence(y))**2
-    nrg = nrg.sum()
-    return nrg
+from primal_dual_model import PrimalDualNetwork, ForwardGradient, BackwardDivergence, ForwardWeightedGradient
 
-
-def primal_energy_rof(x, img_obs, clambda):
-    """
-    Computes the primal energy of the ROF problem.
-    :param x:
-    :param img_obs:
-    :param clambda:
-    :return:
-    """
-    energy_reg = norm1(forward_gradient(x)).sum()
-    energy_data_term = 0.5*clambda * norm2(x - img_obs).sum()
-    return energy_reg + energy_data_term
 
 if __name__ == '__main__':
-    img_ref = np.array(face(True))  # Reference image
-    img_obs = skimage.util.random_noise(img_ref, mode='gaussian')  # noisy image
+    parser = argparse.ArgumentParser(description='Run Primal Dual Net.')
+    parser.add_argument('--use_cuda', type=bool, default=True,
+    help='Flag to use CUDA, if available')
+    parser.add_argument('--max_it', type=int, default=10,
+    help='Number of iterations in the Primal Dual algorithm')
+    parser.add_argument('--max_epochs', type=int, default=150,
+    help='Number of epochs in the Primal Dual Net')
+    parser.add_argument('--lambda_rof', type=float, default=5.,
+    help='Lambda parameter in the ROF model')
+    parser.add_argument('--theta', type=int, default=0.9,
+    help='Regularization parameter in the Primal Dual algorithm')
+    parser.add_argument('--tau', type=int, default=80,
+    help='Parameter in Primal')
+    parser.add_argument('--save_flag', type=bool, default=True,
+    help='Flag to save or not the result images')
+
+    args = parser.parse_args()
+
+    max_epochs = args.max_epochs
+    max_it = args.max_it
+    lambda_rof = args.lambda_rof
+    theta = args.theta
+    tau = args.tau
+    sigma = 1. / (lambda_rof * tau)
+    # cuda
+    use_cuda = (torch.cuda.is_available() and args.use_cuda)
+    dtype = torch.cuda.FloatTensor if use_cuda else torch.FloatTensor
+
+    # Transforms PIL <-> PyTorch tensors
+    pil2tensor = transforms.ToTensor()
+    tensor2pil = transforms.ToPILImage()
+
+    # Create image to noise and denoise / train the network on
+    sigma_n = 0.1  # Noise variance
+    img_ = Image.open("images/image_Lena512.png")
+    h, w = img_.size
+    img_ref = Variable(pil2tensor(img_).type(dtype))
+    noise = torch.ones(img_ref.size())
+    noise = Variable(noise.normal_(0.0, sigma_n).type(dtype))
+    img_obs = img_ref + noise
+    img_n = img_obs.data.cpu().numpy().reshape((512, 512))
+
     # Parameters
     norm_l = 7.0
-    max_it = 3000
-    theta = 1.0
+    max_it = 200
+    theta = 0.8
     tau = 0.01
     sigma = 1.0 / (norm_l * tau)
-    lambda_rof = 7.0
-    # Variables
-    x = img_obs
-    x_tilde = x
-    h, w = img_ref.shape
-    y = np.zeros((h, w, 2))
+    lambda_rof = 8.0  # 7.0
 
-    p_nrg = primal_energy_rof(x, img_obs, lambda_rof)
-    print "Primal Energy = ", p_nrg
-    d_nrg = dual_energy_rof(y, img_obs)
-    print "Dual Energy = ", d_nrg
+    x = Variable(img_obs.data.clone().type(dtype))
+    x_tilde = Variable(img_obs.data.clone().type(dtype))
+    img_size = img_ref.size()
+    y = Variable(torch.zeros((img_size[0]+1, img_size[1], img_size[2])).type(dtype))
+    y = ForwardGradient().forward(x)
+    g_ref = y.clone()
 
-    # Solve ROF
-    primal = np.zeros((max_it,))
-    dual = np.zeros((max_it,))
-    gap = np.zeros((max_it,))
-    primal[0] = p_nrg
-    dual[0] = d_nrg
-    y = forward_gradient(x)
-    for it in range(max_it):
-        # Dual update
-        y = y + sigma * forward_gradient(x_tilde)
-        y = proximal_linf_ball(y, 1.0)
-        # Primal update
-        x_old = x
-        x = (x + tau * backward_divergence(y) + lambda_rof * tau * img_obs) / (1.0 + lambda_rof * tau)
-        # Smoothing
-        x_tilde = x + theta * (x - x_old)
-
-        # Compute energies
-        primal[it] = primal_energy_rof(x_tilde, img_obs, sigma)
-        dual[it] = dual_energy_rof(y, img_obs)
-        gap[it] = primal[it] - dual[it]
-
+    # Net approach
+    w = nn.Parameter(torch.rand(y.size()).type(dtype))
+    n_w = torch.norm(w, 1, dim=0)
     plt.figure()
-    plt.plot(np.asarray(range(max_it)), primal, label="Primal Energy")
-    plt.legend()
+    plt.imshow(n_w.data.cpu().numpy())
+    plt.colorbar()
 
-    plt.figure()
-    plt.plot(np.asarray(range(max_it)), dual, label="Dual Energy")
-    plt.legend()
+    net = PrimalDualNetwork(w, max_it=max_it, lambda_rof=lambda_rof, sigma=sigma, tau=tau, theta=theta)
+    criterion = torch.nn.MSELoss(size_average=False)
+    optimizer = torch.optim.Adam(net.parameters(), lr=1e-2)
+    params = list(net.parameters())
+    loss_history = []
+    primal_history = []
+    dual_history = []
+    gap_history = []
+    learning_rate = 1e-4
+        for t in range(max_epochs):
+        # Forward pass: Compute predicted image by passing x to the model
+        x_pred = net(x)
+        # Compute and print loss
+        loss = criterion(x_pred, img_ref)
+        print(t, loss.data[0])
+        loss_history.append(loss.data[0])
+        # Zero gradients, perform a backward pass, and update the weights.
 
-    plt.figure()
-    plt.plot(np.asarray(range(max_it)), gap, label="Gap")
-    plt.legend()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        # Compute energies and store them for plotting
+        pe = net.pe.data[0]
+        de = net.de.data[0]
+        primal_history.append(pe)
+        dual_history.append(de)
+        gap_history.append(pe - de)
 
-    # Plot reference, observed and denoised image
     f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
-    ax1.imshow(img_ref)
-    ax1.set_title("Reference image")
-    ax2.imshow(img_obs)
-    ax2.set_title("Observed image")
-    ax3.imshow(x)
-    ax3.set_title("Denoised image")
-    plt.show()
-                </code></pre>
 
-                <p>The code is available in its full <a href="https://github.com/louisenaud/primal-dual">here</a>. </p>
+    ax1.imshow(np.array(img_))
+    ax1.set_title("Reference image")
+    ax2.imshow(np.array(tensor2pil(img_obs.data.cpu())).reshape(512, 512))
+    ax2.set_title("Observed image")
+    ax3.imshow(np.array(tensor2pil(x_pred.data.cpu())).reshape(512, 512))
+    ax3.set_title("Denoised image")
+    ax4.imshow(np.abs(np.array(tensor2pil(img_obs.data.cpu())) - np.array(tensor2pil(x_pred.data.cpu()))))
+
+    # Save results if specified so:
+    if args.save_flag:
+        f = open('lena_noised.png', 'wb')
+        w1 = png.Writer(512, 512, greyscale=True)
+        w1.write(f, np.array(tensor2pil(img_obs.data.cpu())))
+        f.close()
+        f_res = open('lena_denoised.png', 'wb')
+        w1.write(f_res, np.array(tensor2pil(x_pred.data.cpu())).reshape(512, 512))
+        f_res.close()
+    # Test image
+    img_t = Image.open("images/image_Barbara512.png")
+    h, w1 = img_t.size
+    img_ref_t = Variable(pil2tensor(img_t).type(dtype))
+    noise_2 = torch.ones(img_ref_t.size())
+    noise_2 = Variable(noise_2.normal_(0.0, sigma_n).type(dtype))
+    img_obs_t = img_ref_t + noise
+    img_dn = net.forward(img_obs_t)
+
+    f2, ((ax21, ax22), (ax23, ax24)) = plt.subplots(2, 2, sharex='col', sharey='row')
+    ax21.imshow(np.array(img_t))
+    ax21.set_title("Reference image")
+    ax22.imshow(img_obs_t.data.cpu().mul_(255).numpy().reshape(512, 512))
+    ax22.set_title("Observed image")
+    ax23.imshow(img_dn.data.cpu().mul_(255).numpy().reshape(512, 512))
+    ax23.set_title("Denoised image")
+
+</code>
+</pre>
+
+                <p>And now here is what the main looks like:</p>
+                <p>The code (and images as well) is available in its full <a href="https://github.com/louisenaud/pytorch_primal_dual">here</a>. </p>
+
+                <p>In the next part of this ticket, I will implement the general form of the aforementionned problem.</p>
 
 
 
