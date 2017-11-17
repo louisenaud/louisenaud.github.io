@@ -212,7 +212,7 @@ MathJax.Hub.Config({
 
 
                 <h2 class="section-heading">Let's start by learning a simple linear operator</h2>
-                <p>In the previous general model, if we pose \( H = \lambda I_n \), \( b = -2 img_{obs}\) and
+                <p>In the previous general model, if we pose \( H = I_n \), \( b = -2 img_{obs}\) and
                     \(L : x \mapsto \sum_{(i, j) \in \mathcal{E}} \|x_i -x_j \|_1\), we can get back to the usual ROF model, as formulated in the Chambolle Pock paper:
                     $$
                     \begin{align}
@@ -221,8 +221,8 @@ MathJax.Hub.Config({
                     $$
 
 
-                    Since this model has been studied in the previous blog post, we are going to introduce the linear operator \(L : x ; w \mapsto \sum_{(i, j) \in \mathcal{E}} w_{i,j} \|x_i -x_j \|_1\).
-                    A calculation shows that \(L\) is a linear operator, and that its adjoint \(L^T\) is \(L^T = W \odot div \), \(\odot \) being the Hadamard product here.
+                    Since this model has been studied in the previous blog post, we are going to introduce the linear operator \(L : x ; w \mapsto \sum_{(i, j) \in \mathcal{E}} w_{i,j} \|x_i -x_j \|_1\), i.e \(L = W \odot \nabla\), \(\odot \) being the Hadamard product here.
+                    A calculation shows that \(L\) is a linear operator, and that its adjoint \(L^T\) is \( L^T : y \mapsto  - div(W \odot y) \).
 
                     Here are the noised, denoised and original images.
                     In this first new scenario, we are going to minimize the Mean Squared Error between the Ground Truth and the primal variable after \( n\) iterations of the primal dual algorithm:
@@ -234,7 +234,8 @@ MathJax.Hub.Config({
                     \end{align}
                     $$
 
-                     Each function was optimized for 80 steps and the trained optimizers were unrolled for 10 steps
+                     Each function was optimized for 80 steps and the trained optimizers were unrolled for 15 steps, with the following set of parameters: \(\sigma_n = 0.1, max_{it} = 15, max_{epochs}=80, \lambda_{ROF}=7.0, \theta = 0.75, \tau = 0.01 \)
+                </p>
                     <a href="#">
                         <img class="img-responsive" src="img/lena_noised.png" alt="">
                     </a>
@@ -247,10 +248,24 @@ MathJax.Hub.Config({
                         <img class="img-responsive" src="img/image_Lena512.png" alt="">
                     </a>
 
-                </p>
+                <p>If we now use the trained network on a test image, which has the same amount of noise than in the training image: </p>
+
+                    <a href="#">
+                        <img class="img-responsive" src="img/barbara_noised.png" alt="">
+                    </a>
+
+                    <a href="#">
+                        <img class="img-responsive" src="img/barbara_denoised.png" alt="">
+                    </a>
+
+                    <a href="#">
+                        <img class="img-responsive" src="img/image_Barbara512.png" alt="">
+                    </a>
+
+                <p>It seems to denoise pretty nicely!</p>
 
                 <h2 class="section-heading">Python Code Example with PyTorch</h2>
-                <p> Here is how I organized the code with PyTorch. Every function needed in the Primal Dual Net is coded as a nn.Module submodule:</p>
+                <p> Here is how I organized the code with PyTorch, with GPU support. Every function needed in the Primal Dual Net is coded as a nn.Module submodule:</p>
 
                 <pre class="prettyprint">
     <code class="language-python">
@@ -416,6 +431,7 @@ class PrimalDualNetwork(nn.Module):
         return x_tilde
     </code>
 </pre>
+                <p>And now here is what the main looks like:</p>
 <pre class="prettyprint">
 
 from __future__ import print_function
@@ -567,7 +583,7 @@ if __name__ == '__main__':
 </code>
 </pre>
 
-                <p>And now here is what the main looks like:</p>
+
                 <p>The code (and images as well) is available in its full <a href="https://github.com/louisenaud/pytorch_primal_dual">here</a>. </p>
 
                 <p>In the next part of this ticket, I will implement the general form of the aforementionned problem.</p>
