@@ -126,7 +126,7 @@ MathJax.Hub.Config({
                 <div class="post-heading">
                     <h1>Let's have fun with the ROF model</h1>
                     <h2 class="subheading">How to learn a more generic model.</h2>
-                    <span class="meta">Posted by <a href="contact.html">Louise</a> on October 12, 2017</span>
+                    <span class="meta">Posted by <a href="contact.html">Louise</a> on November 17, 2017</span>
                 </div>
             </div>
         </div>
@@ -234,7 +234,7 @@ MathJax.Hub.Config({
                     \end{align}
                     $$
 
-                     Each function was optimized for 80 steps and the trained optimizers were unrolled for 15 steps, with the following set of parameters: \(\sigma_n = 0.1, max_{it} = 15, max_{epochs}=80, \lambda_{ROF}=7.0, \theta = 0.75, \tau = 0.01 \)
+                     Each function was optimized for 80 steps and the trained optimizers were unrolled for 15 steps, with the following set of parameters: \(\sigma_n = 0.1, max_{it} = 20, max_{epochs}=2000, \lambda_{ROF}=7.0, \theta = 0.75, \tau = 0.01 \)
                 </p>
                     <a href="#">
                         <img class="img-responsive" src="img/primal-dual-net/lena_noised.png" alt="">
@@ -274,7 +274,51 @@ MathJax.Hub.Config({
                     <img class="img-responsive" src="img/primal-dual-net/image_Boats512.png" alt="">
                 </a>
 
-                <p>It seems to denoise pretty nicely!</p>
+                <p>It seems to denoise pretty nicely! The average running time in the testing setup in \(0.06\) seconds. </p>
+
+
+                SNR1= 19.9797562287 SNR2= 32.7784948025
+                Elapsed time:  0.0576860904694 s
+                SNR1= 19.9797562287 SNR2= 25.4279597222
+                Elapsed time:  0.073481798172 s
+                SNR1= 19.9797562287 SNR2= 28.1104372248
+                Elapsed time:  0.0620040893555 s
+                SNR1= 19.9797562287 SNR2= 27.5150026545
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Lena</th>
+                        <th>Barbara</th>
+                        <th>Boats</th>
+                        <th>Lake</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>PNSR noisy image</td>
+                        <td>19.9797562</td>
+                        <td>19.9797562</td>
+                        <td>19.9797562</td>
+                        <td>19.9797562</td>
+                    </tr>
+                    <tr>
+                        <td>PSNR denoised image</td>
+                        <td>32.7784948</td>
+                        <td>25.4279597</td>
+                        <td>28.1104372</td>
+                        <td>27.5150026</td>
+                    </tr>
+                    <tr>
+                        <td>Processing time (s)</td>
+                        <td></td>
+                        <td>0.0576860904 s</td>
+                        <td>0.0734817981 s</td>
+                        <td>0.0620040893 s</td>
+                    </tr>
+
+                    </tbody>
+                </table>
 
                 <h2 class="section-heading">Python Code Example with PyTorch</h2>
                 <p> Here is how I organized the code with PyTorch, with GPU support. Every function needed in the Primal Dual Net is coded as a nn.Module submodule:</p>
@@ -505,14 +549,6 @@ if __name__ == '__main__':
     noise = Variable(noise.normal_(0.0, sigma_n).type(dtype))
     img_obs = img_ref + noise
     img_n = img_obs.data.cpu().numpy().reshape((512, 512))
-
-    # Parameters
-    norm_l = 7.0
-    max_it = 200
-    theta = 0.8
-    tau = 0.01
-    sigma = 1.0 / (norm_l * tau)
-    lambda_rof = 8.0  # 7.0
 
     x = Variable(img_obs.data.clone().type(dtype))
     x_tilde = Variable(img_obs.data.clone().type(dtype))
