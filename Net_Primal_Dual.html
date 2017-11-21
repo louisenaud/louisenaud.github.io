@@ -234,7 +234,7 @@ MathJax.Hub.Config({
                     \end{align}
                     $$
 
-                     Each function was optimized for 80 steps and the trained optimizers were unrolled for 15 steps, with the following set of parameters: \(\sigma_n = 0.1, max_{it} = 20, max_{epochs}=2000, \lambda_{ROF}=7.0, \theta = 0.75, \tau = 0.01 \)
+                     Each function was optimized for 200 steps and the trained optimizers were unrolled for 20 steps, with the following set of parameters: \(\sigma_n = 0.1, max_{it} = 20, max_{epochs}=2000, \lambda_{ROF}=7.0, \theta = 0.75, \tau = 0.01 \)
                 </p>
                     <a href="#">
                         <img class="img-responsive" src="img/primal-dual-net/lena_noised.png" alt="">
@@ -511,15 +511,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run Primal Dual Net.')
     parser.add_argument('--use_cuda', type=bool, default=True,
     help='Flag to use CUDA, if available')
-    parser.add_argument('--max_it', type=int, default=10,
+    parser.add_argument('--max_it', type=int, default=20,
     help='Number of iterations in the Primal Dual algorithm')
-    parser.add_argument('--max_epochs', type=int, default=150,
+    parser.add_argument('--max_epochs', type=int, default=200,
     help='Number of epochs in the Primal Dual Net')
-    parser.add_argument('--lambda_rof', type=float, default=5.,
+    parser.add_argument('--lambda_rof', type=float, default=7.,
     help='Lambda parameter in the ROF model')
-    parser.add_argument('--theta', type=int, default=0.9,
+    parser.add_argument('--theta', type=int, default=0.75,
     help='Regularization parameter in the Primal Dual algorithm')
-    parser.add_argument('--tau', type=int, default=80,
+    parser.add_argument('--tau', type=int, default=0.01,
     help='Parameter in Primal')
     parser.add_argument('--save_flag', type=bool, default=True,
     help='Flag to save or not the result images')
