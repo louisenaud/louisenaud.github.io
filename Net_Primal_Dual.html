@@ -212,6 +212,7 @@ MathJax.Hub.Config({
 
 
                 <h2 class="section-heading">Let's start by learning a simple linear operator</h2>
+                <h2 class="subheading">Formulation of the simplified problem</h2>
                 <p>In the previous general model, if we pose \( H = I_n \), \( b = -2 img_{obs}\) and
                     \(L : x \mapsto \sum_{(i, j) \in \mathcal{E}} \|x_i -x_j \|_1\), we can get back to the usual ROF model, as formulated in the Chambolle Pock paper:
                     $$
@@ -222,9 +223,13 @@ MathJax.Hub.Config({
 
 
                     Since this model has been studied in the previous blog post, we are going to introduce the linear operator \(L : x ; w \mapsto \sum_{(i, j) \in \mathcal{E}} w_{i,j} \|x_i -x_j \|_1\), i.e \(L = W \odot \nabla\), \(\odot \) being the Hadamard product here.
-                    A calculation shows that \(L\) is a linear operator, and that its adjoint \(L^T\) is \( L^T : y \mapsto  - div(W \odot y) \).
+                    A calculation shows that \(L\) is a linear operator, and that its adjoint \(L^T\) is \( L^T : y \mapsto  - div(W \odot y) \).</p>
 
-                    Here are the noised, denoised and original images.
+                <p>Now let's talk a little bit about the form of the matrix \(W = (w_{i,j})_{ij} \); the operator \(L \) is supposed to be learning for any image that we take as an input for our algorithm. So if neighboring pixels have a very high absolute difference in one image, a new independant image is very unlikely to have the same high differences at the same locations in the images. This leads to the intuition that \(\forall (i, j), \ (w_{i,j})_{ij} \simeq c \). So we are going to pose : \(\forall (i, j), \ (w_{i,j})_{ij} = \lambda_1 + \lambda_2 \exp (- |x_i - x_j|) \), and try and learn the parameters \(\theta =  (\lambda_1 , \lambda_2) \).</p>
+
+
+                    <h2 class="subheading">An example</h2>
+                   <p> Here are the noised, denoised and original images.
                     In this first new scenario, we are going to minimize the Mean Squared Error between the Ground Truth and the primal variable after \( n\) iterations of the primal dual algorithm:
 
                     $$
