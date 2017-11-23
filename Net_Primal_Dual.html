@@ -225,7 +225,10 @@ MathJax.Hub.Config({
                     Since this model has been studied in the previous blog post, we are going to introduce the linear operator \(L : x ; w \mapsto \sum_{(i, j) \in \mathcal{E}} w_{i,j} \|x_i -x_j \|_1\), i.e \(L = W \odot \nabla\), \(\odot \) being the Hadamard product here.
                     A calculation shows that \(L\) is a linear operator, and that its adjoint \(L^T\) is \( L^T : y \mapsto  - div(W \odot y) \).</p>
 
-                <p>Now let's talk a little bit about the form of the matrix \(W = (w_{i,j})_{ij} \); the operator \(L \) is supposed to be learning for any image that we take as an input for our algorithm. So if neighboring pixels have a very high absolute difference in one image, a new independant image is very unlikely to have the same high differences at the same locations in the images. This leads to the intuition that \(\forall (i, j), \ (w_{i,j})_{ij} \simeq c \). So we are going to pose : \(\forall (i, j), \ (w_{i,j})_{ij} = \lambda_1 + \lambda_2 \exp (- |x_i - x_j|) \), and try and learn the parameters \(\theta =  (\lambda_1 , \lambda_2) \).</p>
+                <p>Now let's talk a little bit about the form of the matrix \(W = (w_{i,j})_{ij} \); the operator \(L \) is supposed to be learning for any image that we take as an input for our algorithm. So if neighboring pixels have a very high absolute difference in one image, a new independant image is very unlikely to have the same high differences at the same locations in the images. This leads to the intuition that \(\forall (i, j), \ (w_{i,j})_{ij} \simeq c \). So we are going to pose : \(\forall (i, j), \ (w_{i,j})_{ij} = \lambda_1 + \lambda_2 \exp (- L(x_i, x_j; w) \), and try and learn the parameters \(\theta =  (\lambda_1 , \lambda_2, w) \).</p>
+
+
+                <p>A slightly more complex experiment would be to learn the operator \(L\) from scratch. Since our output here is structured, and that \(L\) is the pairwise operator in our problem formulation, it would be interesting to try and represent this operator with a couple of convolutional layers in the neural net. </p>
 
 
                     <h2 class="subheading">An example</h2>
