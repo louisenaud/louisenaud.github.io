@@ -157,8 +157,8 @@ MathJax.Hub.Config({
                     <li>\(L\) a continuous linear operator</li>
                 </ul>
                 <p>we are going to explore in this post the possibility of learning these functions \(M\), \(R\)and
-                    \(L\) through a neural net with the observed images as input and the ground truth images as
-                    outputs. The layers will be custom layers consisting of the parametrized Primal Dual steps. The
+                    \(L\), as well as the parameters \( \tau\), \( \sigma\) and \( \theta \) through a neural net with
+                    the observed images as input and the ground truth images as outputs. The layers will be custom layers consisting of the parametrized Primal Dual steps. The
                     goal will be to optimize these parameters.
                 </p>
                 <p>The idea here is a bit similar to the <a href="https://arxiv.org/pdf/1703.00443.pdf">OptNet</a> paper. </p>
@@ -209,6 +209,7 @@ MathJax.Hub.Config({
                 <p>If we note \(\theta_t = (H, b, L)_t\) the vector of parameters that we are trying to learn in the Primal Dual problem, \(\mathcal{PD}\) the recurrent neural net that unrolls \(n\) iterations of the Primal Dual algorithm, \(\tilde{x}_t\) the primal variable after \(nk\) iterations, \(k \in \mathbb{N}\).</p>
 
 
+
                 <h2 class="section-heading">Let's start by learning a simple linear operator</h2>
                 <h2 class="subheading">Formulation of the simplified problem</h2>
                 <p>In the previous general model, if we pose \( H = I_n \), \( b = -2 img_{obs}\) and
@@ -230,6 +231,10 @@ MathJax.Hub.Config({
 
 
                 <h2 class="subheading">An example</h2>
+                <p>As a first example, I wanted to test this approach on a dozen different images, with an additive Gaussian noise with zero mean and a random variance for each new image uniformly selected in the small range \( [0.005, 0.3]\). Each image is selected randomly in the list of images in the dataset, and noised with a Gaussian noise with a random variance as previously selected.</p>
+
+                <p></p>
+
                 <p> Here are the noised, denoised and original images.
                     In this first new scenario, we are going to minimize the Mean Squared Error between the Ground Truth and the primal variable after \( n\) iterations of the primal dual algorithm:
 
@@ -240,18 +245,28 @@ MathJax.Hub.Config({
                     \end{align}
                     $$
 
-                    Each function was optimized for 200 steps and the trained optimizers were unrolled for 20 steps, with the following set of parameters: \(\sigma_n = 0.1, \lambda_{ROF}=7.0, \theta = 0.75, \tau = 0.01 \)
+                    Each function was optimized for 200 steps and the trained optimizers were unrolled for 20 steps,
                 </p>
+                <p>\(\sigma=14.0 \lambda_{ROF}=5.0, \theta = 0.80, \tau = 0.05 \)</p>
                 <a href="#">
+                    <figure>
                     <img class="img-responsive" src="img/primal-dual-net/lena_noised.png" alt="">
+                    <figcaption>Fig1. - Lena Noised.</figcaption>
+                    </figure>
                 </a>
 
                 <a href="#">
-                    <img class="img-responsive" src="img/primal-dual-net/lena_denoised.png" alt="">
+                    <figure>
+                        <img class="img-responsive" src="img/primal-dual-net/lena_denoised.png" alt="">
+                        <figcaption>Fig1. - Lena Denoised.</figcaption>
+                    </figure>
                 </a>
 
                 <a href="#">
+                    <figure>
                     <img class="img-responsive" src="img/image_Lena512.png" alt="">
+                    <figcaption>Fig3. - Reference image for Lena.</figcaption>
+                    </figure>
                 </a>
 
                 <p>If we now use the trained network on test images, which has the same amount of noise than in the training image: </p>
@@ -282,7 +297,7 @@ MathJax.Hub.Config({
 
                 <p>It seems to denoise pretty nicely, as can be seen in the following table. The average running time in the testing setup in \(0.06\) seconds. </p>
 
-                <table class="table">
+                <!-- <table class="table">
                     <thead>
                     <tr>
                         <th>Image</th>
@@ -316,7 +331,7 @@ MathJax.Hub.Config({
                     </tr>
 
                     </tbody>
-                </table>
+                </table> -->
 
                 <h2 class="section-heading">Python Code Example with PyTorch</h2>
                 <p> Here is how I organized the code with PyTorch, with GPU support. Every function needed in the Primal Dual Net is coded as a nn.Module submodule:</p>
@@ -688,7 +703,7 @@ if __name__ == '__main__':
                         </a>
                     </li>
                 </ul>
-                <p class="copyright text-muted">Copyright &copy; Louise Naud 2017</p>
+                <p class="copyright text-muted">Louise Naud 2017</p>
             </div>
         </div>
     </div>
