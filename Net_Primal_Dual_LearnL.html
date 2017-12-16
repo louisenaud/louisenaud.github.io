@@ -79,8 +79,6 @@ MathJax.Hub.Config({
 </head>
 
 
-
-
 <body>
 
 <!-- Navigation -->
@@ -202,7 +200,7 @@ MathJax.Hub.Config({
                     a saddle point problem, we have that \(G(x^*, y^* ; H, b, L) = G(x^* ; H, b, L) = 0 \)</p>
 
                 <p>Now, we are going to consider this optimization problem through a computational graph view. It looks very similar
-                    to the one in the excellent paper <a href="https://arxiv.org/pdf/1606.04474.pdf">Learning to learn by gradient descent by gradient descent</a></p>:
+                    to the one in the excellent paper <a href="https://arxiv.org/pdf/1606.04474.pdf">Learning to learn by gradient descent by gradient descent</a>:</p>
                 <a href="#">
                     <img class="img-responsive" src="img/computational_graph_pd.png" alt="">
                 </a>
@@ -227,21 +225,20 @@ MathJax.Hub.Config({
                 <p>Now let's talk a little bit about the form of the matrix \(W = (w_{i,j})_{ij} \); the operator \(L \) is supposed to be learning for any image that we take as an input for our algorithm. So if neighboring pixels have a very high absolute difference in one image, a new independant image is very unlikely to have the same high differences at the same locations in the images. This leads to the intuition that \(\forall (i, j), \ (w_{i,j})_{ij} \simeq c \). So we are going to pose : \(\forall (i, j), \ \mathbb{w}_{i,j} = \lambda_1 + \lambda_2 \exp (- L(x_i, x_j; \mathbb{w}) \), and try and learn the parameters \(\theta =  (\lambda_1 , \lambda_2, \mathbb{w}) \). Since our output here is structured, and that \(L\) is the pairwise operator in our problem formulation, it would be interesting to try and to learn \( \mathbb{w} \) with a couple of convolutional layers in the neural net.</p>
 
 
-                <!--<p>Here is a view of what the neural net looks like: </p>-->
+                <p>Here is a view of what the neural net looks like: </p>
 
 
-                <!--<figure>-->
-                    <!--<img class="img-responsive" src="img/primal-dual-net/primal_dual_net1.png" alt="">-->
-                    <!--<figcaption>Overview of the chosen Neural Network.</figcaption>-->
-                <!--</figure>-->
+                <figure>
+                    <img class="img-responsive" src="img/primal-dual-net/nn_diagram.png" alt="">
+                    <figcaption>Overview of the chosen Neural Network.</figcaption>
+                </figure>
 
 
 
                 <h2 class="subheading">An example</h2>
-                <p>As a first example, I wanted to test this approach on a dozen different images, with an additive Gaussian noise with zero mean and a random standard deviation uniformly selected in the small range \( [0.05, 0.1]\), for each image. Then, each image is selected randomly in the list of images in the dataset, and noised with a Gaussian noise with a random variance as previously selected.</p>
+                <p>As a first example, I wanted to test this approach on a dozen different images, with an additive Gaussian noise with zero mean and a standard deviation that we set arbitrarily to \( 0.1 \), for each image. Then, each image is selected randomly in the list of images in the dataset, and noised with a Gaussian noise with the previous standard deviation.</p>
 
-                <p> Here are the noised, denoised and original images.
-                    In this first new scenario, we are going to minimize the Mean Squared Error between the Ground Truth and the primal variable after \( n\) iterations of the primal dual algorithm:
+                <p>In this first new scenario, we are going to minimize the Mean Squared Error between the Ground Truth and the primal variable after \( n\) iterations of the primal dual algorithm:
 
                     $$
                     \begin{align}
@@ -250,7 +247,7 @@ MathJax.Hub.Config({
                     \end{align}
                     $$
 
-                    Each function was optimized for 5000 steps and the trained optimizers were unrolled for 20 steps. The parameters \(\sigma, \lambda_{ROF}, \theta, \tau \) were also learned in the process.
+                    Each function was optimized for 5000 steps and the Primal-Dual net was unrolled for 20 steps. The parameters \(\sigma, \lambda_{ROF}, \theta, \tau \) were also learned in the process.
                 </p>
                 <p></p>
                 <a href="#">
@@ -373,7 +370,7 @@ MathJax.Hub.Config({
                 <h2 class="section-heading">Python Code Example with PyTorch</h2>
                 <p> Here is how I organized the code with PyTorch, with GPU support. Every function needed in the Primal Dual Net is coded as a nn.Module submodule:</p>
 
-                <pre class="prettyprint">
+<pre class="prettyprint">
     <code class="language-python">
 from torch.autograd import Variable
 import torch
@@ -588,8 +585,8 @@ class Net(nn.Module):
     </code>
 </pre>
                 <p>And now here is what the main looks like:</p>
-                <pre class="prettyprint">
-
+<pre class="prettyprint">
+    <code class="language-python">
 import argparse
 import random
 import string
@@ -811,7 +808,7 @@ plt.imshow(np.array(transforms.ToPILImage()((x_pred.data).cpu())))
 plt.colorbar()
 plt.title("denoised image")
 
-                    </code>
+    </code>
 </pre>
 
 
