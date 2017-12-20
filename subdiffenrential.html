@@ -15,7 +15,7 @@
     <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
 
 
-    <title>Proximal Operators</title>
+    <title>Fun with the ROF model</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -117,7 +117,7 @@ MathJax.Hub.Config({
 
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
-<header class="intro-header" style="background-image: url('img/proximal/prox_l1_BG.png')">
+<header class="intro-header" style="background-image: url('img/primal-dual-net/figure_CG.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -136,13 +136,11 @@ MathJax.Hub.Config({
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <p>In this post, I am going to do a quick recap of what a Proximal Operator is -I can see you cringe, <a href="http://thibault.biz/">Guillaume</a> !-, because there are very useful, especially in large scaled problems, and also not always easy to comprehend.
+                <p>In this post, I am going to do a quick recap of what a Proximal Operator is -I can see you cringe, <a href="http://thibault.biz/">Guillaume</a> !-, because there are very useful, and also not always easy to comprehend.
                 </p>
 
-                <p>I highly recommend the classes from <a href="http://www.math.ucla.edu/~wotaoyin/math273a/">Wotao Yin</a> and <a href="http://www.seas.ucla.edu/~vandenbe/ee236b/ee236b.html">Lieven Vandenberghe</a> at UCLA on this topic; they are very didactic, and mathematically rigorous. I will heavily rely on their notations.</p>
-
                 <h2 class="section-heading">But I was doing fine with the gradient descent!</h2>
-                <p>Yes, gradient descent is a wonderful optimization tool... if you know for sure the function you want to optimize is smooth. But proximal algorithms are also along the same lines as the gradient descent. Let me explain.</p>
+                <p>Yes, gradient descent is a wondeful optimization tool... if you know for sure the function you want to optimize is smooth. But proximal algorithms are also along the same lines as the gradient descent. Let me explain.</p>
 
                 <p>Let's first go back to the case where the function \(f\) you want to optimize is smooth. Then the gradient update can be written as:
                     $$
@@ -163,10 +161,10 @@ MathJax.Hub.Config({
                     \end{align}
                     $$
                     In an iterative scheme, we can find the gradient descent update. For these of you who are familiar with it, we can recognize a Backward Euler equation here: \(x(t+1) = x(t) - \Delta t f(x(t+1))\). This take the form of a differential equation, that can be solved through the following iterations:
-                    <ol>
-                        <li>\(u(t+1) = u^*, \text{with} \   u^* \text{solution of} \ u^* = \nabla f(x(t) - \Delta t u^*)\)</li>
-                        <li>\(x(t+1) = x(t) - \Delta t u(t+1)\)</li>
-                    </ol>
+                <ol>
+                    <li>\(u(t+1) = u^*, \text{with} \   u^* \text{solution of} \ u^* = \nabla f(x(t) - \Delta t u^*)\)</li>
+                    <li>\(x(t+1) = x(t) - \Delta t u(t+1)\)</li>
+                </ol>
                 </p>
                 <p>So now, if we recall the definition of a proximal operator:
                     $$
@@ -183,75 +181,8 @@ MathJax.Hub.Config({
                     So the proximal operator returns the optimal \(x^*\) to the first step mentionned above; and \(\nabla f(prox_{\tau f} (y))\), returns our \(u^*\) in our second step mentionned above. So applying a proximal operator is like doing an implicit gradient step!
                 </p>
 
-                <h2 class="section-heading">It also work when \(g\) is non-smooth</h2>
-                <p>Let's say one needs to minimize \(x \mapsto f(x) + g(x) \), both functions convex and \(f\) differentiable, and \(g\) non smooth. The problem is now considered "splitted". The iterative update that we mentionned above is the following:\(x_k = prox_{\lambda, f} (x_{k-1} - \lambda_k \nabla g (x_{k-1}))\). \(prox_{\lambda, f}\) is considered a "backward pass" and the \(x_{k-1} - \lambda_k \nabla g (x_{k-1}))\) is considered a "forward pass". But where did the forward pass term come from? Well, we know that:
-                    $$
-                    \begin{aligned}
-                    0 \in
-                    \nabla f (x^*) +\partial g (x^*) & \Leftrightarrow & 0 \in \lambda \nabla f (x^*) + \partial g (x^*) \\
-                     & \Leftrightarrow & 0 \in \lambda \nabla f (x^*) + x^* - x^* \partial g (x^*) \\
-                    & \Leftrightarrow & (I - \lambda \nabla f)(x^*) \in (I + \lambda \partial g)(x^*)\\
-                    & \Leftrightarrow & (I - \lambda \nabla f)(x^*) \in (I + \lambda \partial g)(x^*)\\
-                    & \Leftrightarrow &(I + \lambda \partial g)^{-1} (I - \lambda \nabla f) (x^*) = x^*
-                    \end{aligned}
-                    $$
-                    So we can definitely recognize the forward-backward formulation. We can also see that a minimizer of our problem is the fixed point of the operator: \((I + \lambda \partial g)^{-1} (I - \lambda \nabla f)\)
-
-                </p>
-                <p>This algorithm is known as "Forward-Backward Splitting" or "Proximal Gradient" and the convergence looks like this in 1D:
-                    <a href="#">
-                        <figure>
-                            <img class="img-responsive" src="img/proximal/prox_prim_2.gif" alt="">
-                            <figcaption>Illustration of the Proximal Gradient Algorithm. Inspired from Convex Optimization Algorithms by D. Bertsekas, p.331</figcaption>
-                        </figure>
-                    </a>
-                </p>
-
-                 <p> Now let's see this forward-backward mechanism through duality. Our optimization problem:
-                     $$
-                     \begin{aligned}
-                     & \underset{x}{\text{minimize}}
-                     & & f(x) + g(x)
-                     \end{aligned}
-                     $$
-
-                    is equivalent to the following optimization problem:
-                    $$
-                    \begin{aligned}
-                    & \underset{x, y}{\text{minimize}}
-                    & & f(x) + g(y) \\
-                    & \text{subject to}
-                    & & x-y = 0.
-                    \end{aligned}
-                    $$
-                    Then, let's pose \(z = x-y \) and the augmented Lagrangian (Lagrangian + quadratic penalty) is the following, by definition:
-                    $$
-                    \begin{align}
-                    L(x, y, z)= f(x) + g(y) + \frac{1}{2\lambda} z^T (x-y) + \frac{1}{2 \lambda} \|x-y\|_2^2
-                    \end{align}
-                    $$
-                    which can be rewritten (through calculations with the scalar product assiated with the chosen norm - here the Euclidean norm):
-                    $$
-                    \begin{align}
-                    L(x, y, z)= f(x) + g(y) + \frac{1}{2\lambda} \|x - y + z \| - \frac{1}{2 \lambda} \|z\|_2^2
-                    \end{align}
-                    $$
-                     By freezing alternatively \( (y, z) \) and minimizing \(L\) wrt x, then freezing alternatively \( (x, z) \) and minimizing \(L\) wrt y, and then updating \(z_k = x_k - y_k\), we alternatively compute the proximal operators related to \(f\) and \(g\) on the gradient of the augmented Lagrangian.
-
-                </p>
-
-
-
-                <p>Out of curiosity, here is a plot of the shape of the proximal operator for the \(L_1\) norm:
-                    <a href="#">
-                        <figure>
-                            <img class="img-responsive" src="img/proximal/prox_l1.png" alt="">
-                            <figcaption>Plot of the shape of the proximal operator for the \(L_1\) norm.</figcaption>
-                        </figure>
-                    </a>
-                </p>
-
-                <p>A third way to comprehend the proximal operators is through the Moreau Envelope. We have seen in a previous <a href="primal-dual.html">post</a> that when a function is non-smooth, but convex and closed, its Moreau Envelope \(\mathcal{M}_{\tau f}\) is smooth and shares the same global minimizer as \(f\).
+                <h2 class="section-heading">It also works when \(f\) is non-smooth</h2>
+                <p>We have seen in a previous <a href="primal-dual.html">post</a> that when a function is non-smooth, but convex and closed, its Moreau Envelope \(\mathcal{M}_{\tau f}\) is smooth and shares the same global minimizer as \(f\).
                     $$
                     \begin{align}
                     \mathcal{M}_{\tau f} (x) = \inf_{y} (f(y) + \frac{1}{2 \tau} \|y - x\|^2)
@@ -271,23 +202,11 @@ MathJax.Hub.Config({
                     $$
                     And \(prox_{\tau f}\) is well defined if \(f\) sub-differentiable.
                 </p>
-                <p>It is also worth noting that the Moreau Envelope is linked to the augmented Lagrangian through duality, through a smart change of variable. </p>
 
-                <!--<h2 class="section-heading">Fun fact about the proximal operator</h2>-->
-                <!--<p>Link with augmented Lagrangian</p>-->
-                <!--<p>A very interesting fact about the proximal operator is its link with the Augmented Lagragian of a function \(f\) to minimize, with the contraint that \(Ax = b\):-->
-                    <!--$$-->
-                    <!--\begin{align}-->
-                    <!--L (x; w, \gamma) = f(x) + w^T (Ax-b) + \frac{\gamma}{2} \|Ax - b\|^2-->
-                    <!--\end{align}-->
-                    <!--$$-->
-                    <!--So the augmented lagrangian is the lagrangian to which a quadratic penalty is added.-->
-                <!--</p>-->
+                <h2 class="section-heading">Fun fact about the proximal operator</h2>
+                <p>Link with augmented Lagragian</p>
 
                 <h2 class="section-heading">When should I choose a proximal algorithm ?</h2>
-
-                <p>Well the scope of proximal algorithms is quite large: it includes smooth and non-smooth functions to minimize, for constrained or unconstrained problems. It can also yield some very nice parallel / distributed implementations, and hence handle large size problems. Its main constraint (;)) though, is that it works for structured problems only; which is why you can see such methods applied in the computer vision community, as well as the sound / signal processing community.</p>
-
 
 
                 <!--<p>The code (and images as well) is available in its full <a href="https://github.com/louisenaud/pytorch_primal_dual">here</a>. </p>-->
