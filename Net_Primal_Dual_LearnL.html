@@ -177,7 +177,7 @@ MathJax.Hub.Config({
                 </ul>
                 We are going to note this function to minimize \(P(x; H, b, L)\).
                 </p>
-                <p>Let's now use the following caracterization of a norm : \(\left\| Lx \right\|_1 =
+                <p>Let's now use the following characterization of a norm : \(\left\| Lx \right\|_1 =
                     \underset{y \in [-1, 1]^n}{\max}\langle L^T y, x \rangle\) in order to introduce a saddle problem
                     formulation. The problem can now be written:
                     $$
@@ -202,7 +202,7 @@ MathJax.Hub.Config({
                 <p>Now, we are going to consider this optimization problem through a computational graph view. It looks very similar
                     to the one in the excellent paper <a href="https://arxiv.org/pdf/1606.04474.pdf">Learning to learn by gradient descent by gradient descent</a>:</p>
                 <a href="#">
-                    <img class="img-responsive" src="img/computational_graph_pd.png" alt="">
+                    <img class="img-responsive" src="img/computational_graph_pd.png" align="middle", alt="">
                 </a>
                 <p>If we note \(\theta_t = (H, b, L)_t\) the vector of parameters that we are trying to learn in the Primal Dual problem, \(\mathcal{PD}\) the recurrent neural net that unrolls \(n\) iterations of the Primal Dual algorithm, \(\tilde{x}_t\) the primal variable after \(nk\) iterations, \(k \in \mathbb{N}\).</p>
 
@@ -236,7 +236,7 @@ MathJax.Hub.Config({
 
 
                 <h2 class="subheading">An example</h2>
-                <p>As a first example, I wanted to test this approach on a dozen different images, with an additive Gaussian noise with zero mean and a standard deviation that we set arbitrarily to \( 0.1 \), for each image. Then, each image is selected randomly in the list of images in the dataset, and noised with a Gaussian noise with the previous standard deviation.</p>
+                <p>As a first example, I want to test this approach on a dozen different images, with an additive Gaussian noise with zero mean and a standard deviation that we set arbitrarily to \( 0.1 \), for each image. Then, each image is selected randomly in the list of images in the dataset, and noised with a Gaussian noise with the previous standard deviation.</p>
 
                 <p>In this first new scenario, we are going to minimize the Mean Squared Error between the Ground Truth and the primal variable after \( n\) iterations of the primal dual algorithm:
 
@@ -247,19 +247,19 @@ MathJax.Hub.Config({
                     \end{align}
                     $$
 
-                    Each function was optimized for 100 steps and the Primal-Dual net was unrolled for 20 steps, during 10 epochs. The parameters \(\sigma, \lambda_{ROF}, \theta, \tau \) were also learned in the process. I chose a fixed \(sigma_{noise} = 0.06 \) in order to compare the results with denoising benchmarks.
+                    Each function was optimized for 100 steps and the Primal-Dual net was unrolled for 20 steps, during 10 epochs. The parameters \(\sigma, \lambda_{ROF}, \theta, \tau \) were also learned in the process. I chose a fixed \(sigma_{noise} = 0.07 \) in order to compare the results with denoising benchmarks.
                 </p>
                 <p></p>
                 <a href="#">
                     <figure>
-                    <img class="img-responsive" src="img/primal-dual-net/results/2500_RMChTx_obs.png" alt="">
+                    <img class="img-responsive" src="img/primal-dual-net/results/2500_SboffQ_obs.png" alt="">
                     <figcaption>Lena Noised.</figcaption>
                     </figure>
                 </a>
 
                 <a href="#">
                     <figure>
-                        <img class="img-responsive" src="img/primal-dual-net/results/2500_RMChTx_den.png" alt="">
+                        <img class="img-responsive" src="img/primal-dual-net/results/2500_SboffQ_den.png" alt="">
                         <figcaption>Lena Denoised.</figcaption>
                     </figure>
                 </a>
@@ -274,13 +274,13 @@ MathJax.Hub.Config({
                 <p>Here are other examples from the data set, with various random \( \sigma\): </p>
                 <a href="#">
                     <figure>
-                        <img class="img-responsive" src="img/primal-dual-net/results/4960_JedjCG_obs.png" alt="">
+                        <img class="img-responsive" src="img/primal-dual-net/results/2500_Zwb0yF_obs.png" alt="">
                         <figcaption>Noised image for Barbara.</figcaption>
                     </figure>
                 </a>
                 <a href="#">
                     <figure>
-                        <img class="img-responsive" src="img/primal-dual-net/results/4960_JedjCG_den.png" alt="">
+                        <img class="img-responsive" src="img/primal-dual-net/results/2500_Zwb0yF_den.png" alt="">
                         <figcaption>Denoised image for Barbara.</figcaption>
                     </figure>
                 </a>
@@ -293,13 +293,13 @@ MathJax.Hub.Config({
 
                 <a href="#">
                     <figure>
-                        <img class="img-responsive" src="img/primal-dual-net/results/4945_evx9OK_obs.png" alt="">
+                        <img class="img-responsive" src="img/primal-dual-net/results/2500_iMUbg2_obs.png" alt="">
                         <figcaption>Noised image for Boats.</figcaption>
                     </figure>
                 </a>
                 <a href="#">
                     <figure>
-                        <img class="img-responsive" src="img/primal-dual-net/results/4945_evx9OK_den.png" alt="">
+                        <img class="img-responsive" src="img/primal-dual-net/results/2500_iMUbg2_den.png" alt="">
                         <figcaption>Denoised image for Boats.</figcaption>
                     </figure>
                 </a>
@@ -312,13 +312,13 @@ MathJax.Hub.Config({
 
                 <a href="#">
                     <figure>
-                        <img class="img-responsive" src="img/primal-dual-net/results/4928_5IrUXm_obs.png" alt="">
+                        <img class="img-responsive" src="img/primal-dual-net/results/2500_vJ0E6Y_obs.png" alt="">
                         <figcaption>Noised image for Hills.</figcaption>
                     </figure>
                 </a>
                 <a href="#">
                     <figure>
-                        <img class="img-responsive" src="img/primal-dual-net/results/4928_5IrUXm_den.png" alt="">
+                        <img class="img-responsive" src="img/primal-dual-net/results/2500_vJ0E6Y_den.png" alt="">
                         <figcaption>Denoised image for Hills.</figcaption>
                     </figure>
                 </a>

@@ -399,12 +399,17 @@ body {
   -webkit-tap-highlight-color: #0085A1;
 }
 
-figure {
-  display: inline-block;
-  margin: 20px; /* adjust as needed */
+img {
+  display: block;
+  margin: auto;
+  width: 40%;
 }
+
+/*figure {*/
+  /*display: inline-block;*/
+  /*margin: 20px; !* adjust as needed *!*/
+/*}*/
 figure img {
-    vertical-align: top;
     display: block;
     margin-left: auto;
     margin-right: auto;
