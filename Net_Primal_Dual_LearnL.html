@@ -271,7 +271,7 @@ MathJax.Hub.Config({
                     </figure>
                 </a>
 
-                <p>Here are other examples from the data set, with various random \( \sigma\): </p>
+                <p>Here are other examples from the data set, with \( \sigma = 0.07\): </p>
                 <a href="#">
                     <figure>
                         <img class="img-responsive" src="img/primal-dual-net/results/2500_Zwb0yF_obs.png" alt="">
@@ -584,7 +584,7 @@ class Net(nn.Module):
         return x_tilde
     </code>
 </pre>
-                <p>And now here is what the main looks like:</p>
+                <p>And now here is what the training script looks like:</p>
 <pre class="prettyprint">
     <code class="language-python">
 import argparse

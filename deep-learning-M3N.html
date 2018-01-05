@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Louise Naud">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- For code display: Code Prettify -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
+
+
+    <title>Fun with the ROF model</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="css/clean-blog.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" async
+            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+    </script>
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+    <!-- Configuration for Mathjax and AlgoType-->
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    extensions: ["tex2jax.js", "color.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    "HTML-CSS": { availableFonts: ["TeX"] },
+    TeX: {
+        Macros: {
+                    And:     "\\\\mathbf{and}",
+                    Or:      "\\\\mathbf{or}",
+                    Not:     "\\\\mathbf{not}",
+                    Is:      "\\\\mathbf{is}",
+                    In:      "\\\\mathbf{in}",
+                    Mapped:  "\\\\mathbf{mapped}",
+                    Nil:     "\\\\mathbf{nil}"
+        }
+    }
+});
+</script>
+    <!-- KateX for math formulas in pseudo code -->
+    <link rel="stylesheet" href="katex/katex.min.css">
+    <script src="katex/katex.min.js"></script>
+    <!-- Stylesheet for pseudo code -->
+    <link rel="stylesheet" href="pseudocode/pseudocode.min.css">
+    <script src="pseudocode/pseudocode.min.js"></script>
+    <!-- Library for Pseudo Code -->
+    <link rel="stylesheet" href="Algotype.js/algotype_my_config.css">
+    <script type="text/javascript" async
+            src="Algotype.js/algotype.js">
+    </script>
+</head>
+
+
+
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                Menu <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="index.html">ML Food for the Soul</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li>
+                    <a href="about.html">About</a>
+                </li>
+                <li>
+                    <a href="blog-tickets-list.html">Posts</a>
+                </li>
+                <li>
+                    <a href="contact.html">Contact</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Page Header -->
+<!-- Set your background image for this header on the line below. -->
+<header class="intro-header" style="background-image: url('img/m3n/m3n_cg_header.png')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Max Margin Markov Network and Deep Learning</h1>
+                    <h2 class="subheading">How to take good advantage of the structure in the image.</h2>
+                    <span class="meta">Posted by <a href="contact.html">Louise</a> on January 7, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>In this post I am going to extend a little bit my work in my Master Thesis <a href="https://docs.google.com/viewer?a=v&pid=sites&srcid=ZGVmYXVsdGRvbWFpbnxsb3Vpc2VuYXVkfGd4OjM2MTBkNDRjMzYxOWM0NDQ">Max Margin Markov Networks and Deep Neural Networks for Stereo Imaging</a>.
+                </p>
+                <p>The idea in my previous work was to use both the power of representability of a deep neural network and the structured predictions of the Max Margin Markov Network (M3N).  </p>
+
+                <p>But it turned out to be very slow and computationally expansive. So I am going to explain first what went wrong on this approach, and then what I propose to speed things up. </p>
+
+                <h2 class="section-heading">What went wrong exactly?</h2>
+                <p>Before going into details, let me quickly go over first the previous approach. We used as a starting point the global matching techniques for disparity estimation; we formulated the stereo matching problem as a discrete MRF, although, in place of the hand-designed potentials, we relied on Deep Neural Networks to learn the unaries and pairwise potentials of the MRF. Then, the features from the DNN were linearly combined by a Max Margin Markov Network to form the MRF potentials. We used the networks from <a href="https://github.com/szagoruyko/cvpr15deepcompare">Serguey Szagoruyko</a> for disparity estimation.
+
+                </p>
+
+                <p>Insert figure.</p>
+
+                <p>As can be seen in this figure, this workflow requires backpropagating the M3N errors after each forward pass in the Neural Net, which is very expansive, and may not be useful.  </p>
+
+
+                <h2 class="section-heading">What can be done?</h2>
+
+                <p> The optimization problem is the following:
+                    $$
+                    \begin{align}
+                    & \underset{\tau}{\text{minimize}} & &   R(\tau) + \sum_{k} [  MRF^k (x_{gt}^k ; \tau) - \underset{x_k}{\min} {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k)]
+                    \end{align}
+                    $$
+                <ul>
+                    <li>\(R \) a regularization function of the parameters, optional.</li>
+                    <li>\(MRF^k (x; \tau) = \sum_{i in \mathcal{V}} u_i (x_i; \tau) + \sum_{(i, j) \in \mathcal{E}} w_{i,j} min(|x_i - x_j|, \alpha)\) is the MRF corresponding to the k-th sample of the data set, with parameters \(\tau\). </li>
+                    <li>\(\Delta\) is margin function to penalize the errors in \(x^k\), and to determine the shape of the energy of the M3N. </li>
+                </ul>
+                The problem can be reduced to:
+                    $$
+                    \begin{align}
+                    & \underset{\tau}{\text{minimize}} & &   R(\tau) +  MRF^k (x_{gt}^k ; \tau) - \overline{MRF}^k (x_{opt}^k ; \tau)
+                    \end{align}
+                    $$
+                    with: \(\overline{MRF}^k (x_{opt}^k ; \tau) = \underset{x_k}{\min} {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k)\).
+
+                </p>
+
+                <p>A more explicit form for \(MRF^k\) is
+                    $$
+                    MRF^k (x; \tau) = \sum_{i in \mathcal{V}} u_i (x_i; \tau) + \sum_{(i, j) \in \mathcal{E}} w_{i,j} min(|x_i - x_j|, \alpha)
+                    $$
+
+                    where the unary terms are:
+                    $$
+                    u_i (x_i, \tau) = \sum_{c in \mathcal{C}} \theta_c s(I(:, : c), I^{gt} (:, :, c), i, x_i)
+                    $$
+
+                    with \(\mathcal{C}\) the set of channels in the images. The weights of the pairwise terms are expressed as follows:
+                    $$
+                    w_{i, j} (I) = \lambda_{cst} + \lambda_{grad} \exp (- \sigma^{-1} |\nabla I| (i, j))
+                    $$
+                    </p>
+
+                <p>This optimization problem is similar to the M3N optimization problem.</p>
+
+                <p>If we consider this model through the computational graph lens, here is what it would look like:</p>
+
+                <a href="#">
+                    <figure>
+                        <img class="img-responsive" src="img/m3n/m3n_cg.png" alt="">
+                        <figcaption>Simple computational graph of our optimization problem.</figcaption>
+                    </figure>
+                </a>
+                <p></p>
+
+                <p>And we can see that \(x_{opt}\), doesn't require to have its gradient computed.</p>
+
+                <p>We can observe that \(MRF\) and \(\overline{MRF}\) are differentiable with respect to the set of parameters \(tau\), bu not with respect to \(x_k\). More over, this latter differentiation is not necessary; hence, the idea is to use a discrete optimization scheme for fixed parameters (blue arrows on the graph) then take advantage of the differentiability and the computational graph to use backpropagation to update the parameters \(\tau\) (green arrows on the graph) with fixed \(x_k\). Then we iteratively loop on these two steps to get an estimate of the disparity, and also the parameters in the energy. </p>
+
+                <h2 class="section-heading">A few results</h2>
+
+
+                <h2 class="section-heading">Implementation</h2>
+                <p>Thanks to the wonderful library <a href="">Pytorch</a>, that allows to exclude a subgraph from the differentiation process, this can now be implemented.</p>
+
+                <p>Here is the class diagram of the code:</p>
+
+                <p>You can find the code in its whole at <a href=""></a>. </p>
+
+
+                <p>You can leave comments down here, or contact me through the contact form of this blog if you
+                    have questions or remarks on this post!</p>
+                <!-- Blog Comments -->
+
+                <!-- begin wwww.htmlcommentbox.com -->
+                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                <!-- end www.htmlcommentbox.com -->
+
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+</article>
+
+<hr>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <li>
+                        <a href="https://twitter.com/naud_louise">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/louise.naud1">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/louisenaud">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                </ul>
+                <p class="copyright text-muted">Copyright &copy; Louise Naud 2017</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Contact Form JavaScript -->
+<script src="js/jqBootstrapValidation.js"></script>
+<script src="js/contact_me.js"></script>
+
+<!-- Theme JavaScript -->
+<script src="js/clean-blog.min.js"></script>
+
+<script>
+    var blocks = document.getElementsByClassName("pseudocode");
+    for(var blockId = 0; blockId < blocks.length; blockId++) {
+        var block = blocks[blockId];
+
+        var code = block.textContent;
+        var options = {
+            lineNumber: true
+        };
+
+        var outputEl = document.createElement('div');
+        outputEl.className += " pseudocode-out";
+        block.parentNode.insertBefore(outputEl, block.nextSibling);
+
+        pseudocode.render(code, outputEl, options);
+    }
+
+    while( blocks[0]) {
+        blocks[0].parentNode.removeChild(blocks[0]);
+    }
+</script>
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-52868500-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+</body>
+
+</html>
+</title>
+</head>
+<body>
+
+</body>
+</html>
