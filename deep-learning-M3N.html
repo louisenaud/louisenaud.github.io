@@ -166,31 +166,36 @@ MathJax.Hub.Config({
                     <li>\(R \) a regularization function of the parameters, optional.</li>
                     <li>\(MRF^k (x; \tau) = \sum_{i in \mathcal{V}} u_i (x_i; \tau) + \sum_{(i, j) \in \mathcal{E}} w_{i,j} min(|x_i - x_j|, \alpha)\) is the MRF corresponding to the k-th sample of the data set, with parameters \(\tau\). </li>
                     <li>\(\Delta\) is margin function to penalize the errors in \(x^k\), and to determine the shape of the energy of the M3N. </li>
+                    <li>\(\tau \) is the set of parameters.</li>
                 </ul>
                 The problem can be reduced to:
                     $$
                     \begin{align}
-                    & \underset{\tau}{\text{minimize}} & &   R(\tau) +  MRF^k (x_{gt}^k ; \tau) - \overline{MRF}^k (x_{opt}^k ; \tau)
+                        & \underset{\tau}{\text{minimize}} & &   R(\tau) +  MRF^k (x_{gt}^k ; \tau) - \overline{MRF}^k (x_{opt}^k ; \tau)
                     \end{align}
                     $$
-                    with: \(\overline{MRF}^k (x_{opt}^k ; \tau) = \underset{x_k}{\min} {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k)\).
+                    with:
+                    $$
+                        \overline{MRF}^k (x_{opt}^k ; \tau) = \underset{x_k}{\min} {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k)
+                    $$
 
                 </p>
 
                 <p>A more explicit form for \(MRF^k\) is
                     $$
-                    MRF^k (x; \tau) = \sum_{i in \mathcal{V}} u_i (x_i; \tau) + \sum_{(i, j) \in \mathcal{E}} w_{i,j} min(|x_i - x_j|, \alpha)
+                    MRF^k (x; \tau) = \sum_{i \in \mathcal{V}} u_i (x_i; \tau) + \sum_{(i, j) \in \mathcal{E}} w_{i,j} min(|x_i - x_j|, \alpha)
                     $$
 
                     where the unary terms are:
                     $$
-                    u_i (x_i, \tau) = \sum_{c in \mathcal{C}} \theta_c s(I(:, : c), I^{gt} (:, :, c), i, x_i)
+                    u_i (x_i, \tau) = \sum_{c \in \mathcal{C}} \theta_c s(I(:, : c), I^{gt} (:, :, c), i, x_i)
                     $$
 
-                    with \(\mathcal{C}\) the set of channels in the images. The weights of the pairwise terms are expressed as follows:
+                    with \(\mathcal{C}\) the set of channels in the images, and the function \(s\) is a "scorer", and is for now a simple similarity score function between patches from the pair of input images. \(s\) could be replaced with a neural net for instance. The weights of the pairwise terms are expressed as follows:
                     $$
                     w_{i, j} (I) = \lambda_{cst} + \lambda_{grad} \exp (- \sigma^{-1} |\nabla I| (i, j))
                     $$
+                    And we can pose: \(\tau = (w, \alpha, \theta, \lambda_{est}, \lambda_{grad}, \sigma_{-1}) \)
                     </p>
 
                 <p>This optimization problem is similar to the M3N optimization problem.</p>
@@ -207,17 +212,17 @@ MathJax.Hub.Config({
 
                 <p>And we can see that \(x_{opt}\), doesn't require to have its gradient computed.</p>
 
-                <p>We can observe that \(MRF\) and \(\overline{MRF}\) are differentiable with respect to the set of parameters \(tau\), bu not with respect to \(x_k\). More over, this latter differentiation is not necessary; hence, the idea is to use a discrete optimization scheme for fixed parameters (blue arrows on the graph) then take advantage of the differentiability and the computational graph to use backpropagation to update the parameters \(\tau\) (green arrows on the graph) with fixed \(x_k\). Then we iteratively loop on these two steps to get an estimate of the disparity, and also the parameters in the energy. </p>
+                <p>We can observe that \(MRF\) and \(\overline{MRF}\) are differentiable with respect to the set of parameters \(\tau\), but not with respect to \(x_k\). More over, this latter differentiation is not necessary; hence, the idea is to use a discrete optimization scheme for fixed parameters (red arrows on the graph) then take advantage of the differentiability and the computational graph to use backpropagation to update the parameters \( \tau \) (green arrows on the graph) with fixed \(x_k\). Then we iteratively loop on these two steps to get an estimate of the disparity, and also the parameters in the energy. </p>
 
                 <h2 class="section-heading">A few results</h2>
 
 
                 <h2 class="section-heading">Implementation</h2>
-                <p>Thanks to the wonderful library <a href="">Pytorch</a>, that allows to exclude a subgraph from the differentiation process, this can now be implemented.</p>
+                <p>Thanks to the wonderful library <a href="">Pytorch</a>, that allows to exclude a subgraph from the differentiation process, this can now be implemented. I made a wide use of the Pytorch modules in this code.</p>
 
-                <p>Here is the class diagram of the code:</p>
+                <p>Regarding the discrete optimization algorithm, I used <a href="http://imagine.enpc.fr/~conejob/">Bruno Conejo's</a>  C++ PhD code wrapped for Python for Nikos Komodakis' <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.62.7698&rep=rep1&type=pdf">FastPD </a> algorithm. The approach is detailed further in my Master Thesis.</p>
 
-                <p>You can find the code in its whole at <a href=""></a>. </p>
+                <p>You can find the code in its whole <a href="https://github.com/louisenaud/m3n_fast_pd">here</a>. </p>
 
 
                 <p>You can leave comments down here, or contact me through the contact form of this blog if you
@@ -225,15 +230,13 @@ MathJax.Hub.Config({
                 <!-- Blog Comments -->
 
                 <!-- begin wwww.htmlcommentbox.com -->
-                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">HTML Comment Box</a> is loading comments...</div>
                 <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
-                <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1515205452716");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
                 <!-- end www.htmlcommentbox.com -->
 
             </div>
         </div>
-    </div>
-    </div>
     </div>
 </article>
 
@@ -270,7 +273,7 @@ MathJax.Hub.Config({
                         </a>
                     </li>
                 </ul>
-                <p class="copyright text-muted">Copyright &copy; Louise Naud 2017</p>
+                <p class="copyright text-muted">Louise Naud 2017</p>
             </div>
         </div>
     </div>

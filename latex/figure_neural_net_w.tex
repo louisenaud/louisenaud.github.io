@@ -1,0 +1,121 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{pagecolor}% http://ctan.org/pkg/{pagecolor,lipsum}
+\usetikzlibrary{decorations, decorations.text,backgrounds}
+\usepackage{smartdiagram}
+\usesmartdiagramlibrary{additions}
+
+% tight page
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\definecolor{blue_louise}{HTML}{527AC2}
+\definecolor{red_louise}{HTML}{DC2A2A}
+\definecolor{green_louise}{HTML}{1BA39C}
+\definecolor{purple_louise}{HTML}{2E1B36}
+\definecolor{gray_louise}{HTML}{2E343B}
+\definecolor{deep_blue_l}{HTML}{1C2A43}
+\begin{document}
+
+
+\begin{tikzpicture}[
+roundnode/.style={circle, draw=blue_louise!60, fill=blue_louise!50, very thick, minimum size=10mm},
+squarednode/.style={rectangle, draw=red_louise!60, fill=red_louise!50, very thick, minimum size=10mm},
+squarednode2/.style={rectangle, draw=green_louise!60, fill=green_louise!50, very thick, minimum size=10mm},
+squarednode3/.style={rectangle, draw=gray_louise!60, fill=gray_louise!50, very thick, minimum size=10mm},
+background rectangle/.style={fill=deep_blue_l!75}, show background rectangle]
+%%Nodes
+%\node[squarednode]      (maintopic)                              {2};
+%\node[roundnode]        (uppercircle)       [above=of maintopic] {1};
+%\node[squarednode]      (rightsquare)       [right=of maintopic] {3};
+%\node[roundnode]        (lowercircle)       [below=of maintopic] {4};
+
+\node (theta_t) {};
+\node (f_t) [above right=20pt  and 10pt of theta_t, squarednode3]{$f_t$};
+\node (x_t) [below=100 pt of theta_t] {};
+\node (+) [right=of theta_t,roundnode]{$+$};
+\node (nabla_t) [xshift=0.7cm, yshift=-1.5cm, squarednode2]{$\nabla_t$};
+\node (PD) [right=of x_t,squarednode]{$\mathcal{PD}$};
+\node (x_tt)[right=of PD]{};
+\node (PD_tt) [right=of x_tt,squarednode]{$\mathcal{PD}$};
+\node (theta_tt)[right=of +] {};
+\node (+_t) [right=of theta_tt,roundnode]{$+$};
+\node (f_tt) [above right=20pt  and 10pt of theta_tt, squarednode3]{$f_{t+1}$};
+\node (nabla_tt) [xshift=3.7cm, yshift=-1.5cm, squarednode2]{$\nabla_{t+1}$};
+\node (theta_ttt)[right=of +_t] {};
+\node (x_ttt)[right=of PD_tt]{};
+
+
+
+\draw [->] (theta_t)--node[above]{$\theta_t$}(+);
+\draw [->] (x_t)--node[above]{$\tilde{x}_t$}(PD);
+\draw [dashed, ->] (theta_t.east)-- ++ (0.5,0) -| node [pos=0.99]{} (nabla_t.north) ;
+\draw [->] (theta_t.east)-- ++ (0.75,0) -| node [pos=0.99]{} (f_t.south) ;
+%\draw [dashed, ->] node [xshift=0.7cm]{}(theta_t.east)--(nabla_t.north);
+\draw [dashed, ->] (nabla_t)-- ++ (0,-3) -| node [pos=0.99]{} (PD.south) ;
+\draw [->] (PD.north)--node[right]{$g_t$}(+);
+\draw [->] (PD.east)--node[above]{$\tilde{x}_{t+1}$}(PD_tt);
+\draw [->] (+.east)--node[above]{$\theta_{t+1}$}(+_t);
+\draw [->] (PD_tt.north)--node[right]{$g_{t+1}$}(+_t);
+\draw [->] (theta_tt.east)-- ++ (0.75,0) -| node [pos=0.99]{} (f_tt.south) ;
+\draw [dashed, ->] (theta_tt.east)-- ++ (0.5,0) -| node [pos=0.99]{} (nabla_tt.north) ;
+\draw [dashed, ->] (nabla_tt)-- ++ (0,-3) -| node [pos=0.99]{} (PD_tt.south) ;
+\draw [->] (+_t.east)--node[above]{$\theta_{t+2}$}(theta_ttt.west);
+\draw [->] (PD_tt.east)--node[above]{$\tilde{x}_{t+2}$}(x_ttt);
+
+
+%\draw [->] (C.east)--++(1,0);    
+%\draw [<-] (B.210) -| ++(-.6,-1) -| ([xshift=.5cm]C.east)node[above]{$Y$};
+
+\end{tikzpicture}
+
+\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
+    \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+    \tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
+    \tikzstyle{input neuron}=[neuron, fill=green!50];
+    \tikzstyle{output neuron}=[neuron, fill=red!50];
+    \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+    \tikzstyle{annot} = [text width=4em, text centered]
+
+    % Draw the input layer nodes
+    \foreach \name / \y in {1,...,4}
+    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+        \node[input neuron, pin=left:Input \#\y] (I-\name) at (0,-\y) {};
+
+    % Draw the hidden layer nodes
+    \foreach \name / \y in {1,...,5}
+        \path[yshift=0.5cm]
+            node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+
+    % Draw the output layer node
+    \node[output neuron,pin={[pin edge={->}]right:Output}, right of=H-3] (O) {};
+
+    % Connect every node in the input layer with every node in the
+    % hidden layer.
+    \foreach \source in {1,...,4}
+        \foreach \dest in {1,...,5}
+            \path (I-\source) edge (H-\dest);
+
+    % Connect every node in the hidden layer with the output layer
+    \foreach \source in {1,...,5}
+        \path (H-\source) edge (O);
+
+    % Annotate the layers
+    \node[annot,above of=H-1, node distance=1cm] (hl) {Hidden layer};
+    \node[annot,left of=hl] {Input layer};
+    \node[annot,right of=hl] {Output layer};
+\end{tikzpicture}
+
+\begin{center}
+\smartdiagramset{border color=none,
+uniform color list=teal!60 for 4 items,
+arrow style=[-stealth’,
+module x sep=3.75,
+back arrow distance=0.75,
+}
+\smartdiagram[flow diagram:horizontal]{Set up,Run,Analyse,Modify~/ Add}
+\end{center}
+
+\end{document}

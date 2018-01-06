@@ -1,0 +1,75 @@
+\documentclass[border=10pt]{standalone}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tikz}
+\usepackage{smartdiagram}
+
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{positioning}
+\usepackage{pagecolor}% http://ctan.org/pkg/{pagecolor,lipsum}
+\usetikzlibrary{decorations, decorations.text, backgrounds}
+% tight page
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\definecolor{blue_louise}{HTML}{527AC2}
+\definecolor{red_louise}{HTML}{DC2A2A}
+\definecolor{green_louise}{HTML}{1BA39C}
+\definecolor{purple_louise}{HTML}{2E1B36}
+\definecolor{gray_louise}{HTML}{2E343B}
+\definecolor{deep_blue_l}{HTML}{1C2A43}
+
+
+\PreviewEnvironment{tikzpicture}
+\tikzset
+  {mybox/.style=
+    {rectangle,rounded corners,drop shadow,minimum height=1cm,
+     minimum width=2cm,align=center,fill=#1,draw=gray_louise,line width=1pt
+    },
+   myarrow/.style=
+    {draw=#1,line width=1pt,-stealth,rounded corners
+    },
+   mylabel/.style={text=#1},
+  }
+ 
+
+ 
+ \begin{document}
+\begin{tikzpicture}
+  \node                                           (tau)  {$\tau$};
+  \node[mybox=blue_louise,below left =of tau, xshift=-10mm]     (R)    {$R(\tau)$};
+  \node[mybox=blue_louise,below=of tau]           (MRF1) {$MRF^k (x_{gt}^k ; \tau)$};
+  \node[mybox=blue_louise,below right=of tau, xshift=5mm]     (MRF2) {$\overline{MRF}^k (x_{opt}^k ; \tau)$};
+  %\node[above right =of MRF2, xshift=-10mm]     (x)    {$x^k$};
+  \node[mybox=blue_louise,below=of MRF1,xshift=18mm]          (dif1)  {$ MRF^k (x_{gt}^k ; \tau) - \overline{MRF}^k (x_{opt}^k ; \tau)$};
+  \node[mybox=blue_louise,below=of dif1,xshift=-15mm]          (sum1)  {$ R(\tau) +  MRF^k (x_{gt}^k ; \tau) - \overline{MRF}^k (x_{opt}^k ; \tau)$};
+
+  \draw[myarrow=gray_louise] (tau.south)--(R.north);
+  \draw[myarrow=red_louise] (tau.south) --(MRF1.north);
+  \draw[myarrow=red_louise] (tau.south) --(MRF2.north);
+  %\draw[myarrow=red_louise] (x.south) --(MRF2.north);
+  \draw[myarrow=green_louise] (MRF1.south) --(dif1.north);
+  \draw[myarrow=green_louise] (MRF2.south) --(dif1.north);
+  \draw[myarrow=green_louise] (R.south) --(sum1.north);
+  \draw[myarrow=green_louise] (dif1.south) --(sum1.north);
+  
+%  \draw[myarrow=gray_louise] (M3N) -- (X_pred);
+
+
+%  \draw[myarrow=red_louise] (CR2) -- (CR3);
+%  \draw[myarrow=red_louise] (CR3) -- (PD);
+%%  \draw[myarrow=gray_louise] (CR3.east) -- +(0.7,0) coordinate (VD1)
+%%    -- (VD1|-CR1) coordinate (VD2) -- (CR1);
+%    \draw[myarrow=gray_louise] (X_obs.east) -- +(1.7,0) coordinate (VD1)
+%    -- (VD1|-PD) coordinate (VD2) -- (PD.east);
+%  \draw[myarrow=red_louise] (PD) -- (X_pred);
+  
+%  \path (CR1) -- node[mylabel=gray_louise,left]{$6 \times M \times N$} (CR2);
+%  \path (CR2) -- node[mylabel=gray_louise,left]{$6 \times M \times N$} (CR3);
+%  \path (CR3) -- node[mylabel=gray_louise,left]{$2 \times M \times N$} (PD);
+%  \path (VD1) -- node[mylabel=gray_louise,right]{$1 \times M \times N$} (VD2);
+%  \path (VD1) -- node[mylabel=gray_louise,right]{$1 \times M \times N$} (VD2);
+\end{tikzpicture}
+\end{document}
+
+
+\end{document}
