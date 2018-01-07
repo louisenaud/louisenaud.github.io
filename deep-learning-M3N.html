@@ -212,6 +212,16 @@ MathJax.Hub.Config({
                 <p>We can observe that \(MRF\) and \(\overline{MRF}\) are differentiable with respect to the set of parameters \(\tau\), but not with respect to \(x_k\). More over, this latter differentiation is not necessary; hence, the idea is to use a discrete optimization scheme for fixed parameters (red arrows on the graph) then take advantage of the differentiability and the computational graph to use backpropagation to update the parameters \( \tau \) (green arrows on the graph) with fixed \(x_k\). Then we iteratively loop on these two steps to get an estimate of the disparity, and also the parameters in the energy. </p>
 
                 <h2 class="section-heading">A few results</h2>
+                <p>Here is the loss of the network for 20 epochs, on the whole KITTI stereo dataset:
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/m3n/loss_stereo.png" alt="">
+                            <figcaption>Loss of this network with respect to the epoch number.</figcaption>
+                        </figure>
+                    </a>
+
+                    The network does converge. The loss is not very smooth, but let's keep in mind that our scorer is very simple at this point in the experiments.
+                </p>
 
 
                 <h2 class="section-heading">Implementation</h2>
