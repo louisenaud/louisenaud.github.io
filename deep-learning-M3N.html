@@ -15,7 +15,7 @@
     <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
 
 
-    <title>Fun with the ROF model</title>
+    <title>M3N and Deep Learning</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -135,81 +135,162 @@ MathJax.Hub.Config({
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <p>In this post I am going to extend a little bit my work in my Master Thesis <a href="https://docs.google.com/viewer?a=v&pid=sites&srcid=ZGVmYXVsdGRvbWFpbnxsb3Vpc2VuYXVkfGd4OjM2MTBkNDRjMzYxOWM0NDQ">Max Margin Markov Networks and Deep Neural Networks for Stereo Imaging</a>.
+                <p>In this post I am going to reformulate the work of my Master Thesis <a href="https://docs.google.com/viewer?a=v&pid=sites&srcid=ZGVmYXVsdGRvbWFpbnxsb3Vpc2VuYXVkfGd4OjM2MTBkNDRjMzYxOWM0NDQ">Max Margin Markov Networks and Deep Neural Networks for Stereo Imaging</a>.
                 </p>
-                <p>The idea in my previous work was to use both the power of representability of a deep neural network and the structured predictions of the Max Margin Markov Network (M3N).  </p>
+                <p>The idea of my master Thesis is to mingle deep neural network and graphical model. We know that deep neural networks are great at creating high level features and that Graphical Models are an excellent tool for enforcing structure. In this work, we want to have the best of both approaches. To this end we rely on the Max Margin Markov Network (M3N) framework.  </p>
 
-                <p>But it turned out to be very slow and computationally expansive. So I am going to explain first what went wrong on this approach, and then what I propose to speed things up. </p>
+                <p>In my Master thesis at Caltech, I proposed a first instantiation of this idea. But it turned out to be very slow and computationally expansive. In this blog post, I revisit the original approach and I propose a equivalent formulation that is much faster.</p>
 
-                <h2 class="section-heading">What went wrong exactly?</h2>
-                <p>Before going into details, let me quickly go over first the previous approach. We used as a starting point the global matching techniques for disparity estimation; we formulated the stereo matching problem as a discrete MRF, although, in place of the hand-designed potentials, we relied on Deep Neural Networks to learn the unaries and pairwise potentials of the MRF. Then, the features from the DNN were linearly combined by a Max Margin Markov Network to form the MRF potentials. We used the networks from <a href="https://github.com/szagoruyko/cvpr15deepcompare">Serguey Szagoruyko</a> for disparity estimation.
-
-                </p>
-
-                <p>Insert figure.</p>
-
-                <p>As can be seen in this figure, this workflow requires backpropagating the M3N errors after each forward pass in the Neural Net, which is very expansive, and may not be useful.  </p>
-
-
-                <h2 class="section-heading">What can be done?</h2>
-
-                <p> The optimization problem is the following:
+                <h2 class="section-heading">Graphical Models</h2>
+                Graphical Models have been extensively used in Computer Vision under the form of Markov Random Field, MRF, and Conditional Random Fields, CRF. In this blog, we abusively use the notation MRF for either an MRF or a CRF.
+                <p>
+                An MRF has a support graph composed of nodes \( \mathcal{V} \) and edges \( \mathcal{E} \). A set of random variables \(x = (x_i)_{i \in \mathcal{V}} \) that all take value in some discrete space \( \mathcal{L} \) represents the configuration of each node. 
+                A unary term \( u_i: \mathcal{L} \rightarrow \mathbb{R}\) encodes the cost of each node  \( i \in  \mathcal{V} \). A pairwise term \( p_{i, j}: \mathcal{L} \times \mathcal{L} \rightarrow \mathbb{R}\) encodes the cost of each edge \( (i,j) \in  \mathcal{E} \).
+                The cost of the a given configuration \(x\) is given by:
                     $$
+                    MRF(x) = \sum_{i \in \mathcal{V}} u_i (x_i) + \sum_{(i, j) \in \mathcal{E}} p_{i,j}(x_i, x_j)
+                    $$
+
+                The configuration of minimum cost of an MRF is called the Maximum A Posteriori configuration:
+                	$$
+                	x_{opt} = \underset{x}{\text{argmin}} MRF(x)
+                    $$
+
+                Computing the MAP is generally an NP-hard problem, so we are only guaranteed to find approximate solutions.
+                </p>
+
+               	<h2 class="section-heading">Stereo Matching</h2>
+				In the context of stereo matching, we want to register a reference image, \( I_{ref} \) to a target image \( I_{tar} \). Each pixel of the reference image has along the epipolar line an apparent motion that is called disparity. Hence, we associate a node \( i \) and a discrete random variable \( x_i \) to each pixel of the reference image. The discrete random variable encodes a potential disparity that takes value in \( \mathcal{L} \subset \mathbb{N} \).
+
+				<p>
+				The unary terms encodes the likeliness of a potential disparity based on a similarity prior. Hence, they measure how a patch \( P_{ref}(i) \) of the reference image centered around pixel \( i \) is similar to the patch \( P_{tar}(i, x_i) \) of the large image centered around pixel \( i \) translated by disparity \( x_i \). The notion of similarity is encoded by a scoring function \( s \) parametrized by \( \theta \):
+                    $$
+                    u_i (x_i; \theta) = s(P_{ref}(i), P_{tar}(i, x_i); \theta)
+                    $$
+
+                    This scoring function can as simple as the sum of absolute difference of the two patches or it can be modeled by a Deep Neural Network as in the Paper of <a href="https://github.com/szagoruyko/cvpr15deepcompare">Serguey Szagoruyko</a> .
+
+                </p>
+
+                <p>
+                The pairwise terms enforce a structure prior called regularization based on piecewise smoothness. To this end they penalize the gradient of the disparity.
+                	$$
+                	p_{i,j}(x_i, x_j; \lambda, \alpha) = w_{i, j}(I_{ref}; \lambda) \min(|x_i - x_j|, \alpha)
+                	$$
+                The strength of this regularization is modulated by \(w_{i, j}\) so that contours of the disparity align with contours of the reference image:
+                    $$
+                    w_{i, j} (I; \lambda) = \lambda_{cst} + \lambda_{grad} \exp (- \lambda_{\sigma^{-1}} |I(i) - I(j)|)
+                    $$
+                Again, we could have use a more complex regularization function where \( w_{i, j} \) will have been modeled as Deep Neural Network.
+                </p>
+
+                We now have an MRF that has a set of parameters \(\tau = (\theta, \alpha, \lambda) \). Our goal is to tune automatically those parameters.
+
+
+                <h2 class="section-heading">What is a Max Margin Markov Network?</h2>
+                <p> Let's assume we are given k-MRFs with associated optimal configurations \(x_{gt}^k \) and common parameters \(\tau \). We want to find the parameters \(\tau \) that will make, ideally, each \(x_{gt}^k \) the Maximum A Posteriori, MAP, solution for \(MRF^k \). Unfortunately since the \( \text{argmin} \) is not differentiable we cannot directly learn the parameters \(\tau \) by minimizing for instance:
+					$$
                     \begin{align}
-                    & \underset{\tau}{\text{minimize}} & &   R(\tau) + \sum_{k} [  MRF^k (x_{gt}^k ; \tau) - \underset{x_k}{\min} {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k)]
+                    & \underset{\tau}{\text{minimize}} & \sum_{k} \| x^k_{gt} - \underset{x^k}{\text{argmin}} ~\ MRF^k(x^k; \tau) \|
                     \end{align}
                     $$
+
+                However, while \( \text{argmin} \) is not differentiable the operator \( \text{min} \) is differentiable. The Max Margin Markov Network exploits this fact and it attempts to make the energy of ground truth of \( (MRF^k)_k \) to coincide with the MAP energy. To this end, it optimizes:
+                    $$
+                    \begin{align}
+                    & \underset{\tau}{\text{minimize}} & &  R(\tau) + \sum_{k} [  MRF^k (x_{gt}^k ; \tau) - \underset{x_k}{\min} ( {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k) )]
+                    \end{align}
+                    $$
+                with:
                 <ul>
                     <li>\(R \) a regularization function of the parameters, optional.</li>
-                    <li>\(MRF^k (x; \tau) = \sum_{i in \mathcal{V}} u_i (x_i; \tau) + \sum_{(i, j) \in \mathcal{E}} w_{i,j} min(|x_i - x_j|, \alpha)\) is the MRF corresponding to the k-th sample of the data set, with parameters \(\tau\). </li>
-                    <li>\(\Delta\) is margin function to penalize the errors in \(x^k\), and to determine the shape of the energy of the M3N. </li>
-                    <li>\(\tau \) is the set of parameters.</li>
+                    <li>\(\Delta\) is a margin function that make all solutions different from \(x^k_{gt}\) to have an higher cost. </li>
                 </ul>
-                The problem can be reduced to:
-                    $$
-                    \begin{align}
-                        & \underset{\tau}{\text{minimize}} & &   R(\tau) +  MRF^k (x_{gt}^k ; \tau) - \overline{MRF}^k (x_{opt}^k ; \tau)
-                    \end{align}
-                    $$
-                    with:
-                    $$
-                        \overline{MRF}^k (x_{opt}^k ; \tau) = \underset{x_k}{\min} {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k)
-                    $$
+                One can see that the margin function try to enforce the shape of the energy manifold of \( (MRF^k)_k \).
+                </p> 
+
+                <p> Assuming that we can write  \( \underset{x_k}{\min} ( {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k) )] \) as a differentiable computational graph, then we can use backpropagation techniques to optimize over \( \tau \). This is were we can derive two approaches.
+
+                </p> 
+
+
+                <h2 class="section-heading">Master thesis approach</h2>
+
+                <p> In my Master thesis, I used the dual decomposition solver from Nikos Komodakis to compute a lower bound of \( \underset{x_k}{\min} ( {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k) )] \). I embedded this solver directly in the computational graph of the M3N. This resulted in a large computational graph.
 
                 </p>
 
-                <p>A more explicit form for \(MRF^k\) is
-                    $$
-                    MRF^k (x; \tau) = \sum_{i \in \mathcal{V}} u_i (x_i; \tau) + \sum_{(i, j) \in \mathcal{E}} w_{i,j} min(|x_i - x_j|, \alpha)
-                    $$
+                <p>
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/m3n/M3N_NN_1.png" alt="">
+                            <figcaption>Simple computational graph of our optimization problem.</figcaption>
+                        </figure>
+                    </a>
+                </p>
 
-                    where the unary terms are:
-                    $$
-                    u_i (x_i, \tau) = \sum_{c \in \mathcal{C}} \theta_c s(I(:, : c), I^{gt} (:, :, c), i, x_i)
-                    $$
+                <p>As can be seen in this figure, this naive workflow requires backpropagating the M3N errors through the entire Neural Net and solver. This is very expansive, and also unnecessary...</p>
 
-                    with \(\mathcal{C}\) the set of channels in the images, and the function \(s\) is a "scorer", and is for now a simple similarity score function between patches from the pair of input images. \(s\) could be replaced with a neural net for instance. The weights of the pairwise terms are expressed as follows:
+
+                <h2 class="section-heading">A more efficient approach</h2>
+
+                <p>I recently revisited the definition of the computational graph. One can see that in the M3N, there is no need to backpropagate through the variables \( x_{opt}^k \). Let's first introduce:
+                $$
+                    \overline{MRF}^k (x_{opt}^k ; \tau) = \underset{x^k}{\min} {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k)
+                $$
+
+                We can now simplify the M3N optimization problem as:
                     $$
-                    w_{i, j} (I) = \lambda_{cst} + \lambda_{grad} \exp (- \sigma^{-1} |\nabla I| (i, j))
+                    \begin{align}
+                        & \underset{\tau}{\text{minimize}} & &   R(\tau) + \sum_k MRF^k (x_{gt}^k ; \tau) - \overline{MRF}^k (x_{opt}^k ; \tau)
+                    \end{align}
                     $$
-                    And we can pose: \(\tau = (w, \alpha, \theta, \lambda_{est}, \lambda_{grad}, \sigma_{-1}) \)
-                    </p>
+                </p>
 
-                <p>This optimization problem is similar to the M3N optimization problem.</p>
+                
 
-                <p>If we consider this model through the computational graph lens, here is what it would look like:</p>
-
+                <p>Here is what its associated the computational graph looks like for k=1:</p>
+                <p>
                 <a href="#">
                     <figure>
-                        <img class="img-responsive" src="img/m3n/m3n_cg.png" alt="">
+                        <img class="img-responsive" src="img/m3n/m3n_computational_graph.png" alt="">
                         <figcaption>Simple computational graph of our optimization problem.</figcaption>
                     </figure>
                 </a>
-                <p></p>
+                </p>
 
-                <p>And we can see that \(x_{opt}\), doesn't require to have its gradient computed.</p>
+                <p>We can observe that \(x^k_{opt}\) is only an input of the computational graph. Hence, we can use any algorithm/implementation for computing:
+                $$
+                x_{opt}^k = \underset{x^k}{argmin} ~\overline{MRF}^k (x^k ; \tau)
+                $$
 
-                <p>We can observe that \(MRF\) and \(\overline{MRF}\) are differentiable with respect to the set of parameters \(\tau\), but not with respect to \(x_k\). More over, this latter differentiation is not necessary; hence, the idea is to use a discrete optimization scheme for fixed parameters (red arrows on the graph) then take advantage of the differentiability and the computational graph to use backpropagation to update the parameters \( \tau \) (green arrows on the graph) with fixed \(x_k\). Then we iteratively loop on these two steps to get an estimate of the disparity, and also the parameters in the energy. </p>
+				Hence, the idea is to alternate between two steps:
+				<ul>
+                    <li>Estimating \( (x^k_{opt})_k \) with a fast non differentiable algorithm (red arrow in previous figure). </li>
+                    <li>Update the parameters \( \tau \) using the backpropagation (green arrows in previous figure).</li>
+                </ul>
+
+                I also proceed to change the solver for estimating the MAP. Instead of the lower bound provided by Dual Decomposition, I am using a faster solver (one to two orders of magnitude), Fast-PD, that provides an upper bound of \( \underset{x_k}{\min} ( {MRF}^k (x^k ; \tau) - \Delta(x_{gt}^k, x^k) )] \). However, since we work with an upper bound it's now possible to have:
+                $$
+                MRF^k (x_{gt}^k ; \tau) \leq \overline{MRF}^k (x_{opt}^k ; \tau)
+                $$
+
+                This means that \( x_{gt}^k \) has a lower cost but that the solver was not able to reach it (remember MAP is in general an NP-hard problem).
+
+                Hence, we simply safeguard the M3N cost as follow:
+					$$
+                    \begin{align}
+                        & \underset{\tau}{\text{minimize}} & &   R(\tau) + \sum_k \max(MRF^k (x_{gt}^k ; \tau) - \overline{MRF}^k (x_{opt}^k ; \tau), 0)
+                    \end{align}
+                    $$
+
+                </p>
+
+                <h2 class="section-heading">Implementation</h2>
+                <p>Thanks to the wonderful library <a href="">Pytorch</a>, we can model easily this new M3N formulation as a differentiable computational graph. 
+                In details we model as a Pytorch module the computation of the energies of  \(MRF^k (x_{gt}^k ; \tau) \) and \(\overline{MRF}^k (x_{opt}^k ; \tau) \) along with the regularization cost of \( R(\tau) \).</p>
+
+                <p>The variable $x_{opt}$ is only an input of the M3N Pytorch model. One can use a non differentiable algorithm to estimate $x_{opt}$. I used <a href="http://imagine.enpc.fr/~conejob/">Bruno Conejo's</a> C++ PhD implementation wrapped for Python of Nikos Komodakis' <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.62.7698&rep=rep1&type=pdf">FastPD</a> algorithm.</p>
 
                 <h2 class="section-heading">A few results</h2>
                 <p>Here is the loss of the network for 20 epochs, on the whole KITTI stereo dataset:
@@ -220,17 +301,12 @@ MathJax.Hub.Config({
                         </figure>
                     </a>
 
-                    The network does converge. The loss is not very smooth, but let's keep in mind that our scorer is very simple at this point in the experiments.
+                    The optimization of the network parameters does converge nicely. 
+                    <!-- The loss is not very smooth, but let's keep in mind that our scorer is very simple at this point in the experiments.
+					!-->
                 </p>
 
-
-                <h2 class="section-heading">Implementation</h2>
-                <p>Thanks to the wonderful library <a href="">Pytorch</a>, that allows to exclude a subgraph from the differentiation process, this can now be implemented. I made a wide use of the Pytorch modules in this code.</p>
-
-                <p>Regarding the discrete optimization algorithm, I used <a href="http://imagine.enpc.fr/~conejob/">Bruno Conejo's</a>  C++ PhD code wrapped for Python for Nikos Komodakis' <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.62.7698&rep=rep1&type=pdf">FastPD </a> algorithm. The approach is detailed further in my Master Thesis.</p>
-
                 <p>You can find the code in its whole <a href="https://github.com/louisenaud/m3n_fast_pd">here</a>. </p>
-
 
                 <p>You can leave comments down here, or contact me through the contact form of this blog if you
                     have questions or remarks on this post!</p>
