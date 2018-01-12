@@ -301,11 +301,38 @@ MathJax.Hub.Config({
                         </figure>
                     </a>
 
-                    The optimization of the network parameters does converge nicely. 
-                    <!-- The loss is not very smooth, but let's keep in mind that our scorer is very simple at this point in the experiments.
-					!-->
+                    The optimization of the network parameters does converge nicely. For the whole Middlebury 2001 dataset, 10 epochs and 6 pairs of \(432 \times 381 \) images, the experiment takes about 6 minutes (as opposed to a few hours with the previous approach) to run (with CUDA, GTX 1080 Ti, 2 CPU workers).
                 </p>
 
+                <p>Here are some results on the Middlebury 2001 dataset:
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/m3n/res_mid_2001_mask_shuffle_0_9.png" alt="">
+                            <figcaption>Estimated disparity for "barn 1".</figcaption>
+                        </figure>
+                    </a>
+
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/m3n/res_mid_2001_mask_shuffle_1_9.png" alt="">
+                            <figcaption>Estimated disparity for "barn 2".</figcaption>
+                        </figure>
+                    </a>
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/m3n/res_mid_2001_mask_shuffle_3_9.png" alt="">
+                            <figcaption>Estimated disparity for "bull".</figcaption>
+                        </figure>
+                    </a>
+
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/m3n/res_mid_2001_mask_shuffle_4_9.png" alt="">
+                            <figcaption>Estimated disparity for "poster".</figcaption>
+                        </figure>
+                    </a>
+                </p>
+                <p>The results are also quite satisfying, considering that our scorer is very simple. In a following blog post, I will explore how this approach performs with a Neural Network for the scorer instead of this similarity function.</p>
                 <p>You can find the code in its whole <a href="https://github.com/louisenaud/m3n_fast_pd">here</a>. </p>
 
                 <p>You can leave comments down here, or contact me through the contact form of this blog if you
