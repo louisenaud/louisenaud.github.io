@@ -195,12 +195,16 @@ MathJax.Hub.Config({
                         else document.addEventListener("DOMContentLoaded", fn);
                     })();
                 </script>
+
+
                 <h2 class="section-heading">LSTM</h2>
                 <p>As very clearly explained <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">here</a>, LSTM are good option for time series prediction. They allow to put weights on different inputs, to decide which data point should be more preponderant in making an accurate prediction. </p>
+                <p>    LSTMs are good at recognising patterns in input feature space. Ther gated architecture of LSTM allows to keep certain amount of data in memory. They also adapt very well in multivariate sequence prediction. </p>
 
                 <!--D3js LSTM plot-->
-                <p></p><figure class="l-body">
-                <object id="yoursvg" data="img/drawing.svg" type="image/svg+xml" ></object>
+                <p></p>
+                <figure class="l-body">
+                <object id="yoursvg" data="img/attention_network.svg" type="image/svg+xml" ></object>
                 <script>
                     d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {
                         if (error) throw error;
@@ -295,8 +299,62 @@ MathJax.Hub.Config({
                 <!--</script>-->
 
                 <h2 class="section-heading">Attention Network</h2>
-                <p></p>
+                <p>While LSTM give good results for a few stocks, it still struggles to capture very long time dependencies in stocks. Another approach decribed recently is the attention encoder. This network structure differs from LSTM as it uses two attention mechanisms: one for weighting different stocks, and the other for weighting  </p>
 
+                    <figure class="l-body">
+                        <object id="attention-network" data="img/attention_network.svg" type="image/svg+xml" ></object>
+                        <script>
+                            d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                                if (error) throw error;
+                                document.body.appendChild(xml.documentElement);
+                            });
+
+                            // d3.xml("img/attention.svg").mimeType("image/svg+xml").get(function(error, xml)
+                            // {
+                            //     if (error) throw error;
+                            //     var importedNode = document.importNode(xml.documentElement, true);
+                            //     d3.select("div#vis")
+                            //         .each(function() {
+                            //             this.appendChild(importedNode);
+                            //         })
+                            //     //document.body.appendChild(xml.documentElement);
+                            //     //styleImportedSVG()
+                            // };
+                            //g.selectAll('rect')
+                            //.filter(function(d) { return d.ArtistID == 1; })
+                            //     .style('fill-opacity', 0.3)
+
+                            // svg.append("g")
+                            //     .on("mouseover", function() {
+                            //         d3.select(this).classed("hover", true);
+                            //     })
+                            //     .on("mouseout", function() {
+                            //         d3.select(this).classed("hover", false);
+                            //     })
+                            // svg.selectAll('rect[style = "fill-opacity: orange;"]')
+                            //
+                            // function styleImportedSVG () {
+                            //     d3.select('svg')
+                            //         .on('mouseover', function() {
+                            //             console.log('mouseover');
+                            //             console.log('this', this);
+                            //             d3.selectAll('path')
+                            //                 .style({
+                            //                     'fill-opacity':   0.1,
+                            //                     'stroke-opacity': 0.3
+                            //                 })
+                            //         })
+                            //         .on('mouseout', function() {
+                            //             console.log('mouseout');
+                            //             d3.selectAll('path')
+                            //                 .style({
+                            //                     'fill-opacity':   1,
+                            //                     'stroke-opacity': 1
+                            //                 })
+                            //         })
+                            //}
+
+                        </script>
 
                 <h2 class="section-heading">Dilated convolution</h2>
                 <p></p>
