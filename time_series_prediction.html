@@ -198,8 +198,28 @@ MathJax.Hub.Config({
 
 
                 <h2 class="section-heading">LSTM</h2>
+                <!--Deep Learning book-->
                 <p>As very clearly explained <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">here</a>, LSTM are good option for time series prediction. They allow to put weights on different inputs, to decide which data point should be more preponderant in making an accurate prediction. </p>
                 <p>    LSTMs are good at recognising patterns in input feature space. Ther gated architecture of LSTM allows to keep certain amount of data in memory. They also adapt very well in multivariate sequence prediction. </p>
+
+                <p>LSTMs are quite interesting in our case; the gates allow the cell to accumulate information over a period of time, but also automatically forget information that is no longer relevant for the prediction. This is done through the self loop in the LSTM cell; the weight in the self loop is conditionned on the context. This allows the LSTM cell to "adapt" to different time scales when needed.</p>
+
+
+                <p>The corresponding
+                    forward propagation equations are given below, in the case of a shallow recurrent
+                    network architecture. Deeper architectures have also been successfully used (Graves
+                    et al., 2013 ; Pascanu et al., 2014a ). Instead of a unit that simply applies an element-
+                    wise nonlinearity to the affine transformation of inputs and recurrent units, LSTM
+                    recurrent networks have “LSTM cells” that have an internal recurrence (a self-loop),
+                    in addition to the outer recurrence of the RNN. Each cell has the same inputs
+                    and outputs as an ordinary recurrent network, but has more parameters and a
+                    system of gating units that controls the flow of information. The most important
+                    ( t )
+                    component is the state unit s i that has a linear self-loop similar to the leaky
+                    units described in the previous section. However, here, the self-loop weight (or the
+                    ( t )
+                    associated time constant) is controlled by a forget gate unit f i (for time step t
+                    and cell i ), that sets this weight to a value between 0 and 1 via a sigmoid unit:</p>
 
                 <!--D3js LSTM plot-->
                 <p></p>
