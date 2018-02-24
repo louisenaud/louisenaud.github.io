@@ -146,10 +146,13 @@ MathJax.Hub.Config({
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <p>In this post we are going to go through classic methods for predicting time series. </p>
+                <p>In this post we are going to go through classic methods for predicting time series. Forecasting time series using past observations has been a topic of significant interest for a long time now, mostly in Finance and Meteorology. Part of the interest in this topic is that it is quite difficult to make these predictions, often because of some high non-linearities and noise in the signal. The fact that the financial environment is changing relatively fast also adds some supplemental challenges; any trend that has been learned over time may already be obsolete. </p>
+
+                <p>All of these facts make this topic very interesting from a scientific point of view, while yielding many industrial applications.</p>
+
 
                 <h2 class="section-heading">The data</h2>
-                <p>A very classic data type for time series are stock prices. We are going to focus on 'AAPL', 'AMZN', 'GOOGL' and 'FB'; the SP500 data set is available <a href="https://www.kaggle.com/camnugent/sandp500">here.</a></p>
+                <p>As mentionned above, a very classic data type for time series are stock prices. We are going to focus on 'AAPL', 'AMZN', 'GOOGL' and 'FB' from the SP500 data set - which is available <a href="https://www.kaggle.com/camnugent/sandp500">here.</a></p>
                 <p>As many stock price data set, some days are missing in terms of data entry. I used a classic method to fill in these blanks; any data point that is missing will be filled with the last known value for the stock price. Sometimes, a stock doesn't exist yet at the beginning of a timeline; in this specific case, we will fill the missing values by the first known value of this stock. Thanks to the library <a href="https://pandas.pydata.org/">Pandas</a>, this can be done very easily through the \( \text{fillna(method='ffill', inplace=True, axis=0)}\) method. </p>
                 <p>I chose the MinMaxScaler from the sklearn library to scale all the price in the \([0, 1]\) range; the data needs to be scaled back at the end of the experiment in order to get the real estimated price (the sklearn scalers have this inverse transform function included).</p>
                 <p>We are going to consider for each data point the previous \(T\) points as a fixed size sub time sequence, as represented in the graph below when hovering the mouse on it.</p>
@@ -283,6 +286,29 @@ class SP500(Dataset):
 
                 <p>It took me a bit of time to really grasp what happened inside of an LSTM; here is the "translation" of the figures from Chris Olah's <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">blog post</a>, and the figure p.409 in the Deep Learning book.</p>
 
+                <figure>
+                    <object id="lstm-colah" data="img/lstm/lstm_colah.svg" type="image/svg+xml" ></object>
+                    <!--<script>-->
+                        <!--d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {-->
+                            <!--if (error) throw error;-->
+                            <!--document.body.appendChild(xml.documentElement);-->
+                        <!--});-->
+                        <!--</script>-->
+                    <figcaption>LSTM figure inspired by Chris Olah.</figcaption>
+
+                </figure>
+                <p>I drew every different part of the figure in a different color in order to see the corresponding parts in the next figure: </p>
+                <figure>
+                    <object id="lstm-goodfellow" data="img/lstm/lstm_goodfellow.svg" type="image/svg+xml" ></object>
+                    <!--<script>-->
+                    <!--d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {-->
+                    <!--if (error) throw error;-->
+                    <!--document.body.appendChild(xml.documentElement);-->
+                    <!--});-->
+                    <!--</script>-->
+                    <figcaption>LSTM figure inspired by Ian Goodfellow.</figcaption>
+
+                </figure>
 
 
                 <p>LSTMs are quite interesting in our case; the gates mentionned above allow the cell to accumulate information over a period of time, but also automatically forget information that is no longer relevant for the prediction. This is done through the self loop in the LSTM cell (or the loop that link variables from \(t-1\) to \(t\)); the weight in the self loop is conditionned on the context. This allows the LSTM cell to "adapt" to different time scales when needed. Their gated architecture allows them to keep certain amount of data in memory, and control the flow of information going through the network. They also can adapt well in multivariate sequence prediction.</p>
@@ -349,60 +375,7 @@ class SP500(Dataset):
 
                 <!--D3js LSTM plot-->
                 <p></p>
-                <figure class="l-body">
-                <object id="yoursvg" data="img/attention_network.svg" type="image/svg+xml" ></object>
-                <script>
-                    d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {
-                        if (error) throw error;
-                        document.body.appendChild(xml.documentElement);
-                    });
 
-                    // d3.xml("img/attention.svg").mimeType("image/svg+xml").get(function(error, xml)
-                    // {
-                    //     if (error) throw error;
-                    //     var importedNode = document.importNode(xml.documentElement, true);
-                    //     d3.select("div#vis")
-                    //         .each(function() {
-                    //             this.appendChild(importedNode);
-                    //         })
-                    //     //document.body.appendChild(xml.documentElement);
-                    //     //styleImportedSVG()
-                    // };
-                    //g.selectAll('rect')
-                         //.filter(function(d) { return d.ArtistID == 1; })
-                    //     .style('fill-opacity', 0.3)
-
-                    // svg.append("g")
-                    //     .on("mouseover", function() {
-                    //         d3.select(this).classed("hover", true);
-                    //     })
-                    //     .on("mouseout", function() {
-                    //         d3.select(this).classed("hover", false);
-                    //     })
-                    // svg.selectAll('rect[style = "fill-opacity: orange;"]')
-                    //
-                    // function styleImportedSVG () {
-                    //     d3.select('svg')
-                    //         .on('mouseover', function() {
-                    //             console.log('mouseover');
-                    //             console.log('this', this);
-                    //             d3.selectAll('path')
-                    //                 .style({
-                    //                     'fill-opacity':   0.1,
-                    //                     'stroke-opacity': 0.3
-                    //                 })
-                    //         })
-                    //         .on('mouseout', function() {
-                    //             console.log('mouseout');
-                    //             d3.selectAll('path')
-                    //                 .style({
-                    //                     'fill-opacity':   1,
-                    //                     'stroke-opacity': 1
-                    //                 })
-                    //         })
-                    //}
-
-                </script>
                 <!--<dt-include src="assets/rnn_attentional_01.svg"><svg id="background" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 648 258">-->
                 <!--<script>-->
                     <!--// Extract the width and height that was computed by CSS.-->
@@ -451,10 +424,10 @@ class SP500(Dataset):
                     <figure class="l-body">
                         <object id="attention-network" data="img/attention_network.svg" type="image/svg+xml" ></object>
                         <script>
-                            d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {
-                                if (error) throw error;
-                                document.body.appendChild(xml.documentElement);
-                            });
+                            //d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                            //    if (error) throw error;
+                            //    document.body.appendChild(xml.documentElement);
+                            //});
 
                             // d3.xml("img/attention.svg").mimeType("image/svg+xml").get(function(error, xml)
                             // {
@@ -504,7 +477,18 @@ class SP500(Dataset):
                         </script>
 
                 <h2 class="section-heading">Dilated convolution</h2>
-                <p></p>
+                <p>A third approach that is relevant to predicting time series is the one proposed in the <a href="https://arxiv.org/pdf/1609.03499.pdf">WaveNet</a> paper. While this paper focuses on time sequence generation, the multiscale approach also works for prediction, as seen in the paper
+                <a href="https://arxiv.org/pdf/1703.04691.pdf">Conditional Time Series Forecasting with Convolutional Neural Networks</a>. </p>
+                <p> the use of long
+                    histories of stock prices can be difficult due to the changing financial environment. At the same time, many
+                    different, but strongly correlated financial time series exist. Here, we aim to exploit multivariate forecasting
+                    using the notion of conditioning to reduce the noisiness in short duration series. Effectively, we use multiple
+                    financial time series as input in a neural network, thus conditioning the forecast of a time series x(t) on both
+                    its own history as well as that of multiple other time series y1(t), y2(t), .... Training a model on multiple
+                    stock series allows the network to exploit the correlation structure between these series so that the network
+                    can learn the market dynamics in shorter sequences of data. Furthermore, using multiple conditional time
+                    series as inputs can improve both the robustness and forecast quality of the model by learning long-term
+                    temporal dependencies in between series</p>
 
 
                 <h2 class="section-heading">Python Code Example with PyTorch</h2>
