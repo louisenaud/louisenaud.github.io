@@ -478,17 +478,48 @@ class SP500(Dataset):
 
                 <h2 class="section-heading">Dilated convolution</h2>
                 <p>A third approach that is relevant to predicting time series is the one proposed in the <a href="https://arxiv.org/pdf/1609.03499.pdf">WaveNet</a> paper. While this paper focuses on time sequence generation, the multiscale approach also works for prediction, as seen in the paper
-                <a href="https://arxiv.org/pdf/1703.04691.pdf">Conditional Time Series Forecasting with Convolutional Neural Networks</a>. </p>
-                <p> the use of long
-                    histories of stock prices can be difficult due to the changing financial environment. At the same time, many
-                    different, but strongly correlated financial time series exist. Here, we aim to exploit multivariate forecasting
-                    using the notion of conditioning to reduce the noisiness in short duration series. Effectively, we use multiple
-                    financial time series as input in a neural network, thus conditioning the forecast of a time series x(t) on both
-                    its own history as well as that of multiple other time series y1(t), y2(t), .... Training a model on multiple
-                    stock series allows the network to exploit the correlation structure between these series so that the network
-                    can learn the market dynamics in shorter sequences of data. Furthermore, using multiple conditional time
-                    series as inputs can improve both the robustness and forecast quality of the model by learning long-term
-                    temporal dependencies in between series</p>
+                <a href="https://arxiv.org/pdf/1703.04691.pdf">Conditional Time Series Forecasting with Convolutional Neural Networks</a>. While the environment is constantly changing - and may yield trend extraction a very difficult task over one stock, there is a tremendous amount of data generated in a small time frame; the idea of using different stocks in a same time frame through dilated convolution is the main idea in this paper. By using multiple time series as an input to the network, the forecast of one series is conditional to the others, and allows to reduce the effect of noise stochasticity. It is worth noting that the method the cited paper doesn't perform multivariate prediction. </p>
+
+                <p>I experimented something slightly different though; a first experiment consisted of using 1D convolutions on different stocks, in order to see the effect of dilated convolutions on each series independently. Then, in order to take into account the correlation between the series, I used 2D convolutions, but dilated only on the time axis to get this "time multi scale" aspect. </p>
+
+                        <p>
+                            <a href="#">
+                                <figure>
+                                    <img class="img-responsive" src="img/stocks/conv1d/AAPL.png" alt="">
+                                    <figcaption>Predictions with 1d dilated convolution.</figcaption>
+                                </figure>
+                            </a>
+                        </p>
+                        <p>
+                            <a href="#">
+                                <figure>
+                                    <img class="img-responsive" src="img/stocks/conv2d/AAPL.png" alt="">
+                                    <figcaption>Predictions with 2d dilated convolution.</figcaption>
+                                </figure>
+                            </a>
+                        </p>
+
+                        <p>
+                            <a href="#">
+                                <figure>
+                                    <img class="img-responsive" src="img/stocks/conv1d/GOOGL.png" alt="">
+                                    <figcaption>Predictions with 1d dilated convolution.</figcaption>
+                                </figure>
+                            </a>
+                        </p>
+                        <p>
+                            <a href="#">
+                                <figure>
+                                    <img class="img-responsive" src="img/stocks/conv2d/GOOGL.png" alt="">
+                                    <figcaption>Predictions with 2d dilated convolution.</figcaption>
+                                </figure>
+                            </a>
+                        </p>
+
+                <p>It is notable that the 2D dilated convolutions perform better than the 1D dilated convolutions. It is very likely that the structure is more taken into account in the 2D convolutions and hence, if any correlation exist between the series, . </p>
+
+                <p> </p>
+
 
 
                 <h2 class="section-heading">Python Code Example with PyTorch</h2>
@@ -499,7 +530,8 @@ class SP500(Dataset):
 
     </code>
 </pre>
-
+                <h2 class="section-heading">Conclusion</h2>
+                We have seen a few methods for estimating multivariate time series. LSTM seems to work fine for smaller horizon \(T\) than the dilated convolution approach.
 
                 <p>You can leave comments down here, or contact me through the contact form of this blog if you
                     have questions or remarks on this post!</p>
@@ -514,8 +546,6 @@ class SP500(Dataset):
 
             </div>
         </div>
-    </div>
-    </div>
     </div>
 </article>
 
