@@ -132,9 +132,9 @@ MathJax.Hub.Config({
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="post-heading">
-                    <h1>Time Series Prediction -I.</h1>
+                    <h1>Time Series Prediction - II.</h1>
                     <h2 class="subheading">How to predict a future -value-.</h2>
-                    <span class="meta">Posted by <a href="contact.html">Louise</a> on February 8, 2018</span>
+                    <span class="meta">Posted by <a href="contact.html">Louise</a> on March 8, 2018</span>
                 </div>
             </div>
         </div>
@@ -280,283 +280,76 @@ class SP500(Dataset):
                 </script>
 
 
-                <h2 class="section-heading">LSTM</h2>
-                <!--Deep Learning book-->
-                <!--https://medium.com/@jianqiangma/all-about-recurrent-neural-networks-9e5ae2936f6e-->
-                <p>As very clearly explained <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">here</a> and in the excellent book <a href="http://www.deeplearningbook.org/">Deep Learning</a>, LSTM are good option for time series prediction. They allow to put different weights on different inputs, to decide which data point should be more preponderant in order to make an accurate prediction. </p>
 
-                <p>It took me a bit of time to really grasp what happened inside of an LSTM; here is the "translation" of the figures from Chris Olah's <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">blog post</a>, and the figure p.409 in the Deep Learning book.</p>
-
-                <figure>
-                    <object id="lstm-colah" data="img/lstm/lstm_colah.svg" type="image/svg+xml" ></object>
-                    <!--<script>-->
-                        <!--d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {-->
-                            <!--if (error) throw error;-->
-                            <!--document.body.appendChild(xml.documentElement);-->
-                        <!--});-->
-                        <!--</script>-->
-                    <figcaption>LSTM figure inspired by Chris Olah.</figcaption>
-
-                </figure>
-                <p>I drew every different part of the figure in a different color in order to see the corresponding parts in the next figure: </p>
-                <figure>
-                    <object id="lstm-goodfellow" data="img/lstm/lstm_goodfellow.svg" type="image/svg+xml" ></object>
-                    <!--<script>-->
-                    <!--d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {-->
-                    <!--if (error) throw error;-->
-                    <!--document.body.appendChild(xml.documentElement);-->
-                    <!--});-->
-                    <!--</script>-->
-                    <figcaption>LSTM figure inspired by Ian Goodfellow.</figcaption>
-
-                </figure>
-
-
-                <p>LSTMs are quite interesting in our case; the gates mentioned above allow the cell to accumulate information over a period of time, but also automatically forget information that is no longer relevant for the prediction. This is done through the self loop in the LSTM cell (or the loop that link variables from \(t-1\) to \(t\)); the weight in the self loop is conditioned on the context. This allows the LSTM cell to "adapt" to different time scales when needed. Their gated architecture allows them to keep certain amount of data in memory, and control the flow of information going through the network. They also can adapt well in multivariate sequence prediction.</p>
-
-
-                <p>Let's first check what type of prediction errors an LSTM network gets on a simple stock. The training data is the stock price values from 2013-01-01 to 2013-10-31, and the test set is extending this training set to 2014-10-31.</p>
-
-                <p>
-                    <a href="#">
-                        <figure>
-                            <img class="img-responsive" src="img/stocks/AAPL_1stock.png" alt="">
-                            <figcaption>Predictions of LSTM for one stock; AAPL.</figcaption>
-                        </figure>
-                    </a>
-                </p>
-                <p>
-                    <a href="#">
-                        <figure>
-                            <img class="img-responsive" src="img/stocks/AAPL_1stock_shuffle.png" alt="">
-                            <figcaption>Predictions of LSTM for one stock; AAPL, with sample shuffling during training.</figcaption>
-                        </figure>
-                    </a>
-                </p>
-
-                <p>It looks like shuffling the samples may give a slightly lower precision in training, but it give a lower error in testing; shuffling the training samples yields better generalization capacities. </p>
-
-                <p>The LSTM are said to work well for multivariate time series, so let's see the extent of this statement on our data set: </p>
-                <p>
-                    <a href="#">
-                        <figure>
-                            <img class="img-responsive" src="img/stocks/AAPL_2stocks_shuffle.png" alt="">
-                            <figcaption>Predictions of LSTM for two stocks; AAPL, AMZN.</figcaption>
-                        </figure>
-                    </a>
-                </p>
-                <p>
-                    <a href="#">
-                        <figure>
-                            <img class="img-responsive" src="img/stocks/AMZN_2stocks_shuffle.png" alt="">
-                            <figcaption>Predictions of LSTM for two stocks; AAPL, AMZN.</figcaption>
-                        </figure>
-                    </a>
-                </p>
-                <p>Let's now see how this works for three different stocks at the same time:</p>
-
-                <p>
-                    <a href="#">
-                        <figure>
-                            <img class="img-responsive" src="img/stocks/AAPL_3stocks_shuffle.png" alt="">
-                            <figcaption>Predictions of LSTM for three stocks; AAPL, AMZN, GOOGL.</figcaption>
-                        </figure>
-                    </a>
-                </p>
-                <p>
-                    <a href="#">
-                        <figure>
-                            <img class="img-responsive" src="img/stocks/GOOGL_3stocks_shuffle.png" alt="">
-                            <figcaption>Predictions of LSTM for three stocks; AAPL, AMZN, GOOGL.</figcaption>
-                        </figure>
-                    </a>
-                </p>
-
-                <p>It looks like the more time series we add to the mutiltivariate training, the less the LSTM seems to perform. This makes sense since even through the series are correlated, the construction of the LSTM does not allow the flow of information to focus on one time serie or the other depending on their variations.</p>
-
-                <!--D3js LSTM plot-->
-                <p></p>
-
-                <!--<dt-include src="assets/rnn_attentional_01.svg"><svg id="background" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 648 258">-->
-                <!--<script>-->
-                    <!--// Extract the width and height that was computed by CSS.-->
-                    <!--var chartDiv = document.getElementById("vis");-->
-                    <!--var width = chartDiv.clientWidth;-->
-                    <!--var height = chartDiv.clientHeight;-->
-
-                    <!--// load the external svg from a file-->
-                    <!--d3.xml("img/attention.svg", "image/svg+xml", function(xml) {-->
-                        <!--var importedNode = document.importNode(xml.documentElement, true);-->
-                        <!--d3.select("div#vis")-->
-                            <!--.each(function() {-->
-                                <!--this.appendChild(importedNode);-->
-                            <!--})-->
-                        <!--// inside of our d3.xml callback, call another function-->
-                        <!--// that styles individual paths inside of our imported svg-->
-                        <!--styleImportedSVG()-->
-                    <!--});-->
-
-                    <!--function styleImportedSVG () {-->
-                        <!--d3.select('svg')-->
-                            <!--.on('mouseover', function() {-->
-                                <!--console.log('mouseover');-->
-                                <!--console.log('this', this);-->
-                                <!--d3.selectAll('path')-->
-                                    <!--.style({-->
-                                        <!--'fill-opacity':   0.1,-->
-                                        <!--'stroke-opacity': 0.3-->
-                                    <!--})-->
-                            <!--})-->
-                            <!--.on('mouseout', function() {-->
-                                <!--console.log('mouseout');-->
-                                <!--d3.selectAll('path')-->
-                                    <!--.style({-->
-                                        <!--'fill-opacity':   1,-->
-                                        <!--'stroke-opacity': 1-->
-                                    <!--})-->
-                            <!--})-->
-                    <!--}-->
-                <!--</script>-->
 
                 <h2 class="section-heading">Attention Network</h2>
                 <p>While LSTM give good results for a few stocks, it still struggles to capture very long time dependencies, as do previous methods to predict time series, and also inter-series dependencies in stocks. Another approach decribed recently is the attention encoder. I will largely rely on the paper <a href="https://arxiv.org/pdf/1704.02971.pdf">A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction</a>, which I found really interesting in that regard. This network structure differs from LSTM as it uses two attention mechanisms: one for weighting different stocks at a same time \(t\) depending on the amount of relevent information it contains, and the other for weighting the moment in the same time series that are more relevant in order to make a better prediction. </p>
 
 
-                    <figure class="l-body">
-                        <object id="attention-network" data="img/attention_network.svg" type="image/svg+xml" ></object>
-                        <script>
-                            //d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {
-                            //    if (error) throw error;
-                            //    document.body.appendChild(xml.documentElement);
-                            //});
+                <figure class="l-body">
+                    <object id="attention-network" data="img/attention_network.svg" type="image/svg+xml" ></object>
+                    <script>
+                        //d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                        //    if (error) throw error;
+                        //    document.body.appendChild(xml.documentElement);
+                        //});
 
-                            // d3.xml("img/attention.svg").mimeType("image/svg+xml").get(function(error, xml)
-                            // {
-                            //     if (error) throw error;
-                            //     var importedNode = document.importNode(xml.documentElement, true);
-                            //     d3.select("div#vis")
-                            //         .each(function() {
-                            //             this.appendChild(importedNode);
-                            //         })
-                            //     //document.body.appendChild(xml.documentElement);
-                            //     //styleImportedSVG()
-                            // };
-                            //g.selectAll('rect')
-                            //.filter(function(d) { return d.ArtistID == 1; })
-                            //     .style('fill-opacity', 0.3)
+                        // d3.xml("img/attention.svg").mimeType("image/svg+xml").get(function(error, xml)
+                        // {
+                        //     if (error) throw error;
+                        //     var importedNode = document.importNode(xml.documentElement, true);
+                        //     d3.select("div#vis")
+                        //         .each(function() {
+                        //             this.appendChild(importedNode);
+                        //         })
+                        //     //document.body.appendChild(xml.documentElement);
+                        //     //styleImportedSVG()
+                        // };
+                        //g.selectAll('rect')
+                        //.filter(function(d) { return d.ArtistID == 1; })
+                        //     .style('fill-opacity', 0.3)
 
-                            // svg.append("g")
-                            //     .on("mouseover", function() {
-                            //         d3.select(this).classed("hover", true);
-                            //     })
-                            //     .on("mouseout", function() {
-                            //         d3.select(this).classed("hover", false);
-                            //     })
-                            // svg.selectAll('rect[style = "fill-opacity: orange;"]')
-                            //
-                            // function styleImportedSVG () {
-                            //     d3.select('svg')
-                            //         .on('mouseover', function() {
-                            //             console.log('mouseover');
-                            //             console.log('this', this);
-                            //             d3.selectAll('path')
-                            //                 .style({
-                            //                     'fill-opacity':   0.1,
-                            //                     'stroke-opacity': 0.3
-                            //                 })
-                            //         })
-                            //         .on('mouseout', function() {
-                            //             console.log('mouseout');
-                            //             d3.selectAll('path')
-                            //                 .style({
-                            //                     'fill-opacity':   1,
-                            //                     'stroke-opacity': 1
-                            //                 })
-                            //         })
-                            //}
+                        // svg.append("g")
+                        //     .on("mouseover", function() {
+                        //         d3.select(this).classed("hover", true);
+                        //     })
+                        //     .on("mouseout", function() {
+                        //         d3.select(this).classed("hover", false);
+                        //     })
+                        // svg.selectAll('rect[style = "fill-opacity: orange;"]')
+                        //
+                        // function styleImportedSVG () {
+                        //     d3.select('svg')
+                        //         .on('mouseover', function() {
+                        //             console.log('mouseover');
+                        //             console.log('this', this);
+                        //             d3.selectAll('path')
+                        //                 .style({
+                        //                     'fill-opacity':   0.1,
+                        //                     'stroke-opacity': 0.3
+                        //                 })
+                        //         })
+                        //         .on('mouseout', function() {
+                        //             console.log('mouseout');
+                        //             d3.selectAll('path')
+                        //                 .style({
+                        //                     'fill-opacity':   1,
+                        //                     'stroke-opacity': 1
+                        //                 })
+                        //         })
+                        //}
 
-                        </script>
+                    </script>
 
-                <h2 class="section-heading">Dilated convolution</h2>
-                <p>A third approach that is relevant to predicting time series is the one proposed in the <a href="https://arxiv.org/pdf/1609.03499.pdf">WaveNet</a> paper for 1D signals. While this paper focuses on time sequence generation, the multiscale approach also works for prediction, as seen in the paper
-                <a href="https://arxiv.org/pdf/1703.04691.pdf">Conditional Time Series Forecasting with Convolutional Neural Networks</a>. The idea in this paper is to counter the fact that the -financial- environment is constantly changing - and may render trend extraction a very difficult task over one stock. But there on the other hand is a tremendous amount of data generated in a small time frame; the idea of using different stocks in a same time frame through dilated convolution is hence quite seducing. By using multiple time series as an input to the network, the forecast of one series is conditional to the others, and allows to reduce the effect of noise stochasticity. It is worth noting that the method in the cited paper doesn't perform multivariate prediction. </p>
+                    <p>You can leave comments down here, or contact me through the contact form of this blog if you
+                        have questions or remarks on this post!</p>
+                    <!-- Blog Comments -->
 
-                <p>I experimented something slightly different though; a first experiment consisted of using 1D convolutions on different stocks, in order to see the effect of dilated convolutions on each series independently. Then, in order to take into account the correlation between the series, I used 2D convolutions, but dilated only on the time axis to get this "time multi scale" aspect. </p>
-
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/cube_stock_dilated1.svg" alt="">
-                                    <figcaption>Visualization of the stocks in the neural net.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/conv1d/AAPL.png" alt="">
-                                    <figcaption>Predictions with 1d dilated convolution.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/conv2d/AAPL.png" alt="">
-                                    <figcaption>Predictions with 2d dilated convolution.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/conv1d/GOOGL.png" alt="">
-                                    <figcaption>Predictions with 1d dilated convolution.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/conv2d/GOOGL.png" alt="">
-                                    <figcaption>Predictions with 2d dilated convolution.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-
-                <p>It is notable that the 2D dilated convolutions perform better than the 1D dilated convolutions. It is very likely that the structure is more taken into account in the 2D convolutions and hence, if any correlation exist between the series, . </p>
-
-                <p> </p>
-
-
-
-                <h2 class="section-heading">Python Code Example with PyTorch</h2>
-                <p> Here is how I organized the code with PyTorch, with GPU support. Every function needed in the Primal Dual Net is coded as a nn.Module submodule:</p>
-
-                <pre class="prettyprint">
-    <code class="language-python">
-
-    </code>
-</pre>
-                <h2 class="section-heading">Conclusion</h2>
-                        <p>We have seen a few methods for estimating multivariate time series. LSTM seems to work fine for smaller horizon \(T\) than the dilated convolution approach.</p>
-
-                        <p>Regularization for generalization</p>
-                        <p>More complex model</p>
-                        <p>More 'online' model</p>
-                        <p>Multistep</p>
-
-                <p>You can leave comments down here, or contact me through the contact form of this blog if you
-                    have questions or remarks on this post!</p>
-                <!-- Blog Comments -->
-
-                <!-- begin wwww.htmlcommentbox.com -->
-                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
-                <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
-                <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
-                <!-- end www.htmlcommentbox.com -->
+                    <!-- begin wwww.htmlcommentbox.com -->
+                    <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                    <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                    <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                    <!-- end www.htmlcommentbox.com -->
 
 
             </div>
