@@ -153,10 +153,12 @@ MathJax.Hub.Config({
 
 
                 <h2 class="section-heading">The data</h2>
+
                 <p>As mentionned above, a very classic data type for time series are stock prices. We are going to focus on 'AAPL', 'AMZN', 'GOOGL', 'NVDA', 'GS', 'ZION' and 'FB' from the SP500 data set - which is available <a href="https://www.kaggle.com/camnugent/sandp500">here.</a></p>
+
                 <p>As many stock price data set, some days are missing in terms of data entry. I used a classic method to fill in these blanks; any data point that is missing will be filled with the last known value for the stock price. Sometimes, a stock doesn't exist yet at the beginning of a timeline; in this specific case, we will fill the missing values by the first known value of this stock. Thanks to the library <a href="https://pandas.pydata.org/">Pandas</a>, this can be done very easily through the \( \text{fillna(method='ffill', inplace=True, axis=0)}\) method. </p>
+
                 <p>I chose the MinMaxScaler from the sklearn library to scale all the price in the \([0, 1]\) range; the data needs to be scaled back at the end of the experiment in order to get the real estimated price (the sklearn scalers have this inverse transform function included).</p>
-                <p>We are going to consider for each data point the previous \(T\) points as a fixed size sub time sequence, as represented in the graph below when hovering the mouse on it. This is called a next-day prediction.</p>
 
                 <p>For a better visibility, and scalability of the experiments, I chose to inherit the Dataset class from Pytorch. Here is the code of my SP500 class for the S&P500 dataset: </p>
 
@@ -234,6 +236,7 @@ class SP500(Dataset):
         return self.chunks.size(0)
     </code>
 </pre>
+                <p>We are going to consider for each data point the previous \(T\) points as a fixed size sub time sequence, as represented in the graph below when hovering the mouse on it. This is called a next-day prediction.</p>
 
                 <div class="bk-root">
                     <div class="bk-plotdiv" id="035e5c7e-7aba-48a2-a387-b0170e954bab"></div>
@@ -290,11 +293,11 @@ class SP500(Dataset):
                 <figure>
                     <object id="lstm-colah" data="img/lstm/lstm_colah.svg" type="image/svg+xml" ></object>
                     <!--<script>-->
-                        <!--d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {-->
-                            <!--if (error) throw error;-->
-                            <!--document.body.appendChild(xml.documentElement);-->
-                        <!--});-->
-                        <!--</script>-->
+                    <!--d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {-->
+                    <!--if (error) throw error;-->
+                    <!--document.body.appendChild(xml.documentElement);-->
+                    <!--});-->
+                    <!--</script>-->
                     <figcaption>LSTM figure inspired by Chris Olah.</figcaption>
 
                 </figure>
@@ -312,7 +315,7 @@ class SP500(Dataset):
                 </figure>
 
 
-                <p>LSTMs are quite interesting in our case; the gates mentioned above allow the cell to accumulate information over a period of time, but also automatically forget information that is no longer relevant for the prediction. This is done through the self loop in the LSTM cell (or the loop that link variables from \(t-1\) to \(t\)); the weight in the self loop is conditioned on the context. This allows the LSTM cell to "adapt" to different time scales when needed. Their gated architecture allows them to keep certain amount of data in memory, and control the flow of information going through the network. They also can adapt well in multivariate sequence prediction.</p>
+                <p>As I was saying, LSTMs are quite interesting in our case; the gates mentioned above allow the cell to accumulate information over a period of time, but also automatically forget information that is no longer relevant for the prediction. This is done through the self loop in the LSTM cell (or the loop that link variables from \(t-1\) to \(t\)); the weight in the self loop is conditioned on the context. This allows the LSTM cell to "adapt" to different time scales when needed. Their gated architecture allows them to keep certain amount of data in memory, and control the flow of information going through the network. They also can adapt well in multivariate sequence prediction.</p>
 
 
                 <p>Let's first check what type of prediction errors an LSTM network gets on a simple stock. The training data is the stock price values from 2013-01-01 to 2013-10-31, and the test set is extending this training set to 2014-10-31.</p>
@@ -379,174 +382,246 @@ class SP500(Dataset):
 
                 <!--<dt-include src="assets/rnn_attentional_01.svg"><svg id="background" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 648 258">-->
                 <!--<script>-->
-                    <!--// Extract the width and height that was computed by CSS.-->
-                    <!--var chartDiv = document.getElementById("vis");-->
-                    <!--var width = chartDiv.clientWidth;-->
-                    <!--var height = chartDiv.clientHeight;-->
+                <!--// Extract the width and height that was computed by CSS.-->
+                <!--var chartDiv = document.getElementById("vis");-->
+                <!--var width = chartDiv.clientWidth;-->
+                <!--var height = chartDiv.clientHeight;-->
 
-                    <!--// load the external svg from a file-->
-                    <!--d3.xml("img/attention.svg", "image/svg+xml", function(xml) {-->
-                        <!--var importedNode = document.importNode(xml.documentElement, true);-->
-                        <!--d3.select("div#vis")-->
-                            <!--.each(function() {-->
-                                <!--this.appendChild(importedNode);-->
-                            <!--})-->
-                        <!--// inside of our d3.xml callback, call another function-->
-                        <!--// that styles individual paths inside of our imported svg-->
-                        <!--styleImportedSVG()-->
-                    <!--});-->
+                <!--// load the external svg from a file-->
+                <!--d3.xml("img/attention.svg", "image/svg+xml", function(xml) {-->
+                <!--var importedNode = document.importNode(xml.documentElement, true);-->
+                <!--d3.select("div#vis")-->
+                <!--.each(function() {-->
+                <!--this.appendChild(importedNode);-->
+                <!--})-->
+                <!--// inside of our d3.xml callback, call another function-->
+                <!--// that styles individual paths inside of our imported svg-->
+                <!--styleImportedSVG()-->
+                <!--});-->
 
-                    <!--function styleImportedSVG () {-->
-                        <!--d3.select('svg')-->
-                            <!--.on('mouseover', function() {-->
-                                <!--console.log('mouseover');-->
-                                <!--console.log('this', this);-->
-                                <!--d3.selectAll('path')-->
-                                    <!--.style({-->
-                                        <!--'fill-opacity':   0.1,-->
-                                        <!--'stroke-opacity': 0.3-->
-                                    <!--})-->
-                            <!--})-->
-                            <!--.on('mouseout', function() {-->
-                                <!--console.log('mouseout');-->
-                                <!--d3.selectAll('path')-->
-                                    <!--.style({-->
-                                        <!--'fill-opacity':   1,-->
-                                        <!--'stroke-opacity': 1-->
-                                    <!--})-->
-                            <!--})-->
-                    <!--}-->
+                <!--function styleImportedSVG () {-->
+                <!--d3.select('svg')-->
+                <!--.on('mouseover', function() {-->
+                <!--console.log('mouseover');-->
+                <!--console.log('this', this);-->
+                <!--d3.selectAll('path')-->
+                <!--.style({-->
+                <!--'fill-opacity':   0.1,-->
+                <!--'stroke-opacity': 0.3-->
+                <!--})-->
+                <!--})-->
+                <!--.on('mouseout', function() {-->
+                <!--console.log('mouseout');-->
+                <!--d3.selectAll('path')-->
+                <!--.style({-->
+                <!--'fill-opacity':   1,-->
+                <!--'stroke-opacity': 1-->
+                <!--})-->
+                <!--})-->
+                <!--}-->
                 <!--</script>-->
 
-                <h2 class="section-heading">Attention Network</h2>
-                <p>While LSTM give good results for a few stocks, it still struggles to capture very long time dependencies, as do previous methods to predict time series, and also inter-series dependencies in stocks. Another approach decribed recently is the attention encoder. I will largely rely on the paper <a href="https://arxiv.org/pdf/1704.02971.pdf">A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction</a>, which I found really interesting in that regard. This network structure differs from LSTM as it uses two attention mechanisms: one for weighting different stocks at a same time \(t\) depending on the amount of relevent information it contains, and the other for weighting the moment in the same time series that are more relevant in order to make a better prediction. </p>
 
-
-                    <figure class="l-body">
-                        <object id="attention-network" data="img/attention_network.svg" type="image/svg+xml" ></object>
-                        <script>
-                            //d3.xml("rect01.svg").mimeType("image/svg+xml").get(function(error, xml) {
-                            //    if (error) throw error;
-                            //    document.body.appendChild(xml.documentElement);
-                            //});
-
-                            // d3.xml("img/attention.svg").mimeType("image/svg+xml").get(function(error, xml)
-                            // {
-                            //     if (error) throw error;
-                            //     var importedNode = document.importNode(xml.documentElement, true);
-                            //     d3.select("div#vis")
-                            //         .each(function() {
-                            //             this.appendChild(importedNode);
-                            //         })
-                            //     //document.body.appendChild(xml.documentElement);
-                            //     //styleImportedSVG()
-                            // };
-                            //g.selectAll('rect')
-                            //.filter(function(d) { return d.ArtistID == 1; })
-                            //     .style('fill-opacity', 0.3)
-
-                            // svg.append("g")
-                            //     .on("mouseover", function() {
-                            //         d3.select(this).classed("hover", true);
-                            //     })
-                            //     .on("mouseout", function() {
-                            //         d3.select(this).classed("hover", false);
-                            //     })
-                            // svg.selectAll('rect[style = "fill-opacity: orange;"]')
-                            //
-                            // function styleImportedSVG () {
-                            //     d3.select('svg')
-                            //         .on('mouseover', function() {
-                            //             console.log('mouseover');
-                            //             console.log('this', this);
-                            //             d3.selectAll('path')
-                            //                 .style({
-                            //                     'fill-opacity':   0.1,
-                            //                     'stroke-opacity': 0.3
-                            //                 })
-                            //         })
-                            //         .on('mouseout', function() {
-                            //             console.log('mouseout');
-                            //             d3.selectAll('path')
-                            //                 .style({
-                            //                     'fill-opacity':   1,
-                            //                     'stroke-opacity': 1
-                            //                 })
-                            //         })
-                            //}
-
-                        </script>
 
                 <h2 class="section-heading">Dilated convolution</h2>
-                <p>A third approach that is relevant to predicting time series is the one proposed in the <a href="https://arxiv.org/pdf/1609.03499.pdf">WaveNet</a> paper for 1D signals. While this paper focuses on time sequence generation, the multiscale approach also works for prediction, as seen in the paper
-                <a href="https://arxiv.org/pdf/1703.04691.pdf">Conditional Time Series Forecasting with Convolutional Neural Networks</a>. The idea in this paper is to counter the fact that the -financial- environment is constantly changing - and may render trend extraction a very difficult task over one stock. But there on the other hand is a tremendous amount of data generated in a small time frame; the idea of using different stocks in a same time frame through dilated convolution is hence quite seducing. By using multiple time series as an input to the network, the forecast of one series is conditional to the others, and allows to reduce the effect of noise stochasticity. It is worth noting that the method in the cited paper doesn't perform multivariate prediction. </p>
+                <p>Another approach that is relevant to predicting time series is the one proposed in the <a href="https://arxiv.org/pdf/1609.03499.pdf">WaveNet</a> paper for 1D signals. While this paper focuses on time sequence generation, the multiscale approach also works for prediction, as seen in the paper
+                    <a href="https://arxiv.org/pdf/1703.04691.pdf">Conditional Time Series Forecasting with Convolutional Neural Networks</a>. The idea in this paper is to counter the fact that the -financial- environment is constantly changing - and may render trend extraction a very difficult task over one stock. But there on the other hand is a tremendous amount of data generated in a small time frame; the idea of using different stocks in a same time frame through dilated convolution is hence quite seducing. By using multiple time series as an input to the network, the forecast of one series is conditional to the others, and allows to reduce the effect of noise stochasticity. It is worth noting that the method in the cited paper doesn't perform multivariate prediction. </p>
 
-                <p>I experimented something slightly different though; a first experiment consisted of using 1D convolutions on different stocks, in order to see the effect of dilated convolutions on each series independently. Then, in order to take into account the correlation between the series, I used 2D convolutions, but dilated only on the time axis to get this "time multi scale" aspect. </p>
-
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/cube_stock_dilated1.svg" alt="">
-                                    <figcaption>Visualization of the stocks in the neural net.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/conv1d/AAPL.png" alt="">
-                                    <figcaption>Predictions with 1d dilated convolution.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/conv2d/AAPL.png" alt="">
-                                    <figcaption>Predictions with 2d dilated convolution.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/conv1d/GOOGL.png" alt="">
-                                    <figcaption>Predictions with 1d dilated convolution.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-                        <p>
-                            <a href="#">
-                                <figure>
-                                    <img class="img-responsive" src="img/stocks/conv2d/GOOGL.png" alt="">
-                                    <figcaption>Predictions with 2d dilated convolution.</figcaption>
-                                </figure>
-                            </a>
-                        </p>
-
-                <p>It is notable that the 2D dilated convolutions perform better than the 1D dilated convolutions. It is very likely that the structure is more taken into account in the 2D convolutions and hence, if any correlation exist between the series, . </p>
-
-                <p> </p>
+                <p>I experimented something slightly different from the paper mentionned above; a first experiment consisted of using 1D convolutions on different stocks, in order to see the effect of dilated convolutions on each series independently. I decided to test the dilated convolution approach first by using \(n\) stocks in parallel and perform 1D dilated convolution on each stock independently. I used the Pytorch library, with input of dimensions \(n_{batch} \times n_{stocks} \times T \). </p>
+                <pre class="prettyprint">
+    <code class="language-python">
+from torch import nn
 
 
+class DilatedNet(nn.Module):
+    def __init__(self, num_securities=5, hidden_size=64, dilation=2, T=10):
+        """
 
-                <h2 class="section-heading">Python Code Example with PyTorch</h2>
-                <p> Here is how I organized the code with PyTorch, with GPU support. Every function needed in the Primal Dual Net is coded as a nn.Module submodule:</p>
+        :param num_securities: int, number of stocks
+        :param hidden_size: int, size of hidden layers
+        :param dilation: int, dilation value
+        :param T: int, number of look back points
+        """
+        super(DilatedNet, self).__init__()
+        self.dilation = dilation
+        self.hidden_size = hidden_size
+        # First Layer
+        # Input
+        self.dilated_conv1 = nn.Conv1d(num_securities, hidden_size, kernel_size=2, dilation=self.dilation)
+        self.relu1 = nn.ReLU()
+
+        # Layer 2
+        self.dilated_conv2 = nn.Conv1d(hidden_size, hidden_size, kernel_size=1, dilation=self.dilation)
+        self.relu2 = nn.ReLU()
+
+        # Layer 3
+        self.dilated_conv3 = nn.Conv1d(hidden_size, hidden_size, kernel_size=1, dilation=self.dilation)
+        self.relu3 = nn.ReLU()
+
+        # Layer 4
+        self.dilated_conv4 = nn.Conv1d(hidden_size, hidden_size, kernel_size=1, dilation=self.dilation)
+        self.relu4 = nn.ReLU()
+
+        # Output layer
+        self.conv_final = nn.Conv1d(hidden_size, num_securities, kernel_size=1)
+
+        self.T = T
+
+    def forward(self, x):
+        """
+
+        :param x: Pytorch Variable, batch_size x n_stocks x T
+        :return:
+        """
+
+        # First layer
+        out = self.dilated_conv1(x)
+        out = self.relu1(out)
+
+        # Layer 2:
+        out = self.dilated_conv2(out)
+        out = self.relu2(out)
+
+        # Layer 3:
+        out = self.dilated_conv3(out)
+        out = self.relu3(out)
+
+        # Layer 4:
+        out = self.dilated_conv4(out)
+        out = self.relu4(out)
+
+        # Final layer
+        out = self.conv_final(out)
+        out = out[:, :, -1]
+
+        return out
+    </code>
+</pre>
+
+                <p> Then, in order to take into account the correlation between the series, I used 2D convolutions, but dilated only on the time axis to get this "time multi scale" aspect. Again, I used Pytorch to implement this network, and used inputs of size \(n_{batch} \times 1 \times n_{stocks} \times T\). The \(1\) in the previous dimensions corresponds to the fact that I only used closing prices for estimating stock prices, but other features could easily be added on that dimension in order to take into account other metrics, like the highest/lowest values or the volume. </p>
 
                 <pre class="prettyprint">
     <code class="language-python">
+from torch import nn
+
+
+class DilatedNet2D(nn.Module):
+    def __init__(self, hidden_size=64, dilation=1, T=10):
+        """
+
+        :param hidden_size: int, size of hidden layers
+        :param dilation: int, dilation value
+        :param T: int, number of look back points
+        """
+        super(DilatedNet2D, self).__init__()
+        self.dilation = dilation
+        self.hidden_size = hidden_size
+        # First Layer
+        # Input
+        self.dilated_conv1 = nn.Conv2d(1, hidden_size, kernel_size=(1, 2), dilation=(1, self.dilation))
+        self.relu1 = nn.ReLU()
+
+        # Layer 2
+        self.dilated_conv2 = nn.Conv2d(hidden_size, hidden_size, kernel_size=(1, 2), dilation=(1, self.dilation))
+        self.relu2 = nn.ReLU()
+
+        # Layer 3
+        self.dilated_conv3 = nn.Conv2d(hidden_size, hidden_size, kernel_size=(1, 2), dilation=(1, self.dilation))
+        self.relu3 = nn.ReLU()
+
+        # Layer 4
+        self.dilated_conv4 = nn.Conv2d(hidden_size, hidden_size, kernel_size=(1, 2), dilation=(1, self.dilation))
+        self.relu4 = nn.ReLU()
+
+        # Output layer
+        self.conv_final = nn.Conv2d(hidden_size, 1, kernel_size=(1, 2))
+
+        self.T = T
+
+    def forward(self, x):
+        """
+
+        :param x: Pytorch Variable, batch_size x 1 x n_stocks x T
+        :return:
+        """
+
+        # First layer
+        out = self.dilated_conv1(x)
+        out = self.relu1(out)
+
+        # Layer 2:
+        out = self.dilated_conv2(out)
+        out = self.relu2(out)
+
+        # Layer 3:
+        out = self.dilated_conv3(out)
+        out = self.relu3(out)
+
+        # Layer 4:
+        out = self.dilated_conv4(out)
+        out = self.relu4(out)
+
+        # Final layer
+        out = self.conv_final(out)
+        out = out[:, :, :, -1]
+
+        return out
 
     </code>
 </pre>
-                <h2 class="section-heading">Conclusion</h2>
-                        <p>We have seen a few methods for estimating multivariate time series. LSTM seems to work fine for smaller horizon \(T\) than the dilated convolution approach.</p>
 
-                        <p>Regularization for generalization</p>
-                        <p>More complex model</p>
-                        <p>More 'online' model</p>
-                        <p>Multistep</p>
+                <p>
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/stocks/cube_stock_dilated1.svg" alt="">
+                            <figcaption>Visualization of the stocks in the neural net.</figcaption>
+                        </figure>
+                    </a>
+                </p>
+
+                <p>
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/stocks/conv1d/AAPL.png" alt="">
+                            <figcaption>Predictions with 1d dilated convolution.</figcaption>
+                        </figure>
+                    </a>
+                </p>
+                <p>
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/stocks/conv2d/AAPL.png" alt="">
+                            <figcaption>Predictions with 2d dilated convolution.</figcaption>
+                        </figure>
+                    </a>
+                </p>
+
+                <p>
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/stocks/conv1d/GOOGL.png" alt="">
+                            <figcaption>Predictions with 1d dilated convolution.</figcaption>
+                        </figure>
+                    </a>
+                </p>
+                <p>
+                    <a href="#">
+                        <figure>
+                            <img class="img-responsive" src="img/stocks/conv2d/GOOGL.png" alt="">
+                            <figcaption>Predictions with 2d dilated convolution.</figcaption>
+                        </figure>
+                    </a>
+                </p>
+
+                <p>It is notable that the 2D dilated convolutions perform better than the 1D dilated convolutions. It is very likely that the structure is more taken into account in the 2D convolutions and hence, if any correlation exist between the series, the convolution on the stocks dimension will capture some of it. </p>
+
+
+
+                <h2 class="section-heading">Conclusion</h2>
+                <p>We have seen a couple of methods for estimating multivariate time series. LSTM seems to work fine for smaller horizon \(T\) than the dilated convolution approach. But overall, 2D convolution seems like a simple and yet efficient method for next day prediction.</p>
+                <p>Of course, this a quite simple task; predicting time series few days at a time is a challenging issue. This model is also completely "offline"; for real industrial purposes, a more complex and dynamic model would be required.</p>
+                <p>In the next post, we will see how an attention mechanism can also help predict time series, and generalize this code for multi step time series prediction.</p>
+
 
                 <p>You can leave comments down here, or contact me through the contact form of this blog if you
                     have questions or remarks on this post!</p>
@@ -618,7 +693,8 @@ class SP500(Dataset):
 
 <script>
     var blocks = document.getElementsByClassName("pseudocode");
-    for(var blockId = 0; blockId < blocks.length; blockId++) {
+    for(var blockId = 0; blockId < blocks.length; blockId++)
+    {
         var block = blocks[blockId];
 
         var code = block.textContent;
@@ -633,7 +709,8 @@ class SP500(Dataset):
         pseudocode.render(code, outputEl, options);
     }
 
-    while( blocks[0]) {
+    while( blocks[0])
+    {
         blocks[0].parentNode.removeChild(blocks[0]);
     }
 </script>
