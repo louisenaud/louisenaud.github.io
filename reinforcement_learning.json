@@ -1,0 +1,111 @@
+{
+	"name": "Environment",
+	"children": [{
+		"name": "Planning",
+		"rule": "known",
+		"children": [{
+			"name": "Classification",
+			"children": [{
+				"name": "Linear SVM",
+				"size": 3938
+			}, {
+				"name": "Kernel SVM",
+				"size": 3812
+			}, {
+				"name": "Ensemble methods",
+				"children": [{
+					"name": "Random Forest"
+				}, {
+					"name": "Gradient Boost"
+				}, {
+					"name": "Boosting"
+				}, {
+					"name": "Bagging"
+				}, {
+					"name": "AdaBoost"
+				}]
+			}, {
+				"name": "Deep Learning"
+			}, {
+				"name": "Naive Bayes"
+			}, {
+                "name": "K-Neighbors"
+            }]
+		}, {
+			"name": "Regression",
+			"children": [{
+				"name": "Linear - OLSR",
+				"size": 3534
+			}, {
+				"name": "Logistic",
+				"size": 5731
+			}, {
+				"name": "SVR",
+				"size": 7840
+			}, {
+				"name": "LASSO",
+				"size": 5914
+			}, {
+				"name": "Elastic Net",
+				"size": 3416
+			}, {
+				"name": "MARS",
+				"size": 3416
+			}, {
+				"name": "Ensemble Regressors",
+				"size": 3416
+			}, {
+				"name": "Ridge Regression",
+				"size": 3416
+			}]
+		}]
+	}, {
+		"name": "Unsupervised",
+		"children": [{
+			"name": "Clustering",
+			"children": [{
+				"name": "K-means"
+			}, {
+				"name": "Spectral Clustering"
+			}, {
+				"name": "GMM"
+			}, {
+				"name": "Expectation-Maximization"
+			}, {
+				"name": "Hierarchical Clustering"
+			}]
+		}]
+	}, {
+		"name": "Regularization",
+		"children": [{
+			"name": "Ridge"
+		}, {
+			"name": "LASSO"
+		}, {
+			"name": "LARS"
+		}, {
+			"name": "Elastic Net"
+		}]
+	}, {
+		"name": "Dimensionality Reduction",
+		"children": [{
+			"name": "PCA"
+		}, {
+			"name": "PLSR"
+		}, {
+			"name": "Projection Poursuit"
+		}, {
+			"name": "PCR"
+		}, {
+            "name": "MDA"
+        }, {
+            "name": "QDA"
+        }, {
+            "name": "RDA"
+        }, {
+            "name": "FDA"
+        }, {
+            "name": "LDA"
+        }]
+	}]
+}
