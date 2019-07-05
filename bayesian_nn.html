@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Louise Naud">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- For code display: Code Prettify -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
+
+
+    <title>Bayesian NN</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="css/clean-blog.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" async
+        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+    </script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <!-- Configuration for Mathjax and AlgoType-->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            extensions: ["tex2jax.js", "color.js"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+                processEscapes: true
+            },
+            "HTML-CSS": { availableFonts: ["TeX"] },
+            TeX: {
+                Macros: {
+                            And:     "\\\\mathbf{and}",
+                            Or:      "\\\\mathbf{or}",
+                            Not:     "\\\\mathbf{not}",
+                            Is:      "\\\\mathbf{is}",
+                            In:      "\\\\mathbf{in}",
+                            Mapped:  "\\\\mathbf{mapped}",
+                            Nil:     "\\\\mathbf{nil}"
+                }
+            }
+        });
+    </script>
+    <!-- KateX for math formulas in pseudo code -->
+    <link rel="stylesheet" href="katex/katex.min.css">
+    <script src="katex/katex.min.js"></script>
+    <!-- Stylesheet for pseudo code -->
+    <link rel="stylesheet" href="pseudocode/pseudocode.min.css">
+    <script src="pseudocode/pseudocode.min.js"></script>
+    <!-- Library for Pseudo Code -->
+    <link rel="stylesheet" href="Algotype.js/algotype_my_config.css">
+    <script type="text/javascript" async
+            src="Algotype.js/algotype.js">
+    </script>
+</head>
+
+
+
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    Menu <i class="fa fa-bars"></i>
+                </button>
+                <a class="navbar-brand" href="index.html">ML Food for the Soul</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="index.html">Home</a>
+                    </li>
+                    <li>
+                        <a href="about.html">About</a>
+                    </li>
+                    <li>
+                        <a href="blog-tickets-list.html">Posts</a>
+                    </li>
+                    <li>
+                        <a href="contact.html">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header class="intro-header" style="background-image: url('img/RL.png')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>Fundamentals for Bayesian Neural Networks</h1>
+<!--                        <h2 class="subheading">Weights and Output distributions.</h2>-->
+                        <span class="meta">Posted by <a href="#">Louise</a> on July 4, 2019</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Post Content -->
+    <article>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <p>While working at <a href="https://planorama.com/">Planorama</a>, I have been working on a few object detection related problems.
+                    One of them is the question: how can we point areas of the image in which we are uncertain of our detections? </p>
+                    <p>While working on this interrogation, I naturally became interested in Bayesian Neural Networks.
+                        While many papers have been published in the last few years in this topic, I had issues finding
+                        a tutorial that spanned from basics hypothesis to calculations. So here is my take on it!</p>
+                    <p>In this post, we are first going to state all notations necessary to follow in the rest of the post, then we are going to describe what the goal is.
+                    Then, we will describe what we will need to estimate in order to achieve the goal, and finally how we actually do these estimations. Python code will accompany this post for clarity.</p>
+
+
+
+                    <h2 class="section-heading">Let's pose the problem clearly</h2>
+                    <h3 class="subheading">Notations and assumptions</h3>
+                    <p>We are going to note the training dataset:  \(\mathcal{D} = (\mathbf{X}, \mathbf{Y}) = (\mathbf{x}_i, y_i)_{i \in [1, N_{data}]}\), $N_{data} \in \mathbb{N}$
+                        which are composed of ordered pairs of (<i>input</i>, <i>label</i>). Inputs \(\mathbf{x}_i\) are elements of a space $\mathcal{X}$, and labels $y_i$ in a space $\mathcal{Y}$.
+                        We are going to suppose that the uncertainty of a neural network over the examples in $\mathcal{D}$ can be
+                        modelled by a random process that corresponds to the joint probability with a density $\mathbf{p}_{\mathcal{X}\mathcal{Y}}$ on the product space $\mathcal{X} \times \mathcal{Y}$.
+
+                         </p>
+
+                    <p>
+                        We are also going to make the assumptions that the observations in $\mathcal{D}$ are independent and identically distributed conditionally to any parameters of the system.
+                    </p>
+
+<!--                    <a href="#">-->
+<!--                        <img class="img-responsive" src="img/reinforcement-learning-1.png" alt="">-->
+<!--                    </a>-->
+
+
+                    <h3 class="subheading">What do we want to estimate?</h3>
+
+                    <p>We are trying to estimate the set of parameters $\mathbf{w}$, elements of a space $\mathcal{W}$, of a function $f_{\mathbf{w}}$ , such that:
+
+                        \begin{equation}
+                        \begin{array}{l|rcl}
+                        f_{\mathbf{w}} : & \mathcal{X}   & \to & \mathcal{Y} \\
+                        & \mathbf{x} & \mapsto & y
+                        \label{joint}
+                        \end{array}
+                        \end{equation}
+
+                        that can generate in a likely manner, the set of labels  $y_i$, given the inputs. In order to do so, we are going to considerate the weights as random variables as well.
+
+                    </p>
+                    <p>Let's denote the prior probability over the space of parameters by $\mathbf{p}_{\mathcal{W}}(\mathbf{w})$ and $\mathbf{p}_{\mathcal{X}\mathcal{Y}}$ becomes $\mathbf{p}_{\mathcal{X}\mathcal{Y}\mathcal{W}}$,
+                        a joint probability density over 3 random variables. The prior probability represents our prior belief regarding the parameters before our network has seen any observation from $\mathcal{X} \times \mathcal{Y}$.
+                    Once the system starts to observe examples, $\mathbf{p}_{\mathcal{W}}(\mathbf{w})$ is going to evolve into a density of different shape.</p>
+                    <p>To estimate <b>uncertainties over the weights of the network</b> , we need to estimate the posterior density:
+                        \begin{equation}
+                        \mathbf{p}_{\mathcal{W}\vert \mathcal{X}=\mathbf{x}\mathcal{Y}=y}(\mathbf{w} \vert \mathcal{D})
+                        \end{equation}
+                    </p>
+                    <p>This set of hypothesis also allows us to estimate an <b>uncertainty over the outputs of the network</b>:
+                        \begin{equation}
+                        \mathbf{p}_{\mathcal{Y}\vert \mathcal{X}=x\mathcal{X}=\mathbf{x}\mathcal{Y}=y}(y \vert x, \mathcal{D})
+                        \end{equation}
+                        $(x, y)$ being a new observation.
+                    </p>
+                    <p>Let's also define the likelihood of $\mathbf{w}$ the function: $\mathcal{L} : \mathcal{W} \times \mathcal{X} \times \mathcal{Y} \to \mathbf{R}^{+}$, defined as:
+
+                        \begin{equation}\label{vrais}
+                        \mathcal{L}(\mathbf{w}, \mathbf{x}, y)  \triangleq  \mathbf{p}_{\mathcal{Y}\vert \mathcal{X}=\mathbf{x}\mathcal{W}=\mathbf{w}}(y \vert \mathbf{x}, \mathbf{w})
+                        \end{equation}</p>
+
+                    <p>In the following, we are going to make the notations a bit lighter for readability by noting, for a random variable $S$ on a probability space $\mathcal{S}$,  $\mathbf{p}_{\mathcal{S}} (S=s) = \mathbf{p} (S=s)$.</p>
+
+                    <h class="section-heading">Estimating the uncertainty over the network weights</h>
+                    <h3 class="subheading">Which quantities do we need?</h3>
+                    <p>Estimating the posterior probability density is intractable directly in the case of deep neural networks, so we need some more steps. Baye's law provides us another formulation of the posterior probability.
+                        \begin{equation}\label{bayes}
+                        \mathbf{p}(\mathbf{w} \vert \mathcal{D}) = \frac{p(\mathcal{D} \vert \mathbf{w}) p(\mathbf{w})}{p(\mathcal{D})}
+                        \end{equation}
+                        In this expression, we recognize the likelihood $\mathbf{p}(\mathcal{D} \vert \mathbf{w}) = \mathbf{p} (y \vert \mathbf{x}, \mathbf{w})$ function, and the prior probability density $p(\mathbf{w})$.
+                    </p>
+
+                    <p>Estimating the parameters $\mathbf{w}^{*}$ such that $\mathbf{p}(\mathbf{w*} \vert \mathcal{D})$ is maximal. This means that:
+
+                        \begin{align}\label{bayes-max}
+                        \mathbf{w}^{*} & \triangleq \arg\max_{\mathbf{w}} \mathbf{p}(\mathbf{w} \vert \mathcal{D}) \\
+                                       & = \arg\max_{\mathbf{w}} \frac{p(\mathcal{D} \vert \mathbf{w}) p(\mathbf{w})}{p(\mathcal{D})} \\
+                                       & = \arg\max_{\mathbf{w}} p(\mathcal{D} \vert \mathbf{w}) p(\mathbf{w})
+                        \end{align}
+                        So we will try and estimate the likelihood of $\mathbf{w}$ and the prior $p(\mathbf{w})$ and we won't be searching for an estimate of $p(\mathcal{D})$.
+
+                    </p>
+
+
+
+
+
+                    <h class="section-heading">Estimating the uncertainty over the network outputs</h>
+                    <h3 class="subheading">Which quantities do we need?</h3>
+                    <p>In order to see which quantity we would need to estimate the output uncertainty, we need to rewrite the probability $\mathbf{p}(y \vert x, \mathcal{D})$:
+                        \begin{align}\label{output-dist}
+                        p(y \vert \mathbf{x}, \mathcal{D}) & = \int p(y, \mathbf{w}| x, \mathcal{D})d\mathbf{w} \\
+                        & = \int p(y| x, \mathcal{D}, \mathbf{w}) p(\mathbf{w} \vert \mathcal{D}, x)d\mathbf{w} \\
+                        & \text{with Bayes Law} \nonumber \\
+                        & = \int p(y| x, \mathbf{w}) p(\mathbf{w} \vert \mathcal{D}, x)d\mathbf{w} \\
+                        & \text{since } ((x, y) \perp \mathcal{D} \vert \mathbf{w}) \nonumber\\
+                        & = \int p(y| x, \mathbf{w}) p(\mathbf{w} \vert \mathcal{D})d\mathbf{w} \\
+                        & \text{since } (\mathbf{w} \perp x \vert \mathcal{D}) \nonumber
+                        \end{align}
+
+                        This last expression is intractable; we are going to approximate it with a Monte Carlo integration method:
+
+                        \begin{align}\label{mc-int}
+                        \mathbb{E}[f] & = \int_{\mathcal{Z}} f(z)p(z) dz \\
+                        & \approx \frac{1}{N} \sum_{n=1}^{N} f(z_n) \  , \ z_n \sim p(z), \forall n \in \{1, ..., N\}
+                        \end{align}
+
+                        for $p$, a probability distribution of a random variable $Z$ and $f : \Omega \subset \mathbb{R}^n \mapsto \mathbb{R}$ an integrable function.
+
+                    </p>
+
+                    <p>So, $p(y \vert \mathbf{x}, \mathcal{D})$ can be approximated by the following sum:
+                        \begin{align}\label{output-approx}
+                        p(y \vert \mathbf{x}, \mathcal{D}) & \approx \frac{1}{N} \sum_{n=1}^{N} p(y \vert \mathbf{x}, \mathbf{w}_n, \mathcal{D})
+                        \end{align}
+
+                        with $N \in \mathbb{N}^{*}$ and $\forall n \in  \{ 1,... N \}$, $  \mathbf{w}_n \sim p(\mathbf{w} \vert \mathcal{D})$.
+
+
+                    </p>
+
+<!--                    <pre class="pseudocode">-->
+<!--\begin{algorithm}-->
+<!--\caption{Policy Iteration}-->
+<!--\begin{algorithmic}-->
+<!--\PROCEDURE{Policy-Iteration}{$\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma$}-->
+<!--    \STATE $\pi \leftarrow \pi_0$-->
+<!--    \STATE $\Delta \leftarrow 0$-->
+<!--    \WHILE{$ \Delta < \theta $}-->
+<!--        \COMMENT {Policy Evaluation}-->
+<!--        \STATE {$\Delta \leftarrow 0$}-->
+<!--        \FOR{$s \in \mathcal{S}$}-->
+<!--            \STATE {$v \leftarrow V(s)$}-->
+<!--            \STATE {$V(s) \leftarrow \max \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,-->
+<!--                        s')}^a + \gamma V(s')]$}-->
+<!--            \STATE {$\Delta \leftarrow \max(\vert v - V(s)\vert)$}-->
+<!--        \ENDFOR-->
+<!--    \ENDWHILE-->
+<!--    \STATE {policyStable $\leftarrow$ \TRUE}-->
+<!--    \COMMENT {Policy Improvement}-->
+<!--    \FOR{$s \in \mathcal{S}$}-->
+<!--        \STATE {$b \leftarrow \pi (s)$}-->
+<!--        \STATE {$\pi(s) \leftarrow \arg\max-->
+<!--                    \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,s')}^a + \gamma V(s')]$}-->
+<!--        \IF{$b \neq \pi(s)$}-->
+<!--            \STATE policyStable $\leftarrow$ \FALSE-->
+<!--        \ENDIF-->
+<!--    \ENDFOR-->
+<!--    \IF{policyStable}-->
+<!--        \COMMENT {If algorithm has converged}-->
+<!--        \STATE stop-->
+<!--    \ELSE-->
+<!--        \STATE Go to Policy Evaluation-->
+<!--    \ENDIF-->
+<!--    \RETURN $\pi$-->
+<!--\ENDPROCEDURE-->
+<!--\end{algorithmic}-->
+<!--\end{algorithm}</pre>-->
+
+
+
+                    <pre class="prettyprint"><code class="language-python">
+
+    </code></pre>
+
+
+
+
+                    <!-- Blog Comments -->
+
+                    <!-- begin wwww.htmlcommentbox.com -->
+                    <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                    <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                    <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                    <!-- end www.htmlcommentbox.com -->
+
+                    <!-- Comments Form -->
+                    <!--<div class="well">
+                        <h4>Leave a Comment:</h4>
+                        <form role="form">here
+                            <div class="form-group">
+                                <textarea class="form-control" rows="3"></textarea>
+                            </div>
+                            <a href="louise.naud@gmail.com" class="button">Submit</a>
+                            &lt;!&ndash; <button type="submit" class="btn btn-primary">Submit</button>&ndash;&gt;
+                        </form>
+                    </div>
+
+                    <hr>
+-->
+                    <!-- Posted Comments -->
+
+                    <!--&lt;!&ndash; Comment &ndash;&gt;
+                    <div class="media">
+                        <a class="pull-left" href="#">
+                            <img class="media-object" src="http://placehold.it/64x64" alt="">
+                        </a>
+                        <div class="media-body">
+                            <h4 class="media-heading">Start Bootstrap
+                                <small>August 25, 2014 at 9:30 PM</small>
+                            </h4>
+                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                        </div>
+                    </div>
+
+                    &lt;!&ndash; Comment &ndash;&gt;
+                    <div class="media">
+                        <a class="pull-left" href="#">
+                            <img class="media-object" src="http://placehold.it/64x64" alt="">
+                        </a>
+                        <div class="media-body">
+                            <h4 class="media-heading">Start Bootstrap
+                                <small>August 25, 2014 at 9:30 PM</small>
+                            </h4>
+                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                            &lt;!&ndash; Nested Comment &ndash;&gt;
+                            <div class="media">
+                                <a class="pull-left" href="#">
+                                    <img class="media-object" src="http://placehold.it/64x64" alt="">
+                                </a>
+                                <div class="media-body">
+                                    <h4 class="media-heading">Nested Start Bootstrap
+                                        <small>August 25, 2014 at 9:30 PM</small>
+                                    </h4>
+                                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                                </div>
+                            </div>-->
+                            <!-- End Nested Comment -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="copyright text-muted">Copyright &copy; Your Website 2016</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Contact Form JavaScript -->
+    <script src="js/jqBootstrapValidation.js"></script>
+    <script src="js/contact_me.js"></script>
+
+    <!-- Theme JavaScript -->
+    <script src="js/clean-blog.min.js"></script>
+
+    <script>
+        var blocks = document.getElementsByClassName("pseudocode");
+        for(var blockId = 0; blockId < blocks.length; blockId++) {
+            var block = blocks[blockId];
+
+            var code = block.textContent;
+            var options = {
+                lineNumber: true
+            };
+
+            var outputEl = document.createElement('div');
+            outputEl.className += " pseudocode-out";
+            block.parentNode.insertBefore(outputEl, block.nextSibling);
+
+            pseudocode.render(code, outputEl, options);
+        }
+
+        while( blocks[0]) {
+            blocks[0].parentNode.removeChild(blocks[0]);
+        }
+    </script>
+    <!-- Google Analytics -->
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-52868500-2', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+</body>
+
+</html>
