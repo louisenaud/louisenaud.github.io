@@ -138,21 +138,25 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                    <p>While working at <a href="https://planorama.com/">Planorama</a>, I have been working on a few object detection related problems.
+                    <p>While working at <a href="https://planorama.com/">Planorama</a>, I have been working on quite a few a few object
+                        detection related problems.
                     One of them is the question: how can we point areas of the image in which we are uncertain of our detections? </p>
-                    <p>While working on this interrogation, I naturally became interested in Bayesian Neural Networks.
-                        While many papers have been published in the last few years in this topic, I had issues finding
-                        a tutorial that spanned from basics hypothesis to calculations. So here is my take on it!</p>
+                    <p>While working on this interrogation, I naturally became interested in Bayesian Neural Networks; and \
+                        while many papers have been published in the last few years in this topic, I had issues finding
+                        a tutorial that spanned from basics hypothesis in probability theory to fine calculations. So here is my take on it!</p>
                     <p>In this post, we are first going to state all notations necessary to follow in the rest of the post, then we are going to describe what the goal is.
                     Then, we will describe what we will need to estimate in order to achieve the goal, and finally how we actually do these estimations. Python code will accompany this post for clarity.</p>
 
 
 
-                    <h2 class="section-heading">Let's pose the problem clearly</h2>
+                    <h2 class="section-heading">Let's pose the problem clearly from the top.</h2>
                     <h3 class="subheading">Notations and assumptions</h3>
-                    <p>We are going to note the training dataset:  \(\mathcal{D} = (\mathbf{X}, \mathbf{Y}) = (\mathbf{x}_i, y_i)_{i \in [1, N_{data}]}\), $N_{data} \in \mathbb{N}$
-                        which are composed of ordered pairs of (<i>input</i>, <i>label</i>). Inputs \(\mathbf{x}_i\) are elements of a space $\mathcal{X}$, and labels $y_i$ in a space $\mathcal{Y}$.
-                        We are going to suppose that the uncertainty of a neural network over the examples in $\mathcal{D}$ can be
+                    <p>We are going to note the training dataset:  \(\mathcal{D} = (\mathbf{X}, \mathbf{Y}) = (\mathbf{x}_i, y_i)_{i \in [1, N_{data}]}\),
+                        $N_{data} \in \mathbb{N}$
+                        which are composed of ordered pairs of (<i>input</i>, <i>label</i>). Inputs \(\mathbf{x}_i\)
+                        are elements of a space $\mathcal{X}$, and labels $y_i$ in a space $\mathcal{Y}$.
+                        We are going to suppose that the uncertainty of a neural network over the examples
+                        in $\mathcal{D}$ can be
                         modelled by a random process that corresponds to the joint probability with a density $\mathbf{p}_{\mathcal{X}\mathcal{Y}}$ on the product space $\mathcal{X} \times \mathcal{Y}$.
 
                          </p>
@@ -203,9 +207,10 @@
 
                     <p>In the following, we are going to make the notations a bit lighter for readability by noting, for a random variable $S$ on a probability space $\mathcal{S}$,  $\mathbf{p}_{\mathcal{S}} (S=s) = \mathbf{p} (S=s)$.</p>
 
-                    <h class="section-heading">Estimating the uncertainty over the network weights</h>
-                    <h3 class="subheading">Which quantities do we need?</h3>
-                    <p>Estimating the posterior probability density is intractable directly in the case of deep neural networks, so we need some more steps. Baye's law provides us another formulation of the posterior probability.
+                    <h class="section-heading">Which quantities do we need?</h>
+
+                    <p>Estimating the posterior probability density is intractable directly in the case of deep neural
+                        networks, so we need some more steps. Baye's law provides us another formulation of the posterior probability.
                         \begin{equation}\label{bayes}
                         \mathbf{p}(\mathbf{w} \vert \mathcal{D}) = \frac{p(\mathcal{D} \vert \mathbf{w}) p(\mathbf{w})}{p(\mathcal{D})}
                         \end{equation}
@@ -223,12 +228,59 @@
 
                     </p>
 
+                    <h3 class="subheading">Hypothesis on the prior probability - on the network weights</h3>
+                    <p>Let us consider a prior probability distribution on the network weights in the linear exponential family. The distribution is then of the form:
+                        \begin{equation}\label{prior-form}
+                        \mathbf{p}(\mathbf{w}) = \frac{\exp (-\alpha E_{\mathbf{w}})}{Z_{\mathbf{w}}(\alpha)}
+                        \end{equation}
+                        with the normalizing constant $Z_{\mathbf{w}}(\alpha) = \int \exp (-\alpha E_{\mathbf{w}}) d\mathbf{w}$.
+                    </p>
 
+                    <p>Now, if we further specify $\mathbf{p}$ to be gaussian, then $E_{\mathbf{w}} = \frac{1}{2} \left\| \mathbf{w}\right\|^2 $</p>
 
+                    <h3 class="subheading">Hypothesis on the likelihood</h3>
+                    <p>We are also going to suppose that the likelihood function follows a distribution in the linear exponential family:
 
+                        \begin{align}\label{vrais-forme}
+                        \mathbf{p}(y \vert \mathbf{x}, \omega)  & \triangleq  \mathbf{p}_{\mathcal{Y}\vert \mathcal{X}=\mathbf{x}\mathcal{W}=\omega}(y \vert \mathbf{x}, \omega)\\
+                        & = p(\mathcal{D} \vert \mathbf{w}) \\
+                        & = \frac{\exp (- \beta E_{\mathcal{D}})}{Z_{\mathcal{D}}(\beta)}
+                        \end{align}
+                    </p>
+                    <p>Since the observations are conditionally independent between them :
+                        \begin{align}\label{indep}
+                        \mathbf{p}(y \vert \mathbf{x}, \omega)  & = \prod_{i=1}^{n} p(y_i \vert x_i, \mathbf{w}) \\
+                        & = \frac{1}{Z_{\mathcal{D}}(\beta)} \exp (-\frac{\beta}{2} \sum_{i=1}^{n} \left\| f_{\mathbf{w}} (x_i) - y_i \right\|^2 ) \\
+                        & (\text{if we now also make the assumption that the labels }  \nonumber \\
+                        & \text{follow a normal density with mean } f_{\mathbf{w}} (x_i)) \nonumber
+                        \end{align}
 
-                    <h class="section-heading">Estimating the uncertainty over the network outputs</h>
-                    <h3 class="subheading">Which quantities do we need?</h3>
+                    </p>
+
+                    <h3 class="subheading">Hypothesis on the posterior distribution</h3>
+
+                    <p>Thanks to the expression of Bayes law indicated here, we can now express the form of the density of the posterior
+                        probability distribution :
+
+                        \begin{align}\label{posteriori-forme}
+                        p(\mathbf{w} \vert \mathcal{D}) & = \frac{1}{Z_S} \exp (-\beta E_{\mathcal{D}}) \exp (-\alpha E_{\mathbf{w}}) \\
+                        & = \frac{1}{Z_S} \exp (- S(\mathbf{w}))
+                        \end{align}
+                    </p>
+
+                    <p>If we now include the assumptions from the two previous paragraphs; that is to say the prior
+                        and likelihood both follow a gaussian distribution:
+
+                        \begin{align}\label{energy}
+                        S(\mathbf{w}) = \frac{\beta}{2} \sum_{i=1}^{n} \left\| f_{\mathbf{w}} (x_i) - y_i \right\|^2 + \frac{\alpha}{2} \sum_{i=1}^{W}  w_i^2
+                        \end{align}
+
+                        This form of energy is quite interesting; it is a Mean Squared Error loss function with an $L_2$
+                        regularization term on the weights!
+                    </p>
+
+                    <h2 class="section-heading">Estimating the uncertainty over the network weights and outputs</h2>
+
                     <p>In order to see which quantity we would need to estimate the output uncertainty, we need to rewrite the probability $\mathbf{p}(y \vert x, \mathcal{D})$:
                         \begin{align}\label{output-dist}
                         p(y \vert \mathbf{x}, \mathcal{D}) & = \int p(y, \mathbf{w}| x, \mathcal{D})d\mathbf{w} \\
@@ -258,8 +310,75 @@
 
                         with $N \in \mathbb{N}^{*}$ and $\forall n \in  \{ 1,... N \}$, $  \mathbf{w}_n \sim p(\mathbf{w} \vert \mathcal{D})$.
 
+                    </p>
+
+                    <p>In practice, it is quite difficult to sample weights $\mathbf{w}$ from the exact distribution $p(\mathbf{w} \vert \mathcal{D})$.
+                        We are going to approximate it by another density which form is easier for us to manipulate. Let us denote this law $q_{\theta}(\mathbf{w} \vert \mathcal{D})$.
+                        We are going to force $q_{\theta}(\mathbf{w} \vert \mathcal{D})$ to be close to
+                        $p(\mathbf{w} \vert \mathcal{D})$ by minimising their Kullback-Leibler divergence.
+                        \begin{align}\label{kl}
+                        D(q_{\theta}(\mathbf{w} \vert \mathcal{D}) \vert \vert p(\mathbf{w} \vert \mathcal{D})) & = - \int q_{\theta}(\mathbf{w} \vert \mathcal{D}) \log \frac{ p(\mathbf{w} \vert \mathcal{D})}{q_{\theta}(\mathbf{w} \vert \mathcal{D})} d\mathbf{w} \\
+                        & \text{(by KL-divergence definition)} \nonumber\\
+                        & = - \int q_{\theta}(\mathbf{w} \vert \mathcal{D}) \log \frac{ p(\mathcal{D} \vert  \mathbf{w}) p(\mathbf{w})}{q_{\theta}(\mathbf{w} \vert \mathcal{D}) p(\mathcal{D})} d\mathbf{w} \\
+                        & \text{(Bayes Law application)} \nonumber \\
+                        & = - \int q_{\theta}(\mathbf{w} \vert \mathcal{D}) [\log  p(\mathcal{D} \vert  \mathbf{w}) - \log p(\mathcal{D})]d\mathbf{w} - \\
+                        & \int q_{\theta}(\mathbf{w} \vert \mathcal{D}) [\log p(\mathbf{w}) - \log q_{\theta}(\mathbf{w} \vert \mathcal{D})] d\mathbf{w} \\
+                        & = D(q_{\theta}(\mathbf{w} \vert \mathcal{D}) \vert \vert p(\mathbf{w})) - \mathbb{E}_{q(w \vert \theta)} [\log p(\mathcal{D} \vert \mathbf{w})] + \log p(\mathcal{D})
+                        \end{align}
 
                     </p>
+
+                    <p>We can now use the Monte Carlo approximation for this integral, in order to get a loss function to
+                        estimate the hyperparameters of the network:
+                        \begin{align}\label{kl-mc}
+                        \mathcal{F} (\mathcal{D}, \theta) = \sum_{i=1}^{N} [\log q_{\theta}(\mathbf{w}_i \vert \mathcal{D}) - \log p(w_i) - \log p(\mathcal{D} \vert w_i)]
+                        \end{align}
+
+                    </p>
+
+                    <p>Now, if we also suppose, without any loss of generalization, that $p(\mathbf{w} \vert \mathcal{D}) \sim \mathcal{N}(\mu, \sigma^2)$
+                    with $\sigma^2 = \beta^{-1} \ll 1$, we can approximate the distribution of the outputs of the network by:
+                        \begin{align}\label{final-output-prob}
+                        p(y \vert \mathbf{x}, \mathcal{D}, \mathbf{w}) \approx \frac{1}{2 \pi \sigma_{out}^2} \exp (-\frac{\left\| y - \hat{y}\right\|^2}{2 \sigma_{out}})
+                        \end{align}
+
+                    </p>
+
+                    <p>This last result is not trivial to intuit; so let's prove it, in order to better understand the
+                        form of this expression.
+
+                        Let's denote by $w_{MAP}$ the weights obtained through the Maximum A Posteriori optimization.
+                        By assumption, the posterior probability has a very low variance with respect to the span of the weights of the network.
+
+                        This hypothesis allows us to make a Taylor expansion around $w_{MAP}$ of the function $f_{\mathbf{w}}$:
+                        \begin{equation*}
+                        f_{\mathbf{w}}(\mathbf{x}) \approx f_{\mathbf{w}_{MAP}}(\mathbf{x}) + g^T (\mathbf{w} - \mathbf{w}_{MAP})
+                        \end{equation*}
+
+                        with $g \triangleq \nabla_{\mathbf{w}} f_{\mathbf{w}}(x) \rvert_{\mathbf{w} = \mathbf{w}_{MAP}} $.
+                        Hence, we have a normal-linear model:
+                        \begin{align*}
+                        p(y \vert \mathbf{x}, \mathbf{w}, \beta) \approx \mathcal{N}(y \vert f_{\mathbf{w}_{MAP}} + g^T (\mathbf{w} - \mathbf{w}_{MAP}), \beta^{-1})
+                        \end{align*}
+
+                        The expression of a normal-linear contitional and marginal probabilities have a well-known form:
+                        \begin{align*}
+                        p(y \vert \mathbf{x}, \mathcal{D}, \alpha, \beta) = \mathcal{N} (y \vert f_{\mathbf{w}_{MAP}}(\mathbf{x}), \sigma^2_{out}(x))
+                        \end{align*}
+
+                        with $ \sigma^2_{out}(x) = \beta^2 + g^T A^{-1}g$.
+
+                        Let us denote $\hat{y} =  f_{\mathbf{w}_{MAP}}(\mathbf{x}) = \mu$, and we get the result!
+
+
+                    </p>
+
+
+
+
+
+
+
 
 <!--                    <pre class="pseudocode">-->
 <!--\begin{algorithm}-->
