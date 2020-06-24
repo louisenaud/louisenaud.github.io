@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Louise Naud">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- For code display: Code Prettify -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
+
+
+    <title>GAN and PD Framework</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="css/clean-blog.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" async
+            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+    </script>
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+    <!-- Configuration for Mathjax and AlgoType-->
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    extensions: ["tex2jax.js", "color.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    "HTML-CSS": { availableFonts: ["TeX"] },
+    TeX: {
+        Macros: {
+                    And:     "\\\\mathbf{and}",
+                    Or:      "\\\\mathbf{or}",
+                    Not:     "\\\\mathbf{not}",
+                    Is:      "\\\\mathbf{is}",
+                    In:      "\\\\mathbf{in}",
+                    Mapped:  "\\\\mathbf{mapped}",
+                    Nil:     "\\\\mathbf{nil}"
+        }
+    }
+});
+</script>
+    <!-- KateX for math formulas in pseudo code -->
+    <link rel="stylesheet" href="katex/katex.min.css">
+    <script src="katex/katex.min.js"></script>
+    <!-- Stylesheet for pseudo code -->
+    <link rel="stylesheet" href="pseudocode/pseudocode.min.css">
+    <script src="pseudocode/pseudocode.min.js"></script>
+    <!-- Library for Pseudo Code -->
+    <link rel="stylesheet" href="Algotype.js/algotype_my_config.css">
+    <script type="text/javascript" async
+            src="Algotype.js/algotype.js">
+    </script>
+</head>
+
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                Menu <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="index.html">ML Food for the Soul</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li>
+                    <a href="about.html">About</a>
+                </li>
+                <li>
+                    <a href="blog-tickets-list.html">Posts</a>
+                </li>
+                <li>
+                    <a href="contact.html">Contact</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Page Header -->
+<!-- Set your background image for this header on the line below. -->
+<header class="intro-header" style="background-image: url('img/proximal/prox_l1_BG.png')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>GAN and Primal Dual Framework</h1>
+                    <h2 class="subheading">Or how does the framework behave when the problem is not convex.</h2>
+                    <span class="meta">Posted by <a href="contact.html">Louise</a> on November 17, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>Through my recent work with <a href="https://planorama.com">Planorama</a>, I was brought to use Generative Adversarial Networks (GAN) to augment the datasets that were available to me. Given the form of the discriminator loss, I was tempted to see how the <a href="primal-dual.html">Primal Dual Framework</a>  would behave in specific cases of GAN.
+                </p>
+
+                <p>Some papers have explored different aspects of this topic already, like:
+                <ul>
+                <li><a href="https://arxiv.org/pdf/1805.09575.pdf">Primal-Dual Wasserstein GAN</a> </li>
+                <li><a href="https://arxiv.org/pdf/1802.01765.pdf">TRAINING GENERATIVE ADVERSARIAL NETWORKS VIA PRIMAL-DUAL SUBGRADIENT METHODS: A LAGRANGIAN PERSPECTIVE ON GAN</a> </li>
+            </ul>
+                There are probably more papers, but these are the two that I will rely on.
+                </p>
+
+
+                <h2 class="section-heading">Quick recap on GAN</h2>
+
+                <p>Yes, gradient descent is a wonderful optimization tool... if you know for sure the function you want to optimize is smooth. But proximal algorithms are also along the same lines as the gradient descent. Let me explain.</p>
+
+                <p>Let's first go back to the case where the function \(f : \mathbb{R}^n \rightarrow \mathbb{R}^n\) you want to optimize is smooth and convex. Then the gradient update can be written, \(\forall i \in \) as:
+                    $$
+                    \begin{align}
+                    x_{k+1} = x_{k} - \lambda \nabla f (x_{k})
+                    \end{align}
+                    $$
+                    The idea between gradient descent is to locally approximate the Taylor expansion of \(f\) at \(x_{k}\) and adding a smoothing term:
+                    $$
+                    \begin{align}
+                    \tilde{f} (x) = x_{k} + \langle \nabla f (x_k), x - x_k \rangle + \frac{1}{2\lambda} \| x - x_k \|^2
+                    \end{align}
+                    $$
+                    And find the point \(x^* \) that minimizes this expression. So we can compute the gradient of \(\tilde{f}\) and equate it to zero. The solution for \(x\) is the following:
+                    $$
+                    \begin{align}
+                    x^{*} = x_{k} - \lambda \nabla f (x_{k})
+                    \end{align}
+                    $$
+                    In an iterative scheme, we can find the gradient descent update. For these of you who are familiar with it, we can recognize a Backward Euler equation here: \(x(t+1) = x(t) - \Delta t f(x(t+1))\). This take the form of a differential equation, that can be solved through the following iterations:
+                <ol>
+                    <li>\(u(t+1) = u^*, \text{with} \   u^* \text{solution of} \ u^* = \nabla f(x(t) - \Delta t u^*)\)</li>
+                    <li>\(x(t+1) = x(t) - \Delta t u(t+1)\)</li>
+                </ol>
+                </p>
+                <p>So now, if we recall the definition of a proximal operator:
+                    $$
+                    \begin{align}
+                    prox_{\tau f} (x) = \arg \min_y (f(y) + \frac{1}{2 \tau} \|x - y\|^2)
+                    \end{align}
+                    $$
+                    Let's first and foremost recall the existence and unicity of such a minimizer for the corresponding optimization problem to minimize. \(f\) is convex by hypothesis, and the second term is strictly convex; which makes the sum of the two functions a strictly convex one, which proves the unique minimum exists.
+                    Then the optimality condition is:
+                    $$
+                    \begin{align}
+                    x^* = y - \tau \nabla f (x^*)
+                    \end{align}
+                    $$
+                    So the proximal operator returns the optimal \(x^*\) to the first step mentioned above; and \(\nabla f(prox_{\tau f} (y))\), returns our \(u^*\) in our second step mentioned above. So applying a proximal operator is like doing an implicit gradient step!
+                </p>
+
+                <h2 class="section-heading">It also work when \(g\) is non-smooth</h2>
+                <p>Let's say one needs to minimize \(x \mapsto f(x) + g(x) \), both functions convex, <span title="convex, differentiable">\(f\)</span> differentiable, and <span title="convex, non-smooth">\(g\)</span> non smooth. The problem is now considered "splitted". The iterative update that we mentioned above is the following: \(x_k = prox_{\lambda, f} (x_{k-1} - \lambda_k \nabla g (x_{k-1}))\). \(prox_{\lambda, f}\) is considered a "backward pass" and the \(x_{k-1} - \lambda_k \nabla g (x_{k-1}))\) is considered a "forward pass". But where did the forward pass term come from? Well, we know that:
+                    $$
+                    \begin{aligned}
+                    0 \in \nabla f (x^*) +\partial g (x^*) & \Leftrightarrow & 0 \in \lambda \nabla f (x^*) + \lambda \partial g (x^*) \\
+                    & \Leftrightarrow & 0 \in \lambda \nabla f (x^*) + x^* - x^* + \partial g (x^*) \\
+                    & \Leftrightarrow & (I - \lambda \nabla f)(x^*) \in (I + \lambda \partial g)(x^*)\\
+                    & \Leftrightarrow & (I - \lambda \nabla f)(x^*) \in (I + \lambda \partial g)(x^*)\\
+                    & \Leftrightarrow &(I + \lambda \partial g)^{-1} (I - \lambda \nabla f) (x^*) = x^*
+                    \end{aligned}
+                    $$
+                    So we can definitely recognize the forward-backward formulation. We can also see that a minimizer of our problem is the fixed point of the operator: \((I + \lambda \partial g)^{-1} (I - \lambda \nabla f)\).
+
+                </p>
+                <p>This algorithm is known as "Forward-Backward Splitting" or "Proximal Gradient" and the convergence looks like this in 1D:
+                    <a href=" ">
+                        <figure>
+                            <img class="img-responsive" src="img/proximal/prox_prim_2.gif" alt="">
+                            <figcaption>Illustration of the Proximal Gradient Algorithm. Inspired from Convex Optimization Algorithms by D. Bertsekas, p.331</figcaption>
+                        </figure>
+                    </a>
+                </p>
+
+                <p> Now let's see this forward-backward mechanism through duality. Our optimization problem:
+                    $$
+                    \begin{aligned}
+                    & \underset{x}{\text{minimize}}
+                    & & f(x) + g(x)
+                    \end{aligned}
+                    $$
+
+                    is equivalent to the following optimization problem:
+                    $$
+                    \begin{aligned}
+                    & \underset{x, y}{\text{minimize}}
+                    & & f(x) + g(y) \\
+                    & \text{subject to}
+                    & & x-y = 0.
+                    \end{aligned}
+                    $$
+                    Then, let's pose \(z = x-y \) and the augmented Lagrangian (Lagrangian + quadratic penalty) is the following, by definition:
+                    $$
+                    \begin{align}
+                    L(x, y, z)= f(x) + g(y) + \frac{1}{2\lambda} z^T (x-y) + \frac{1}{2 \lambda} \|x-y\|_2^2
+                    \end{align}
+                    $$
+                    which can be rewritten (through calculations with the scalar product associated with the chosen norm - here the Euclidean norm):
+                    $$
+                    \begin{align}
+                    L(x, y, z)= f(x) + g(y) + \frac{1}{2\lambda} \|x - y + z \| - \frac{1}{2 \lambda} \|z\|_2^2
+                    \end{align}
+                    $$
+                    By freezing alternatively \( (y, z) \) and minimizing \(L\) wrt x, then freezing alternatively \( (x, z) \) and minimizing \(L\) wrt y, and then updating \(z_k = x_k - y_k\), we alternatively compute the proximal operators related to \(f\) and \(g\) on the gradient of the augmented Lagrangian.
+
+                </p>
+
+
+
+                <p>Out of curiosity, here is a plot of the shape of the proximal operator for the <span title="convex, non-smooth">\(L_1\)</span> norm:
+                    <a href=" ">
+                        <figure>
+                            <img class="img-responsive" src="img/proximal/prox_l1.png" alt="">
+                            <figcaption>Plot of the shape of the proximal operator for the \(L_1\) norm.</figcaption>
+                        </figure>
+                    </a>
+                </p>
+
+                <p>A third way to comprehend the proximal operators is through the Moreau Envelope. We have seen in a previous <a href="primal-dual.html">post</a> that when a function is non-smooth, but convex and closed, its Moreau Envelope <span title="convex, smooth">\(\mathcal{M}_{\lambda, f}\)</span> is a smooth function and shares the same global minimizer as <span title="convex, closed">\(f\)</span>.
+                    $$
+                    \begin{align}
+                    \mathcal{M}_{\lambda, f} (x) = \inf_{y} (f(y) + \frac{1}{2 \lambda} \|y - x\|^2)
+                    \end{align}
+                    $$
+
+                    \(y\) is optimal for \(y^* = prox_{\lambda f} (x)\) so:
+                    $$
+                    \begin{align}
+                    \mathcal{M}_{\lambda, f} (x) = f(prox_{\lambda f} (x)) + \frac{1}{2 \lambda} \|prox_{\lambda f} (x) - x\|^2
+                    \end{align}
+                    $$
+                    So <a href=" " title="convex, smooth" style="background-color:#FFFFFF;color:#000000;text-decoration:none">\(\mathcal{M}_{\lambda, f}\)</a> is convex and \(dom (\mathcal{M}_{\lambda, f}) = \mathbb{R}^n\). On top of that, \(\mathcal{M}_{\lambda, f}\) is \(\mathcal{C}^1\).
+                    The relation between the proximal operator and the Moreau Envelope of a function \(f\) is as follows:
+                    $$
+                    \nabla \mathcal{M}_{\lambda, f} (x) = \frac{1}{\lambda} (x - prox_{\lambda f} (x))
+                    $$
+                    And \(prox_{\lambda f}\) is well defined if \(f\) sub-differentiable.
+                </p>
+                <p>It is also worth noting that the Moreau Envelope is linked to the augmented Lagrangian through duality, through a clever change of variable. </p>
+
+
+                <h2 class="section-heading">When should I choose a proximal algorithm ?</h2>
+
+                <p>Well the scope of proximal algorithms is quite large: it includes smooth and non-smooth functions to minimize, for constrained or unconstrained problems. It can also yield some very nice parallel / distributed implementations, and hence handle large size problems if \(f\) and \(g\) are separable into \( f = \sum_{i} f_i \) and \( g = \sum_{j} g_j \); the updates for each element in the sum can be processed independently and hence in parallel. </p>
+
+                <p>Its main constraint (;)) though, is that it works for structured problems only; which is why you can see such methods applied in the computer vision community, as well as the sound / signal processing community.</p>
+
+
+
+                <!--<p>The code (and images as well) is available in its full <a href="https://github.com/louisenaud/pytorch_primal_dual">here</a>. </p>-->
+
+
+                <p>You can leave comments down here, or contact me through the contact form of this blog if you
+                    have questions or remarks on this post!</p>
+                <!-- Blog Comments -->
+
+                <!-- begin wwww.htmlcommentbox.com -->
+                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                <!-- end www.htmlcommentbox.com -->
+
+
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+</article>
+
+<hr>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <li>
+                        <a href="https://twitter.com/naud_louise">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/louise.naud1">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/louisenaud">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                </ul>
+                <p class="copyright text-muted">Louise Naud 2017</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Contact Form JavaScript -->
+<script src="js/jqBootstrapValidation.js"></script>
+<script src="js/contact_me.js"></script>
+
+<!-- Theme JavaScript -->
+<script src="js/clean-blog.min.js"></script>
+
+<script>
+    var blocks = document.getElementsByClassName("pseudocode");
+    for(var blockId = 0; blockId < blocks.length; blockId++) {
+        var block = blocks[blockId];
+
+        var code = block.textContent;
+        var options = {
+            lineNumber: true
+        };
+
+        var outputEl = document.createElement('div');
+        outputEl.className += " pseudocode-out";
+        block.parentNode.insertBefore(outputEl, block.nextSibling);
+
+        pseudocode.render(code, outputEl, options);
+    }
+
+    while( blocks[0]) {
+        blocks[0].parentNode.removeChild(blocks[0]);
+    }
+</script>
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-52868500-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+</body>
+
+</html>
+</title>
+</head>
+<body>
+
+</body>
+</html>

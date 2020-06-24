@@ -242,30 +242,21 @@
                     as: $$ \begin{align*} \forall s \in \mathcal{S}, \pi^{*}(s) = \arg \max \limits_{a \in \mathcal{A}}
                         Q^{*} (s,a) \end{align*}$$</p>
 
-                    <p>We have now defined all of the useful basic concepts in order to describe some algorithms :)
-                        .</p>
 
+                    <h2 class="section-heading">Monte Carlo methods</h2>
+                    <p>In this section, we'll see how Monte Carlo methods can be used for learning the state-value function for a given policy. Monte Carlo methods in general consist of running an experience \(n\) times and averaging the results - if \(n\) is large enough, the average of these results should converge towards its expected value; in the context of reinforcement learning, it consists of averaging the returns observed after visits to a state. </p>
+
+                    <p>Suppose we wish to estimate \(v_{\pi}(s)\), the value of a state \(s\) under policy \(\pi\), given a set of episodes obtained by following \(\pi\) and passing through \(s\). Each occurrence of state \(s\) in an episode is called a <b>visit</b> to \(s\). Of course, \(s\) may be visited multiple times in the same episode; let us call the first time it is visited in an episode the <b>first visit</b> to \(s\). The first-visit MC method estimates \(v_{\pi}(s)\) as the average of the returns following first visits to s, whereas the every-visit MC method averages the returns following all visits to \(s\). These two Monte Carlo (MC) methods have slightly different theoretical properties. Every-visit MC extends more naturally to function approximation and eligibility traces.</p>
+
+                    <h2 class="subheading">Policy Evaluation / </h2>
+                    <p>If a model is not available, then it is particularly useful to estimate action values (the values of state– action pairs) rather than state values. With a model, state values alone are sufficient to determine a policy; one simply looks ahead one step and chooses whichever action leads to the best combination of reward and next state. Without a model, however, state values alone are not sufficient. One must explicitly estimate the value of each action in order for the values to be useful in suggesting a policy. Thus, one of our primary goals for Monte Carlo methods is to estimate q∗. To achieve this, we first consider the policy evaluation problem for action values.</p>
 
 
                     <h2 class="section-heading">$TD(0)$</h2>
-                    <p>As we have mentionned earlier, the goal of a reinforcement problem is to find the best course of
-                        actions or behavior. "Best" means in terms of return, and the course of action is the policy in
-                        our context. Computing the value function helps us finding better policies. In this blog
-                        post, we are interested in problems where the environment is fully known, which means that the
-                        transition probabilities and expected rewards are know for each pair of states, and each
-                        action. The most straightforward algorithm to come up with a policy is the policy iteration.</p>
+                    <p>TD learning is a combination of Monte Carlo ideas and dynamic programming (DP) ideas, that we saw in the previous reinforcement learning post. TD methods learn from experience without a model of the environment's dynamics. Like DP, TD methods update estimates based in part on other learned estimates, without waiting for a final outcome (they bootstrap). </p>
+                    <p>We'll start with policy evaluation (prediction), or estimating the value function for a given policy, and then we'll continue with control problem (finding an optimal policy).</p>
 
-                    <p>The idea here is to alternate a policy evaluation with a policy improvement. The policy
-                        evaluation consist of evaluating the value function under a given policy \( \pi \):
-                        $$ \begin{align*} \forall s \in \mathcal{S}, V^{\pi}(s) = \sum_{s' \in \mathcal{S}}  P_{(s,
-                        s')}^{\pi(s)} [R_{(s, s')}^{\pi(s)} + \gamma V(s')]
-                        \end{align*}$$
-                    </p>
-                        <p>.The policy improvement consist of:
-                        $$ \begin{align*} \forall s \in \mathcal{S}, \pi(s) = \arg \max \limits_{a} \sum_{s' \in
-                        \mathcal{S}}  P_{(s, s')}^{a} [R_{(s, s')}^{a} + \gamma V(s')]
-                        \end{align*}$$
-                        Alternating these two steps iteratively refines the optimal policy.</p>
+
 
 
                     <p>As pseudo code is usually very clarifying for most algorithms, here it is of the Policy

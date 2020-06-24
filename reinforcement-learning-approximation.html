@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Louise Naud">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- For code display: Code Prettify -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
+
+
+    <title>Reinforcement Learning</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="css/clean-blog.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" async
+            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+    </script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <!-- Configuration for Mathjax and AlgoType-->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            extensions: ["tex2jax.js", "color.js"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+                processEscapes: true
+            },
+            "HTML-CSS": { availableFonts: ["TeX"] },
+            TeX: {
+                Macros: {
+                            And:     "\\\\mathbf{and}",
+                            Or:      "\\\\mathbf{or}",
+                            Not:     "\\\\mathbf{not}",
+                            Is:      "\\\\mathbf{is}",
+                            In:      "\\\\mathbf{in}",
+                            Mapped:  "\\\\mathbf{mapped}",
+                            Nil:     "\\\\mathbf{nil}"
+                }
+            }
+        });
+    </script>
+    <!-- KateX for math formulas in pseudo code -->
+    <link rel="stylesheet" href="katex/katex.min.css">
+    <script src="katex/katex.min.js"></script>
+    <!-- Stylesheet for pseudo code -->
+    <link rel="stylesheet" href="pseudocode/pseudocode.min.css">
+    <script src="pseudocode/pseudocode.min.js"></script>
+    <!-- Library for Pseudo Code -->
+    <link rel="stylesheet" href="Algotype.js/algotype_my_config.css">
+    <script type="text/javascript" async
+            src="Algotype.js/algotype.js">
+    </script>
+</head>
+
+
+
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                Menu <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="index.html">ML Food for the Soul</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li>
+                    <a href="about.html">About</a>
+                </li>
+                <li>
+                    <a href="blog-tickets-list.html">Posts</a>
+                </li>
+                <li>
+                    <a href="contact.html">Contact</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Page Header -->
+<!-- Set your background image for this header on the line below. -->
+<header class="intro-header" style="background-image: url('img/RL.png')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Fundamental Algorithms in Reinforcement Learning - II</h1>
+                    <h2 class="subheading">Or the problem of learning to predict values associated with states.</h2>
+                    <span class="meta">Posted by <a href="#">Louise</a> on May 03, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>As seen in a <a href="reinforcement-learning-basics.html">previous post</a>, Reinforcement Learning (RL) is a very rich and active research area in Machine Learning; it is defined in the very excellent book <a
+                        href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981">Reinforcement Learning: An Introduction</a> as "computational approach to learning from interaction". It is a technique of choice to learn a sequence of actions for a given task.</p>
+
+                <p>We have seen the basics algorithms of RL for Planning, which means given a full model of an environment, how can we compute the optimal Value or Policy.</p>
+                <p>In this post, we are going to go through the Learning algorithms of Reinforcement Learning when the
+                    environment is unknown, and we try to estimate optimal policies from experience, namely, for finite state spaces:</p>
+                <ul>
+                    <li>TD(0)</li>
+                    <li>Every Visit Monte Carlo</li>
+                    <li>$TD(\lambda)$</li>
+                </ul>
+
+                <p>and for large state spaces:</p>
+                <ul>
+                    <li>TD(0)</li>
+                    <li>Every Visit Monte Carlo</li>
+                    <li>$TD(\lambda)$</li>
+                </ul>
+
+                <h2 class="section-heading">The Learning Scenario - a refresher:</h2>
+                <p>Let's first go briefly through the learning scenario in RL. There
+                    are two entities in this scenario: the <i>agent</i> and the <i>environment</i>. Both
+                    entities interact through <i>actions</i>, <i>states</i> and <i>rewards</i>. The agent performs an
+                    action, which has an influence on the environment, and he receives two types of information:
+                    his current state in the environment and a reward corresponding to his action in the given
+                    state he was in, and the defined goal. The ultimate objective of the agent is to optimize his sequence of action, the <i>policy</i>.</p>
+
+                <a href="#">
+                    <img class="img-responsive" src="img/reinforcement-learning-1.png" alt="">
+                </a>
+
+
+                <h2 class="section-heading">Useful Definitions</h2>
+
+                <p>Let's suppose we have a set of time points at which the agent interacts with the
+                    environment, namely <i>Decision Epochs</i> - most likely discrete in our case-; it will be
+                    noted \( {0, 1, ..., T} \).  \( T\), the <i>Horizon</i>, might be finite or infinite. We now
+                    can introduce some concepts inherent to RL.</p>
+
+                <h3 class="subheading">Markov Decision Process</h3>
+                <p>The environment can be modelled through a <i>Markov Decision Process</i>. It is defined by:</p>
+                <ul>
+                    <li>A countable set of States \( \mathcal{S} \)</li>
+                    <li>A countable set of Actions \( \mathcal{A} \)</li>
+                    <li>A transition Probability function:
+                        $$ \begin{align*} P & : & \mathcal{S} \times \mathcal{A} \times \mathcal{S} \longrightarrow
+                        & [0 ,1] \\
+                        &   & (s', a, s) \longmapsto            & P(s_{t+1} = s' \vert s_t = s, a_t = a)
+                        \end{align*} $$
+                        the probability that the agent will be in state \( s' \) at \( t+1 \) when in state \( s
+                        \) at time \( t \) and performing action \( a \). We will note the probability of this
+                        outcome \( P_{(s, s')}^a\).</li>
+                    <li>\( R^{a}_{(s, s')} \) is the expected immediate reward received after transitioning from
+                        state \( s \) to state \( s' \), due to action \( a \)</li>
+                    <li>\( \gamma \in [0, 1]\) the discount factor; it determines the value at time \( t \) of the
+                        future rewards from \( t+1 \) to \( T \). It is usually \( < 1 \), it models the fact that an immediate reward is better
+                        than an uncertain reward in the future. Insuring that it is strictly inferior to 1 also
+                        ensures that the sum is finite with an infinite horizon.</li>
+                </ul>
+                <p>The future states and rewards are independent of the past, given the present. Let's precise that
+                    in our case, the states are fully observable.</p>
+
+
+                <h3 class="subheading">Policy</h3>
+                <p>A <i>policy</i> in this context is a map from states to probability distributions over
+                    actions
+                    \( \pi : S \rightarrow P(A=a \vert \mathcal{S}) \).</p>
+
+                <h3 class="subheading">Return</h3>
+                Let's denote \( r_t = R^{a_t}_{(s_t, s_{t+1})}\) the reward for taking the action \( a \) at time
+                \( t \) from state \(s_t \) to state \( s_{t+1} \), to make the notations slightly lighter. Then:
+                <ul>
+                    <li>The <i>Return</i> is defined as: \( R_t = \sum_{k=0}^{N-1}r_{t+k+1}\), </li>
+                    <li>The <i>Discounted Return</i> is defined as: \( R_t = \sum _{k=0}^{T-1}\gamma^{k} r_{t+k+1}\)
+                        ,</li>
+                </ul>
+
+
+                <h3 class="subheading">Value Function</h3>
+                <p>The <i>Value Function</i> gives an estimate of "how good" - in terms of expected return-
+                    it is for the agent to be in a given state, or to perform a given action in a given state.</p>
+                <ul>
+                    <li>The <i>Value Function</i> for a given policy \( \pi \) is defined as:  \( \forall s, V^{\pi
+                        }(s) = \mathbb{E}[R_t \vert s_t=s] \). It is the expected return when starting in state
+                        \(s\) and following \(pi\) thereafter.</li>
+                    <li>We can also define the <i>Action Value Function</i> for policy \( \pi \) as: \( Q^{\pi}(s,
+                        a) = \mathbb{E}_{\pi} [R_t \vert s_t = s, a_t = a]\)</li>
+                    <li>The <i>Optimal Value Function </i> is defined as: \( \forall s \in
+                        \mathcal{S}, V^{*}(s)=\max \limits _{\pi}V^{\pi }(s) \),</li>
+                    <li>The <i>Optimal Action-Value Function</i> is defined as: \( \forall (s,a) \in
+                        \mathcal{S} \times \mathcal{A}, Q^{*}(s, a )=\max \limits_{\pi}Q^{\pi }(s, a) \).</li>
+                </ul>
+
+                <p>Now is probably a good time to mention this property, which will be essential in our
+                    peregrinations: $$ \begin{align*} \forall s \in \mathcal{S}, V^{*}(s) = \max \limits_{a \in
+                    \mathcal{A}} \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V^{*}(s')]
+                    \end{align*} $$
+                    This equation is called the Bellman's optimality equation. This can be proven using the
+                    recursive relation in the definition of the Value Function and Return.
+                </p>
+                <p>A policy is optimal if it has maximal value \( \forall s \in \mathcal{S}\). We can write this
+                    as: $$ \begin{align*} \forall s \in \mathcal{S}, \pi^{*}(s) = \arg \max \limits_{a \in \mathcal{A}}
+                    Q^{*} (s,a) \end{align*}$$</p>
+
+
+                <h2 class="section-heading">Monte Carlo methods</h2>
+                <p>In this section, we'll see how Monte Carlo methods can be used for learning the state-value function for a given policy. Monte Carlo methods in general consist of running an experience \(n\) times and averaging the results - if \(n\) is large enough, the average of these results should converge towards its expected value; in the context of reinforcement learning, it consists of averaging the returns observed after visits to a state. </p>
+
+                <p>Suppose we wish to estimate \(v_{\pi}(s)\), the value of a state \(s\) under policy \(\pi\), given a set of episodes obtained by following \(\pi\) and passing through \(s\). Each occurrence of state \(s\) in an episode is called a <b>visit</b> to \(s\). Of course, \(s\) may be visited multiple times in the same episode; let us call the first time it is visited in an episode the <b>first visit</b> to \(s\). The first-visit MC method estimates \(v_{\pi}(s)\) as the average of the returns following first visits to s, whereas the every-visit MC method averages the returns following all visits to \(s\). These two Monte Carlo (MC) methods have slightly different theoretical properties. Every-visit MC extends more naturally to function approximation and eligibility traces.</p>
+
+                <h2 class="subheading">Policy Evaluation / </h2>
+                <p>If a model is not available, then it is particularly useful to estimate action values (the values of state– action pairs) rather than state values. With a model, state values alone are sufficient to determine a policy; one simply looks ahead one step and chooses whichever action leads to the best combination of reward and next state. Without a model, however, state values alone are not sufficient. One must explicitly estimate the value of each action in order for the values to be useful in suggesting a policy. Thus, one of our primary goals for Monte Carlo methods is to estimate q∗. To achieve this, we first consider the policy evaluation problem for action values.</p>
+
+
+                <h2 class="section-heading">$TD(0)$</h2>
+                <p>TD learning is a combination of Monte Carlo ideas and dynamic programming (DP) ideas, that we saw in the previous reinforcement learning post. TD methods learn from experience without a model of the environment's dynamics. Like DP, TD methods update estimates based in part on other learned estimates, without waiting for a final outcome (they bootstrap). </p>
+                <p>We'll start with policy evaluation (prediction), or estimating the value function for a given policy, and then we'll continue with control problem (finding an optimal policy).</p>
+
+
+
+
+                <p>As pseudo code is usually very clarifying for most algorithms, here it is of the Policy
+                    Iteration (this may not display well on navigators that are not Chrome - trying to find an
+                    alternative, but for now this will do):</p>
+
+                <!--<p>-->
+                <!--<alg-algorithm-->
+                <!--header="Policy-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma)$"-->
+                <!--comment="Policy Iteration Algorithm">-->
+                <!--<alg-step comment="Arbitrary Initial Policy">$\pi \leftarrow \pi_0$</alg-step>-->
+                <!--<alg-repeat-until condition="$\delta > \theta $"-->
+                <!--comment="Policy Evaluation">-->
+                <!--<alg-step>$\Delta \leftarrow 0$ </alg-step>-->
+                <!--<alg-foreach condition="$s \in \mathcal{S}$">-->
+                <!--<alg-step>$v \leftarrow V(s)$ </alg-step>-->
+                <!--<alg-step>$V(s) \leftarrow \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>-->
+                <!--<alg-step>$\Delta \leftarrow \max (\Delta, \vert v - V(s) \vert) $</alg-step>-->
+                <!--</alg-foreach>-->
+                <!--</alg-repeat-until>-->
+                <!--<alg-step comment="Policy Improvement">policy_stable $\leftarrow$ true</alg-step>-->
+                <!--<alg-foreach condition="$s \in \mathcal{S}$">-->
+                <!--<alg-step>$b \leftarrow \pi (s)$</alg-step>-->
+                <!--<alg-step>$\pi (s) \leftarrow \arg \max \limits_{a} \sum_{s' \in \mathcal{S}} P_{(s,s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>-->
+                <!--<alg-if condition="$b \neq \pi(s)$"-->
+                <!--comment="Check convergence">-->
+                <!--<alg-step>policy_stable $\leftarrow$ False </alg-step>-->
+                <!--</alg-if>-->
+                <!--</alg-foreach>-->
+                <!--<alg-if condition="policy_stable">-->
+                <!--<alg-step>stop</alg-step>-->
+                <!--</alg-if>-->
+                <!--<alg-else>-->
+                <!--<alg-step>Go to Policy Evaluation</alg-step>-->
+                <!--</alg-else>-->
+
+                <!--<alg-return comment="Return Estimated Optimal Policy">$ \pi$</alg-return>-->
+                <!--</alg-algorithm>-->
+                <!--</p>-->
+                <pre class="pseudocode">
+\begin{algorithm}
+\caption{Policy Iteration}
+\begin{algorithmic}
+\PROCEDURE{Policy-Iteration}{$\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma$}
+    \STATE $\pi \leftarrow \pi_0$
+    \STATE $\Delta \leftarrow 0$
+    \WHILE{$ \Delta < \theta $}
+        \COMMENT {Policy Evaluation}
+        \STATE {$\Delta \leftarrow 0$}
+        \FOR{$s \in \mathcal{S}$}
+            \STATE {$v \leftarrow V(s)$}
+            \STATE {$V(s) \leftarrow \max \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,
+                        s')}^a + \gamma V(s')]$}
+            \STATE {$\Delta \leftarrow \max(\vert v - V(s)\vert)$}
+        \ENDFOR
+    \ENDWHILE
+    \STATE {policyStable $\leftarrow$ \TRUE}
+    \COMMENT {Policy Improvement}
+    \FOR{$s \in \mathcal{S}$}
+        \STATE {$b \leftarrow \pi (s)$}
+        \STATE {$\pi(s) \leftarrow \arg\max
+                    \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,s')}^a + \gamma V(s')]$}
+        \IF{$b \neq \pi(s)$}
+            \STATE policyStable $\leftarrow$ \FALSE
+        \ENDIF
+    \ENDFOR
+    \IF{policyStable}
+        \COMMENT {If algorithm has converged}
+        \STATE stop
+    \ELSE
+        \STATE Go to Policy Evaluation
+    \ENDIF
+    \RETURN $\pi$
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</pre>
+                <p>This pseudocode is from <a
+                        href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981">Reinforcement Learning: An Introduction</a>. The policy iteration algorithm generates a sequences of policies with
+                    non-decreasing performance, which means that the value at iteration \( k+1 \) cannot be
+                    smaller than the value function at iteration \(k\).</p>
+                <p>The proof of convergence of this algorithm can be obtained through the Bellman Operator and
+                    using its Monotonicity property.</p>
+
+                <p>In order to get a more pragmatic idea on how to implement this, and how the two algorithms
+                    differ, let's have a look how this algorithm is implemented in practice. There is some very
+                    readable code available <a href="https://github.com/dennybritz/reinforcement-learning">here
+                    </a>, but here is my take on the Python code. Let's first install the OpenAI Gym
+                    in Python by simply doing:</p>
+                <pre class="prettyprint"><code class="language-bash">
+sudo pip install gym
+    </code></pre>
+
+                <p>Then we are going to use the Frozen Lake environment in the OpenAI Gym; it is a pretty simple
+                    environment, with a small state set and a small action set.</p>
+                <pre class="prettyprint"><code class="language-python">
+import numpy as np
+from gym.envs.toy_text import FrozenLakeEnv, CliffWalkingEnv
+import time
+
+env = FrozenLakeEnv()
+    </code></pre>
+                <p>Here is a simple-to-read code for Policy Iteration:</p>
+                <pre class="prettyprint"><code class="language-python">
+def policy_iteration(env, theta=0.000001, discount_factor=0.9999):
+    """
+    Policy Iteration Algorithm. Alternates Policy Evaluation Step with Policy Improvement Step.
+    The notations are from Reinforcement Learning: An Introduction, by Sutton et al.
+    :param env: OpenAI environment. In this environment, env.P is a dictionary with two keys - state, action- that
+                    contains the transition probabilities of the environment, the next state and the reward for each
+                    possible pair (state, action) in a tuple.
+    :param theta: float, threshold for convergence
+    :param discount_factor: float, discount factor, should be <1 for convergence.
+    :return: tuple(np.array([n_states x n_actions]), float), (policy,V) , the optimal policy, and optimal value function
+
+    """
+    # Set initial policy
+    policy = np.ones([env.nS, env.nA]) / (env.nA * env.nS)
+    while True: # As long as the policy is the same as the previous one, we haven't converged.
+        # Policy Evaluation Step
+        ##################################
+        # Set Value function to 0
+        V = np.zeros(env.nS)
+        converged = False
+        while not converged:
+            delta = 0
+            for s in range(env.nS):  # For each state compute and store Value
+                v = 0
+                for a, action_probability in enumerate(policy[s]):
+                    for p, next_state, rt, flag in env.P[s][a]:
+                        # Compute Value
+                        v += action_probability * p * (rt + discount_factor * V[next_state])
+                # Update Delta for this state
+                delta = max(delta, np.abs(v - V[s]))
+                V[s] = v
+            # When the Value Function doesn't change much anymore, we have converged for the policy evaluation step
+            if delta < theta:
+                converged = True
+
+        # Policy Improvement Step
+        ##################################
+        # Flag to check convergence introduced in Sutton et al.
+        policy_stable = True
+
+        # Go through all states
+        for s in range(env.nS):
+            # Get the best action for this state under current policy
+            a_opt = np.argmax(policy[s])
+
+            # Get the action that maximizes the value
+            action_values = np.zeros(env.nA)
+            for a in range(env.nA):  # Computes Action Values in order to obtain the best action
+                for p, next_state, rt, flag in env.P[s][a]:
+                    action_values[a] += p * (rt + discount_factor * V[next_state])
+            # Compute the greedy policy
+            best_a = np.argmax(action_values)
+            if a_opt != best_a:  # Check if the policy from previous step is different from the current one
+                policy_stable = False
+            policy[s] = np.eye(env.nA)[best_a]  # Update the current policy for next Policy Evaluation step
+
+        # If the policy is stable we've found an optimal policy. Return it
+        if policy_stable:
+            return policy, V
+    </code></pre>
+                <p>This should give something like this for the Frozen Lake Environment, and the displayed
+                    default parameters:</p>
+                <pre>
+Policy Iteration: Starting....
+Executed in  0.0664029121399 seconds
+Policy:
+[[ 1.  0.  0.  0.]
+ [ 0.  0.  0.  1.]
+ [ 0.  0.  0.  1.]
+ [ 0.  0.  0.  1.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 0.  0.  0.  1.]
+ [ 0.  1.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 0.  0.  1.  0.]
+ [ 0.  1.  0.  0.]
+ [ 1.  0.  0.  0.]]
+                    </pre>
+
+
+                <h2 class="section-heading">Value Iteration</h2>
+
+                <p>The main issue with Policy Iteration is that it involves multiple sweepings of the state
+                    space \( \mathcal{S} \), which may be problematic with very large state spaces. The idea in
+                    Value Iteration (VI) is to truncate the Policy Evaluation after one sweep. This basically
+                    means using the Bellman's optimality equation as an update rule: $$ \begin{align*} \forall s
+                    \in \mathcal{S}, V_{k+1}(s) = \max \limits_{a} \sum_{s' \in \mathcal{S}} P_{(s,s')}^a
+                    [R_{(s,s')}^a + \gamma V_{k}(s')]
+                    \end{align*} $$
+                    It can be proven that the Bellman equation admits a fixed point in \( V\), and this tells us
+                    that at every iteration, the value gets closer to its optimal value. Hence, at each
+                    iteration, the algorithms returns a greedy policy.
+                </p>
+
+                <p>Here is the pseudo code for the VI algorithm: </p>
+                <pre class="pseudocode">
+\begin{algorithm}
+\caption{Value Iteration}
+\begin{algorithmic}
+\PROCEDURE{Value-Iteration}{$\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma$}
+    \STATE $V \leftarrow 0$
+    \STATE $\Delta \leftarrow 0$
+    \WHILE{$ \Delta < \theta $}
+        \STATE {$\Delta \leftarrow 0$}
+        \FOR{$s \in \mathcal{S}$}
+            \STATE {$v \leftarrow V(s)$}
+            \STATE {$V(s) \leftarrow \max \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,
+                        s')}^a + \gamma V(s')]$}
+            \STATE {$\Delta \leftarrow \max(\vert v - V(s)\vert)$}
+        \ENDFOR
+    \ENDWHILE
+    \FOR{$s \in \mathcal{S}$}
+        \STATE {$\pi(s) \leftarrow \arg\max
+                    \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,s')}^a + \gamma V(s')]$}
+    \ENDFOR
+    \RETURN $\pi$
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</pre>
+
+
+                <!--<p>
+                    <alg-algorithm header="Value-Iteration$(\pi_0, \mathcal{S}, \mathcal{A}, P, r, \theta, \gamma)$"
+                            comment="Value Iteration Algorithm">
+                        <alg-step comment="Arbitrary Initial Value">$V \leftarrow 0$</alg-step>
+                        <alg-repeat-until condition="$ \Delta < \theta $">
+                            <alg-step>$\Delta \leftarrow 0$ </alg-step>
+                            <alg-foreach condition="$s \in \mathcal{S}$">
+                                <alg-step>$v \leftarrow V(s)$ </alg-step>
+                                <alg-step>$V(s) \leftarrow \max \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,
+                                    s')}^a + \gamma V(s')]$
+                                </alg-step>
+                                <alg-step>$\Delta \leftarrow \max(\vert v - V(s)\vert)$ </alg-step>
+                            </alg-foreach>
+
+                        </alg-repeat-until>
+                        <alg-foreach condition="$s \in \mathcal{S}$">
+                            <alg-step comment="Output a deterministic policy">$\pi(s) \leftarrow \arg\max
+                                \limits_{a} \sum_{s'} P_{(s, s')}^a [R_{(s,s')}^a + \gamma V(s')]$</alg-step>
+                        </alg-foreach>
+                        <alg-return comment="Return Greedy Policy">$ \pi$</alg-return>
+                    </alg-algorithm>
+                </p> -->
+
+                <p>This algorithm converges in polynomial time, monotonically and is robust to
+                    uncertainty.
+                </p>
+
+
+                <p>
+                    For these who are
+                    interested in proofs, the proof of convergence relies on proving that the optimal value
+                    is a fixed point in the Bellman equation. This is
+                    relatively straightforward to prove through the Bellman Operator and Banach Fixed Point Theorem,
+                    which we won't detail in this post, but you can take a look <a
+                        href="http://chercheurs.lille.inria.fr/~ghavamza/RL-EC-Lille/Lecture4-b.pdf">here
+                </a>.</p>
+
+
+
+                <p>A simple-to-read code for Value iteration is:</p>
+                <pre class="prettyprint">
+    <code class="language-python">
+def value_iteration(env, theta=0.0000001, discount_factor=0.99):
+    """
+        Value Iteration Algorithm.
+        The notations are from Reinforcement Learning: An Introduction, by Sutton et al.
+        :param env: OpenAI environment. In this environment, env.P is a dictionary with two keys - state, action- that
+                    contains the transition probabilities of the environment, the next state and the reward for each
+                    possible pair (state, action) in a tuple.
+        :param epsilon: float, threshold for convergence
+        :param discount_factor: float, discount factor, should be <1 for convergence.
+        :return: tuple(np.array([n_states x n_actions]), float), (policy,V) , the optimal policy, and optimal value function
+    """
+    # Initialize value function
+    values = np.zeros(env.nS)
+    converged = False
+    while not converged:
+        # Stopping condition
+        delta = 0
+        # Go through all states
+        for s in range(env.nS):  # Go through all states
+            # Find the best action
+            actions = np.zeros(env.nA)  # Initialize actions vector
+            for a in range(env.nA):  # Go through all actions
+                for p, next_state, rt, flag in env.P[s][a]:  # Compute each action value
+                    actions[a] += p * (rt + discount_factor * values[next_state])
+            # Get the value of best action
+            best_action_value = np.max(actions)
+            # Update delta for this state
+            delta = max(delta, np.abs(best_action_value - values[s]))
+            # Update value function
+            values[s] = best_action_value
+        # Convergence criteria
+        if delta < theta:
+            converged = True
+
+    # Determine optimal policy through value function
+    policy = np.zeros([env.nS, env.nA])
+    for s in range(env.nS):
+        # Get best actions for each state
+        actions = np.zeros(env.nA)
+        for a in range(env.nA):
+            for p, next_state, rt, flag in env.P[s][a]:
+                actions[a] += p * (rt + discount_factor * values[next_state])
+        best_action = np.argmax(actions)
+        # Get optimal policy with an indicator matrix
+        policy[s, best_action] = 1.0
+    return policy, values
+    </code>
+                    </pre>
+
+                <p>This function should give this output for the Frozen Lake environment and the given default
+                    parameters:</p>
+                <pre>
+Value Iteration: Starting....
+Executed in  0.0293328762054 seconds
+Policy:
+[[ 1.  0.  0.  0.]
+ [ 0.  0.  0.  1.]
+ [ 0.  0.  0.  1.]
+ [ 0.  0.  0.  1.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 0.  0.  0.  1.]
+ [ 0.  1.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 1.  0.  0.  0.]
+ [ 0.  0.  1.  0.]
+ [ 0.  1.  0.  0.]
+ [ 1.  0.  0.  0.]]
+                    </pre>
+
+                <p>We can see that both algorithms converge towards the same policy. The Policy Iteration takes
+                    more time than the value iteration for the same value of \( \theta \). But if you increase \(
+                    \theta \), you will still get the same optimal policy, and in fewer iterations (and time)
+                    than the Value Iteration algorithm. I encourage some playing with the parameters!!! You can
+                    find this code <a
+                            href="https://github.com/louisenaud/reinforcement-learning-basics/blob/master/main.py">on my Github
+                    </a>.</p>
+
+
+                <h2 class="section-heading">Linear Programming</h2>
+
+                <p>For these of you who are familiar (and into) Optimization, the Bellman equation defines
+                    an Linear Programming optimization problem (linear objective function and linear
+                    constraints).</p>
+                $$
+                \begin{align*}
+                & \underset{V}{\text{minimize}}
+                & & \sum_{s\in \mathcal{S}} \alpha (s) V(s)\\
+                & \text{subject to}
+                & & \forall s \in \mathcal{S}, \forall a \in \mathcal{A}, V(s) \geq R_{(s,s')}^a + \gamma
+                \sum_{s' \in \mathcal{S}} P_{(s,s')}^a V(s')
+                \end{align*}
+                $$
+                <p> \( \alpha \) can be interpreted as a probability to be in state \( s \). The number of rows
+                    (constraints) of
+                    this problem is \( \vert S \vert \vert A \vert \), and the number of columns (variables) \(
+                    \vert S \vert
+                    \). The algorithms solving LPs usually have a complexity depending on the number of rows of
+                    the problem, so we can use the dual formulation of this problem. </p>
+
+                $$
+                \begin{align*}
+                & \underset{\lambda}{\text{maximize}}
+                & & \sum_{s\in \mathcal{S}, a \in \mathcal{A}}  \lambda (s, a) R(s, a)\\
+                & \text{subject to}
+                & & \forall s' \in \mathcal{S},  \sum_{a \in \mathcal{A}}  \lambda (s', a)  = \alpha (s') + \gamma
+                \sum_{s \in \mathcal{S}, a \in \mathcal{A}} P_{(s,s')}^a \lambda (s, a) \\
+                & & & \forall s \in \mathcal{S}, \forall a \in \mathcal{A}, \lambda (s, a) \geq 0
+                \end{align*}
+                $$
+
+                <p>The first constrains ensures that we are maximizing the return, and the second constraint
+                    makes sure that \( \lambda \) is a discounted sum of probabilities. The number of rows
+                    (constraints) of this problem is now \( \vert S \vert \), and the number of columns
+                    (variables) \( \vert S \vert \vert A \vert \), which is much more favorable here.</p>
+
+
+                <h2 class="section-heading">Conclusion</h2>
+                <p>The two DP methods we presented here operate in sweeps through the state set. It is also
+                    interesting to note that they update an estimate based on another estimate, which boils down
+                    to bootstrapping. This is actually very interesting, since many other techniques in RL use
+                    bootstrapping, even when the environment is unknown.</p>
+
+                <p>Both of these methods require to store and update the Value Function at each iteration, but
+                    this can be improved by using Asynchronous DP; for instance, Asynchronous Value Iteration
+                    will update the Value for one state at each iteration, prioritizing some states for back-up.
+                    This method takes fewer state updates to converge than the previous two methods.
+                </p>
+
+                <p>Finally, the Linear Programming approach is more direct, but can become rapidly intractable
+                    for larger states sets.</p>
+
+                <p>Here is a -non-exhaustive- table to sum it up. The \( \epsilon \) refers to an \( \epsilon \)
+                    approximation of \( V^{\pi}\), and \( r_{max} \geq \left \| r \right \|_{\infty}\).</p>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Policy Iteration</th>
+                        <th>Value Iteration</th>
+                        <th>Linear Programming</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Complexity</td>
+                        <td>\( \mathcal{O} (\vert \mathcal{S} \vert ^3)\)</td>
+                        <td>\( \mathcal{O} (\vert \mathcal{A}\vert \vert \mathcal{S} \vert ^2)\)</td>
+                        <td>Depends on the algorithms used to maximize the dual problem</td>
+                    </tr>
+                    <tr>
+                        <td>Convergence rate</td>
+                        <td>See “Improved and Generalized Upper Bounds on the Complexity of
+                            Policy Iteration” by B. Scherrer</td>
+                        <td><ul>
+                            <li>Direct Computation: \( \mathcal{O}(\frac{log (\frac{r_{max}}{\epsilon}
+                                )}{log(\frac{1}{\gamma})} )\)</li>
+                            <li>\(\epsilon\)-approximation of \( V^{\pi} \): \( \mathcal{O}(N^2 \frac{log
+                                (\frac{1}{\epsilon}
+                                )}{log(\frac{1}{\gamma})} )\)</li>
+                        </ul>
+                        </td>
+                        <td>Depends on the algorithms used to maximize the dual problem</td>
+                    </tr>
+                    <tr>
+                        <td>Pro</td>
+                        <td>Converges in a finite number of iterations</td>
+                        <td>Computationally efficient</td>
+                        <td>Worst case convergence guarantees are better than DP counterparts</td>
+                    </tr>
+                    <tr>
+                        <td>Cons</td>
+                        <td>Each iteration requires a full policy estimate</td>
+                        <td>Convergence is only asymptotic</td>
+                        <td>Impractical for a very large number of states</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <p>You can leave comments down here, or contact me through the contact form of this blog if you
+                    have questions or remarks on this post!</p>
+                <!-- Blog Comments -->
+
+                <!-- begin wwww.htmlcommentbox.com -->
+                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Widget</a> is loading comments...</div>
+                <link rel="stylesheet" type="text/css" href="//www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                <script type="text/javascript" id="hcb"> /*<!--*/ if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/'/g,"%27"), h="//www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24rbyy1KYA6pUs1Jh9BfMHZ."+"&opts=16862&num=10&ts=1498161055918");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+                <!-- end www.htmlcommentbox.com -->
+
+                <!-- Comments Form -->
+                <!--<div class="well">
+                    <h4>Leave a Comment:</h4>
+                    <form role="form">here
+                        <div class="form-group">
+                            <textarea class="form-control" rows="3"></textarea>
+                        </div>
+                        <a href="louise.naud@gmail.com" class="button">Submit</a>
+                        &lt;!&ndash; <button type="submit" class="btn btn-primary">Submit</button>&ndash;&gt;
+                    </form>
+                </div>
+
+                <hr>
+-->
+                <!-- Posted Comments -->
+
+                <!--&lt;!&ndash; Comment &ndash;&gt;
+                <div class="media">
+                    <a class="pull-left" href="#">
+                        <img class="media-object" src="http://placehold.it/64x64" alt="">
+                    </a>
+                    <div class="media-body">
+                        <h4 class="media-heading">Start Bootstrap
+                            <small>August 25, 2014 at 9:30 PM</small>
+                        </h4>
+                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                    </div>
+                </div>
+
+                &lt;!&ndash; Comment &ndash;&gt;
+                <div class="media">
+                    <a class="pull-left" href="#">
+                        <img class="media-object" src="http://placehold.it/64x64" alt="">
+                    </a>
+                    <div class="media-body">
+                        <h4 class="media-heading">Start Bootstrap
+                            <small>August 25, 2014 at 9:30 PM</small>
+                        </h4>
+                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                        &lt;!&ndash; Nested Comment &ndash;&gt;
+                        <div class="media">
+                            <a class="pull-left" href="#">
+                                <img class="media-object" src="http://placehold.it/64x64" alt="">
+                            </a>
+                            <div class="media-body">
+                                <h4 class="media-heading">Nested Start Bootstrap
+                                    <small>August 25, 2014 at 9:30 PM</small>
+                                </h4>
+                                Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                            </div>
+                        </div>-->
+                <!-- End Nested Comment -->
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+</article>
+
+<hr>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                </ul>
+                <p class="copyright text-muted">Copyright &copy; Your Website 2016</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Contact Form JavaScript -->
+<script src="js/jqBootstrapValidation.js"></script>
+<script src="js/contact_me.js"></script>
+
+<!-- Theme JavaScript -->
+<script src="js/clean-blog.min.js"></script>
+
+<script>
+    var blocks = document.getElementsByClassName("pseudocode");
+    for(var blockId = 0; blockId < blocks.length; blockId++) {
+        var block = blocks[blockId];
+
+        var code = block.textContent;
+        var options = {
+            lineNumber: true
+        };
+
+        var outputEl = document.createElement('div');
+        outputEl.className += " pseudocode-out";
+        block.parentNode.insertBefore(outputEl, block.nextSibling);
+
+        pseudocode.render(code, outputEl, options);
+    }
+
+    while( blocks[0]) {
+        blocks[0].parentNode.removeChild(blocks[0]);
+    }
+</script>
+
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-52868500-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+</body>
+
+</html>
